@@ -337,7 +337,7 @@ router.post('/manager', function (req, res, next) {
                         return res.redirect('/users/manager/forgot');
                     }
                     user.resetPasswordToken = token;  // Store token
-                    user.resetPasswordExpires = Date.now() + 600000; // 1 hour expiration
+                    user.resetPasswordExpires = Date.now() + 600000; //time
                      await user.save();  // Save to MongoDB
 
 
@@ -380,7 +380,7 @@ router.post('/manager', function (req, res, next) {
                     return done(null);  // Ensure done() is only called once
                 }
             
-                res.redirect('/users/faculty/forgot');  // Ensure only one response
+                res.redirect('/users/manager/forgot');  // Ensure only one response
             });
         }
      ],
@@ -415,84 +415,6 @@ router.get('/reset/manager/:token', async (req, res) => {
         res.redirect('/users/manager/forgot');
     }
 });
-
-
-// router.post('/reset/manager/:token', function (req, res) {
-//     async.waterfall([
-//         done => {
-//             Manager.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
-//                 if (!user) {
-//                     req.flash('error_msg', 'Password reset token is invalid or has expired.');
-//                     return res.redirect('back');
-//                 }
-//                 if (req.body.password === req.body.confirm) {
-//                     bcrypt.genSalt(10, (err, salt) => {
-//                         bcrypt.hash(req.body.password, salt, (err, hash) => {
-//                             if (err) throw err;
-//                             user.password = hash;
-//                             user.save()
-//     .then(user => {
-//         req.flash('success_msg', 'Password Changed for user ' + user.email + ' successfully');
-//         res.redirect('/users/manager/login');
-//         if (typeof done === 'function') {
-//             done(null, user);
-//         }
-//     })
-//     .catch(err => {
-//         console.error("Error saving user:", err);
-//         res.status(500).json({ error: err.message });
-//     });
-
-//                         });
-//                     });
-//                 } else {
-//                     req.flash("error_msg", "Passwords do not match.");
-//                     return res.redirect('back');
-//                 }
-//             });
-//         },
-//         (user, done) => {
-//             var smtpTransport = nodemailer.createTransport({
-//                 service: 'Gmail',
-//                 auth: {
-//                     user: 'watch.moviespixel@gmail.com',
-//                     pass: process.env.PASSWD
-//                 }
-//             });
-//             var mailOptions = {
-//                 to: req.body.email,
-//                 from: 'watch.moviespixel@gmail.com',
-//                 subject: 'Your password has been changed',
-//                 text: 'Hello,\n\n' +
-//                     'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
-//             };
-//             smtpTransport.sendMail(mailOptions, function (err) {
-//                 req.flash('success_msg', 'Success! Your password has been changed.');
-//                 if (typeof done === 'function') {
-//                     done(err);
-//                 } else {
-//                     if (err) {
-//                         console.error("Mail error:", err);
-//                         return res.status(500).json({ error: err.message });
-//                     }
-//                     return res.redirect('/users/faculty/login');
-//                 }
-//             });
-            
-//         }
-//     ], err => {
-//         req.flash('error_msg', 'Error occurred while sending mail');
-//         res.redirect('/users/management/login');
-//     });
-// });
-
-
-
-
-
-
-
-
 
 
 
@@ -546,7 +468,7 @@ This is a confirmation that the password for your account ${user.email} has just
         await smtpTransport.sendMail(mailOptions); // ✅ Ensure this is inside an async function
 
         req.flash('success_msg', 'Success! Your password has been changed.');
-        return res.redirect('/users/faculty/login'); // ✅ Ensure only one response is sent
+        return res.redirect('/users/management/login'); // ✅ Ensure only one response is sent
 
     } catch (err) {
         console.error("Error:", err);
