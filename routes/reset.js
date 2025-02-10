@@ -58,7 +58,7 @@ router.post('/faculty', function (req, res, next) {
             var mailOptions = {
                 to: user.email,
                 from: 'watch.moviespixel@gmail.com',
-                subject: 'Apsit Appraisal System Password Reset',
+                subject: 'MVSR Appraisal System Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
                     'http://' + req.headers.host + '/forgot/reset/faculty/' + token + '\n\n' +
@@ -206,7 +206,7 @@ router.post('/hod', function (req, res, next) {
             var mailOptions = {
                 to: req.body.email,
                 from: 'watch.moviespixel@gmail.com',
-                subject: 'Apsit Appraisal System Password Reset',
+                subject: 'MVSR Appraisal System Password Reset',
                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
                     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
                     'http://' + req.headers.host + '/forgot/reset/hod/' + token + '\n\n' +
@@ -326,22 +326,17 @@ router.post('/manager', function (req, res, next) {
                 done(err, token);
             });
         },
-
-
         (token, done) => {
-            (async () => {  // Wrap it inside an async IIFE
+            (async () => {
                 try {
                     const user = await Manager.findOne({ email: req.body.email });
                     if (!user) {
                         req.flash('error_msg', 'No account with that email address exists.');
                         return res.redirect('/users/manager/forgot');
                     }
-                    user.resetPasswordToken = token;  // Store token
-                    user.resetPasswordExpires = Date.now() + 600000; //time
-                     await user.save();  // Save to MongoDB
-
-
-
+                    user.resetPasswordToken = token;
+                    user.resetPasswordExpires = Date.now() + 600000;
+                    await user.save();
                     done(null, token, user);
                 } catch (err) {
                     done(err);
@@ -360,47 +355,36 @@ router.post('/manager', function (req, res, next) {
                 to: req.body.email,
                 from: 'watch.moviespixel@gmail.com',
                 subject: 'MVSR Appraisal System Password Reset',
-                text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-                 'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                    'http://' + req.headers.host + '/forgot/reset/manager/' + token + '\n\n' + // Use only token
-                    'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-
+                text: `You are receiving this because you (or someone else) have requested to reset your password.\n\n
+                    Please click the following link to complete the process:\n\n
+                    http://${req.headers.host}/forgot/reset/manager/${token}\n\n
+                    If you did not request this, please ignore this email.`
             };
             smtpTransport.sendMail(mailOptions, function (err) {
                 if (err) {
                     console.error("Mail error:", err);
                     req.flash('error_msg', 'Error occurred while sending mail');
-                    return res.redirect('/users/manager/forgot');  // Ensure only one redirect
+                    return done(err); // Pass the error
                 }
             
-                console.log('Mail sent to:', user.email);  // Debugging log
+                console.log('Mail sent to:', user.email);
                 req.flash('success_msg', 'An e-mail has been sent to ' + user.email + ' with further instructions.');
-            
-                if (typeof done === 'function') {
-                    return done(null);  // Ensure done() is only called once
-                }
-            
-                res.redirect('/users/manager/forgot');  // Ensure only one response
+                done();  // Call done() to continue the waterfall
             });
+            
         }
-     ],
-      err => {
-        if (err) return next(err);
-        req.flash('error_msg', 'Error occurred while sending mail');
-        res.redirect('/users/manager/forgot');
-    }
-    );
+    ], err => {
+        if (err) {
+            console.error("Final error handler:", err);
+            req.flash('error_msg', 'Error occurred while sending mail');
+            return res.redirect('/users/manager/forgot');
+        }
+    
+        res.redirect('/users/manager/forgot');  // Ensure success message shows
+    });
+    
 });
 
-// router.get('/reset/manager/:token', function (req, res) {
-//     Manager.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
-//         if (!user) {
-//             req.flash('error', 'Password reset token is invalid or has expired.');
-//             return res.redirect('/users/hod/forgot');
-//         }
-//         res.render('users/management/reset', { token: req.params.token });
-//     });
-// });
 
 router.get('/reset/manager/:token', async (req, res) => {
     try {
@@ -457,7 +441,7 @@ router.post('/reset/manager/:token', async (req, res) => {
         });
 
         const mailOptions = {
-            to: user.email,  // ✅ Fixed: Use user.email instead of req.body.email
+            to: user.email,  
             from: 'watch.moviespixel@gmail.com',
             subject: 'Your password has been changed',
             text: `Hello,
@@ -465,15 +449,15 @@ router.post('/reset/manager/:token', async (req, res) => {
 This is a confirmation that the password for your account ${user.email} has just been changed.`
         };
 
-        await smtpTransport.sendMail(mailOptions); // ✅ Ensure this is inside an async function
+        await smtpTransport.sendMail(mailOptions); 
 
         req.flash('success_msg', 'Success! Your password has been changed.');
-        return res.redirect('/users/management/login'); // ✅ Ensure only one response is sent
+        return res.redirect('/users/management/login'); 
 
     } catch (err) {
         console.error("Error:", err);
         req.flash('error_msg', 'An error occurred. Please try again.');
-        return res.redirect('/users/management/login'); // ✅ Ensure proper error handling
+        return res.redirect('/users/management/login'); 
     }
 });
 
