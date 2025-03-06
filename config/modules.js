@@ -26,7 +26,7 @@ const Innovation = mongoose.model('innovation');
 require('../models/Leave');
 const Leave = mongoose.model('leaves');
 
-// Annexure 1
+// Category 1
 // Load time table model
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
@@ -103,7 +103,7 @@ const STTP = mongoose.model('sttp');
 require('../models/Annexure-1/DepartmentUGProjects')
 const DepartmentUGProjects = mongoose.model('department-ug-projects');
 
-// Annexure 2 dbs
+// Category 2 dbs
 // Load paper published in national conference model
 require('../models/Annexure-2/PapersPublishedNationalConf');
 const PapersPublishedNationalConf = mongoose.model('paper-published-national-conf');
