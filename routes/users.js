@@ -791,7 +791,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Sport Name', 'Category', 'Role', 'Ojus/Other College Activity '],
+                                        ['Sport Name', 'Category', 'Role', 'Other College Activity '],
                                         [sportsActivities.sports_name, sportsActivities.sports_category, sportsActivities.sports_role, sportsActivities.sports_ojus_or_other]
                                     ]
                                 }
@@ -803,7 +803,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Cultural Activity Name', 'Category', 'Role', 'Ojus/Other College Activity '],
+                                        ['Cultural Activity Name', 'Category', 'Role', 'Other College Activity '],
                                         [culturalActivities.cultural_name, culturalActivities.cultural_category, culturalActivities.cultural_role, culturalActivities.cultural_ojus_or_other]
                                     ]
                                 }
@@ -1396,7 +1396,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Sport Name', 'Category', 'Role', 'Ojus/Other College Activity '],
+                                        ['Sport Name', 'Category', 'Role', 'Other College Activity '],
                                         [sportsActivities.sports_name, sportsActivities.sports_category, sportsActivities.sports_role, sportsActivities.sports_ojus_or_other]
                                     ]
                                 }
@@ -1408,7 +1408,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Cultural Activity Name', 'Category', 'Role', 'Ojus/Other College Activity '],
+                                        ['Cultural Activity Name', 'Category', 'Role', 'Other College Activity '],
                                         [culturalActivities.cultural_name, culturalActivities.cultural_category, culturalActivities.cultural_role, culturalActivities.cultural_ojus_or_other]
                                     ]
                                 }
