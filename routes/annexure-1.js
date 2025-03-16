@@ -18,6 +18,10 @@ const LecturesExcess = mongoose.model('lecturesexcess');
 require('../models/Annexure-1/AdditionalResources')
 const AdditionalResources = mongoose.model('additionalresources');
 
+//Load Innovative Teaching New Added
+require('../models/Annexure-1/InnovativeTeaching')
+const InnovativeTeaching = mongoose.model('innovativeteaching');
+
 // Load time table model
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
@@ -154,6 +158,30 @@ router.get('/additionalResources', ensureAuthenticated, (req, res) => {
             AdditionalResources.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
                 .then(result => {
                     res.render('annexure-1/additionalResources', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        })
+});
+
+// Load Innovative Teaching Route New Added
+router.get('/innovativeTeaching', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            InnovativeTeaching.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('annexure-1/innovativeTeaching', { result });
                 })
                 .catch(() => {
                     req.flash('error_msg', 'Error while retrieving data.');
@@ -654,6 +682,24 @@ router.get('/additionalResources/edit/:id', ensureAuthenticated, (req, res) => {
             res.redirect('/annexure-1/additionalResources');
         })
 });
+
+// Innovative Teaching Edit Route New Added
+router.get('/innovativeTeaching/edit/:id', ensureAuthenticated, (req, res) => {
+    InnovativeTeaching.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/annexure-1/innovativeTeaching');
+            } else {
+                res.render('annexure-1/innovativeTeaching', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/annexure-1/innovativeTeaching');
+        })
+});
+
 // Time table edit form
 router.get('/timeTable/edit/:id', ensureAuthenticated, (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
@@ -1037,6 +1083,30 @@ router.post('/additionalResources', (req, res) => {
             console.log(err);
             req.flash('error_msg', 'Faculty ID not found. Please login again.');
             res.redirect('/annexure-1/additionalResources');
+        })
+});
+
+//process Innovative Teaching form New Added
+
+router.post('/innovativeTeaching', (req, res) => {
+    const innovativeTeachingRecords = {
+        academic_year: year,
+        techniques: req.body.techniques,
+        scoreFour: req.body.scoreFour,
+        user: req.user.id
+
+    }
+
+    new InnovativeTeaching(innovativeTeachingRecords)
+        .save()
+        .then(innovativeTeaching => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/annexure-1/innovativeTeaching');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/annexure-1/innovativeTeaching');
         })
 });
 
@@ -1813,6 +1883,30 @@ router.put('/additionalResources/:id', (req, res) => {
         })
 });
 
+// Put route Innovative Teaching New Added
+router.put('/innovativeTeaching/:id', (req, res) => {
+    InnovativeTeaching.findOne({ _id: req.params.id })
+        .then(result => {
+            result.techniques = req.body.techniques,
+                
+                result.scoreFour = req.body.scoreFour
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/annexure-1/innovativeTeaching');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/annexure-1/innovativeTeaching');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/annexure-1/innovativeTeaching');
+        })
+});
+
 router.put('/timeTable/:id', (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
         .then(result => {
@@ -2522,6 +2616,19 @@ router.delete('/additionalResources/delete/:id', (req, res) => {
         .catch(() => {
             req.flash('error_msg', 'Record not deleted. Please try again.');
             res.redirect('/annexure-1/additionalResources');
+        })
+});
+
+//New Added DELETE route Innovative Teaching
+router.delete('/innovativeTeaching/delete/:id', (req, res) => {
+    InnovativeTeaching.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/annexure-1/innovativeTeaching');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/annexure-1/innovativeTeaching');
         })
 });
 

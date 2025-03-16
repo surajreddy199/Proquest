@@ -42,6 +42,10 @@ const LecturesExcess = mongoose.model('lecturesexcess');
 require('../models/Annexure-1/AdditionalResources');
 const AdditionalResources = mongoose.model('additionalresources');
 
+// Load Innovative Teaching model
+require('../models/Annexure-1/InnovativeTeaching');
+const InnovativeTeaching = mongoose.model('innovativeteaching');
+
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
 
@@ -169,7 +173,7 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 module.exports = {
     TeachingLoad, TeachingAssistant, NewBooks, AddedExp, Innovation,
     Leave, 
-    TeachingContribution, LecturesExcess, AdditionalResources, TimeTable, ClassAdvisor, SportsActivities, CulturalActivities, ProjectBasedLearning, PlacementActivities, InhousePlacement, StudentOrganizations, IndustrialVisitActivities, AdmissionProcessActivities, ExamAssessmentExternal, ExamActivitiesSupervision, ExamActivitiesCollegeLevel, ITMaintenance, Lakshya, MagazineNewsletter, STTP, DepartmentUGProjects, 
+    TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, TimeTable, ClassAdvisor, SportsActivities, CulturalActivities, ProjectBasedLearning, PlacementActivities, InhousePlacement, StudentOrganizations, IndustrialVisitActivities, AdmissionProcessActivities, ExamAssessmentExternal, ExamActivitiesSupervision, ExamActivitiesCollegeLevel, ITMaintenance, Lakshya, MagazineNewsletter, STTP, DepartmentUGProjects, 
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
     ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }
