@@ -10,6 +10,10 @@ let year;
 require('../models/Annexure-1/TeachingContribution')
 const TeachingContribution = mongoose.model('teachingcontribution');
 
+//Load Lectures Excess New Added
+require('../models/Annexure-1/LecturesExcess')
+const LecturesExcess = mongoose.model('lecturesexcess');
+
 // Load time table model
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
@@ -99,6 +103,30 @@ router.get('/teachingContribution', ensureAuthenticated, (req, res) => {
             TeachingContribution.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
                 .then(result => {
                     res.render('annexure-1/teachingContribution', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        })
+});
+
+// Load Lectures Excess Route New Added
+router.get('/lecturesExcess', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            LecturesExcess.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('annexure-1/lecturesExcess', { result });
                 })
                 .catch(() => {
                     req.flash('error_msg', 'Error while retrieving data.');
@@ -565,6 +593,23 @@ router.get('/teachingContribution/edit/:id', ensureAuthenticated, (req, res) => 
             res.redirect('/annexure-1/teachingContribution');
         })
 });
+
+// Lectures Excess Edit Route New Added
+router.get('/lecturesExcess/edit/:id', ensureAuthenticated, (req, res) => {
+    LecturesExcess.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/annexure-1/lecturesExcess');
+            } else {
+                res.render('annexure-1/lecturesExcess', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/annexure-1/lecturesExcess');
+        })
+});
 // Time table edit form
 router.get('/timeTable/edit/:id', ensureAuthenticated, (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
@@ -899,6 +944,31 @@ router.post('/teachingContribution', (req, res) => {
             console.log(err);
             req.flash('error_msg', 'Faculty ID not found. Please login again.');
             res.redirect('/annexure-1/teachingContribution');
+        })
+});
+
+//process Lectures Excess form New Added
+
+router.post('/lecturesExcess', (req, res) => {
+    const lecturesExcessRecords = {
+        academic_year: year,
+        lecturesTaken: req.body.lecturesTaken,
+        tutorialsTaken: req.body.tutorialsTaken,
+        practicalSessionsTaken: req.body.practicalSessionsTaken,
+        scoreTwo: req.body.scoreTwo,
+        user: req.user.id
+    }
+
+    new LecturesExcess(lecturesExcessRecords)
+        .save()
+        .then(lecturesExcess => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/annexure-1/lecturesExcess');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/annexure-1/lecturesExcess');
         })
 });
 //process time table form
@@ -1625,6 +1695,31 @@ router.put('/teachingContribution/:id', (req, res) => {
         })
 });
 
+// Put route lectures excess New Added
+router.put('/lecturesExcess/:id', (req, res) => {
+    LecturesExcess.findOne({ _id: req.params.id })
+        .then(result => {
+            result.lecturesTaken = req.body.lecturesTaken,
+                result.tutorialsTaken = req.body.tutorialsTaken,
+                result.practicalSessionsTaken = req.body.practicalSessionsTaken,
+                result.scoreTwo = req.body.scoreTwo
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/annexure-1/lecturesExcess');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/annexure-1/lecturesExcess');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/annexure-1/lecturesExcess');
+        })
+});
+
 router.put('/timeTable/:id', (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
         .then(result => {
@@ -2308,6 +2403,19 @@ router.delete('/teachingContribution/delete/:id', (req, res) => {
         .catch(() => {
             req.flash('error_msg', 'Record not deleted. Please try again.');
             res.redirect('/annexure-1/teachingContribution');
+        })
+});
+
+//New Added DELETE route lectures excess
+router.delete('/lecturesExcess/delete/:id', (req, res) => {
+    LecturesExcess.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/annexure-1/lecturesExcess');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/annexure-1/lecturesExcess');
         })
 });
 
