@@ -8,13 +8,12 @@ const modules = require('./modules');
 
     modules.Leave.findOne({ user: req.user.id }).exec(),
 
+    modules.TeachingContribution.findOne({ user: req.user.id }).exec(),
     modules.TimeTable.findOne({ user: req.user.id }).exec(),
     modules.ClassAdvisor.findOne({ user: req.user.id }).exec(),
     modules.SportsActivities.findOne({ user: req.user.id }).exec(),
     modules.CulturalActivities.findOne({ user: req.user.id }).exec(),
     modules.ProjectBasedLearning.findOne({ user: req.user.id }).exec(),
-    // modules.Udaan.findOne({ user: req.user.id }).exec(),
-    modules.PlacementActivities.findOne({ user: req.user.id }).exec(),
     // modules.InhousePlacement.findOne({ user: req.user.id }).exec(),
     modules.StudentOrganizations.findOne({ user: req.user.id }).exec(),
     modules.IndustrialVisitActivities.findOne({ user: req.user.id }).exec(),

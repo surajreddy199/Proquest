@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+
 // Academic Performance
 // Load teaching model
 require('../models/AcademicPerformance/TeachingLoad')
@@ -28,8 +29,13 @@ const Leave = mongoose.model('leaves');
 
 // Category 1
 // Load time table model
+require('../models/Annexure-1/TeachingContribution');
+const TeachingContribution = mongoose.model('teachingcontribution');
+
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
+
+
 
 // Load class advisor model
 require('../models/Annexure-1/ClassAdvisor')
@@ -47,9 +53,6 @@ const CulturalActivities = mongoose.model('culturalactivities');
 require('../models/Annexure-1/ProjectBasedLearning')
 const ProjectBasedLearning = mongoose.model('projectbasedlearning');
 
-// Load udaan model
-require('../models/Annexure-1/Udaan')
-const Udaan = mongoose.model('udaan');
 
 // Load plavement activities model
 require('../models/Annexure-1/PlacementActivities')
@@ -156,7 +159,7 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 module.exports = {
     TeachingLoad, TeachingAssistant, NewBooks, AddedExp, Innovation,
     Leave, 
-    TimeTable, ClassAdvisor, SportsActivities, CulturalActivities, ProjectBasedLearning, Udaan, PlacementActivities, InhousePlacement, StudentOrganizations, IndustrialVisitActivities, AdmissionProcessActivities, ExamAssessmentExternal, ExamActivitiesSupervision, ExamActivitiesCollegeLevel, ITMaintenance, Lakshya, MagazineNewsletter, STTP, DepartmentUGProjects, 
+    TeachingContribution, TimeTable, ClassAdvisor, SportsActivities, CulturalActivities, ProjectBasedLearning, PlacementActivities, InhousePlacement, StudentOrganizations, IndustrialVisitActivities, AdmissionProcessActivities, ExamAssessmentExternal, ExamActivitiesSupervision, ExamActivitiesCollegeLevel, ITMaintenance, Lakshya, MagazineNewsletter, STTP, DepartmentUGProjects, 
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
     ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

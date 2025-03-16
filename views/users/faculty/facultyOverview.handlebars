@@ -252,22 +252,8 @@
                     </p>
                 </li>
 
-                <li class="collection-item">
-                    <p>
-                        <div>
-                            {{#if ../uddan}}
-                            <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                            {{else}}
-                            <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                            {{/if}}
-                            {{!-- 1.6 UDAAN Incubation Activities --}}
 
-                            <div class="right">
-                                <a class="btn-small" href="/annexure-1/uddan" style="background-color: purple;">View</a>
-                            </div>
-                        </div>
-                    </p>
-                </li>
+               
 
                 <li class="collection-item">
                     <p>
@@ -363,6 +349,25 @@
                 <li class="collection-item">
                     <p>
                         <div>
+                            {{#if ../teachingContribution}}
+                            <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                            {{else}}
+                            <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                            {{/if}}
+                            1.1 Teaching Contribution
+
+                            <div class="right">
+                                <a class="btn-small" href="/annexure-1/teachingContribution"
+                                    style="background-color: purple;">View</a>
+                            </div>
+                        </div>
+                    </p>
+                </li>
+
+
+                <li class="collection-item">
+                    <p>
+                        <div>
                             {{#if ../examActivitiesSupervision}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
@@ -431,7 +436,7 @@
                     </p>
                 </li>
 
-                <li class="collection-item">
+                {{!-- <li class="collection-item">
                     <p>
                         <div>
                             {{#if ../lakshya}}
@@ -446,7 +451,7 @@
                             </div>
                         </div>
                     </p>
-                </li>
+                </li> --}}
 
                 <li class="collection-item">
                     <p>
@@ -935,6 +940,23 @@
                             </div>
                         </p>
                     </li>
+                    <li class="collection-item">
+                        <p>
+                            <div>
+                                {{#if teachingContribution}}
+                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                                {{else}}
+                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                                {{/if}}
+                                1.1 Teaching Contribution
+
+                                <div class="right">
+                                <a class="btn-small" href="/annexure-1/teachingContribution"
+                                    style="background-color: purple;">View</a>
+                            </div>
+                            </div>
+                        </p>
+                    </li>
 
                     <li class="collection-item">
                         <p>
@@ -989,23 +1011,7 @@
                         </p>
                     </li>
 
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if uddan}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                {{!-- 1.6 UDAAN Incubation Activities --}}
-
-                                <div class="right">
-                                <a class="btn-small" href="/annexure-1/uddan"
-                                    style="background-color: purple;">View</a>
-                            </div>
-                            </div>
-                        </p>
-                    </li>
+                
 
                     <li class="collection-item">
                         <p>
@@ -1169,7 +1175,7 @@
                         </p>
                     </li>
 
-                    <li class="collection-item">
+                    {{!-- <li class="collection-item">
                         <p>
                             <div>
                                 {{#if lakshya}}
@@ -1184,7 +1190,7 @@
                             </div>
                             </div>
                         </p>
-                    </li>
+                    </li> --}}
 
                     <li class="collection-item">
                         <p>

@@ -6,19 +6,19 @@
     {{#each result}}
     <div class="row" id="DeptUGProjects">
         <div class="row">
-            <div class="input-field col s6 md5">
+            {{!-- <div class="input-field col s6 md5">
                 <select name="dept_project_role">
                     <option value="{{dept_project_role}}" disabled selected>{{dept_project_role}}</option>
                     <option value="guide">Guide</option>
                     <option value="co-guide">Co-guide</option>
                 </select>
                 <label for="">Role</label>
-            </div>
-            <div class="input-field col s6">
+            </div> --}}
+            {{!-- <div class="input-field col s6">
                 <input id="project_title" type="text" name="project_title" value="{{project_title}}" dclass="validate"
                     disabled>
                 <label for="project_title">Title Of Project</label>
-            </div>
+            </div> --}}
         </div>
         <div class="row">
             <div class="input-field col s12">
@@ -86,21 +86,7 @@
 {{#if errors}}
 <div class="row" id="DeptUGProjects">
     <form action="/annexure-1/departmentUGProjects" method="post" class="col s12">
-        <div class="row">
-            <div class="input-field col s6 md5">
-                <select name="dept_project_role">
-                    <option value="{{dept_project_role}}" selected>{{dept_project_role}}</option>
-                    <option value="guide">Guide</option>
-                    <option value="co-guide">Co-guide</option>
-                </select>
-                <label for="">Role</label>
-            </div>
-            <div class="input-field col s6">
-                <input id="project_title" type="text" name="project_title" value="{{project_title}}" dclass="validate"
-                    required>
-                <label for="project_title">Title Of Project</label>
-            </div>
-        </div>
+        
         <div class="row">
             <div class="input-field col s12">
                 <input id="project_no_of_students" type="number" name="project_no_of_students"

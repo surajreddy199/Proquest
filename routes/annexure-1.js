@@ -5,6 +5,11 @@ const { ensureAuthenticated } = require('../helpers/auth');
 const AcademicYear = require('../config/academicYear');
 let year;
 
+
+//Load Teaching Contribution New Added
+require('../models/Annexure-1/TeachingContribution')
+const TeachingContribution = mongoose.model('teachingcontribution');
+
 // Load time table model
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
@@ -25,9 +30,10 @@ const CulturalActivities = mongoose.model('culturalactivities');
 require('../models/Annexure-1/ProjectBasedLearning')
 const ProjectBasedLearning = mongoose.model('projectbasedlearning');
 
-// Load udaan model
-require('../models/Annexure-1/Udaan')
-const Udaan = mongoose.model('udaan');
+
+
+
+
 
 // Load plavement activities model
 require('../models/Annexure-1/PlacementActivities')
@@ -80,6 +86,30 @@ const STTP = mongoose.model('sttp');
 // Load Department UG projects model
 require('../models/Annexure-1/DepartmentUGProjects')
 const DepartmentUGProjects = mongoose.model('department-ug-projects');
+
+// Load Teaching Contribution Route New Added
+router.get('/teachingContribution', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            TeachingContribution.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('annexure-1/teachingContribution', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        })
+});
 
 // Time table load route
 router.get('/timeTable', ensureAuthenticated, (req, res) => {
@@ -201,29 +231,6 @@ router.get('/projectBasedLearning', ensureAuthenticated, (req, res) => {
         })
 });
 
-// udaan load route
-router.get('/udaan', ensureAuthenticated, (req, res) => {
-    AcademicYear.find({ user: req.user.id })
-        .then(result => {
-            if (!result) {
-                req.flash('error_msg', 'Select the academic year before proceeding');
-                res.redirect('/');
-            }
-            year = result[0].academic_year;
-            Udaan.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-                .then(result => {
-                    res.render('annexure-1/udaan', { result });
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Error while retrieving data.');
-                    res.redirect('/');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Select the academic year before proceeding.');
-            res.redirect('/');
-        })
-});
 
 // Placement activities load route
 router.get('/placementActivities', ensureAuthenticated, (req, res) => {
@@ -465,6 +472,9 @@ router.get('/lakshya', ensureAuthenticated, (req, res) => {
         })
 });
 
+
+
+
 // Load magazine/newletter route
 router.get('/magazineNewsletter', ensureAuthenticated, (req, res) => {
     AcademicYear.find({ user: req.user.id })
@@ -538,6 +548,23 @@ router.get('/departmentUGProjects', ensureAuthenticated, (req, res) => {
 });
 
 // Load all the edit forms
+
+// Teaching Contribution Edit Route New Added
+router.get('/teachingContribution/edit/:id', ensureAuthenticated, (req, res) => {
+    TeachingContribution.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/annexure-1/teachingContribution');
+            } else {
+                res.render('annexure-1/teachingContribution', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/annexure-1/teachingContribution');
+        })
+});
 // Time table edit form
 router.get('/timeTable/edit/:id', ensureAuthenticated, (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
@@ -623,22 +650,6 @@ router.get('/projectBasedLearning/edit/:id', ensureAuthenticated, (req, res) => 
         })
 });
 
-// udaan load route
-router.get('/udaan/edit/:id', ensureAuthenticated, (req, res) => {
-    Udaan.findOne({ _id: req.params.id })
-        .then(result => {
-            if (result.user != req.user.id) {
-                req.flash('error_msg', 'Not Authorized');
-                res.redirect('/annexure-1/udaan');
-            } else {
-                res.render('annexure-1/udaan', { editResult: result });
-            }
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
-            res.redirect('/annexure-1/udaan');
-        })
-});
 
 // Placement activities load route
 router.get('/placementActivities/edit/:id', ensureAuthenticated, (req, res) => {
@@ -861,6 +872,35 @@ router.get('/departmentUGProjects/edit/:id', ensureAuthenticated, (req, res) => 
         })
 });
 
+//router post
+
+//process Teaching Contribution form New Added
+
+router.post('/teachingContribution', (req, res) => {
+    const teachingContributionRecords = {
+        academic_year: year,
+        lecturesDelivered: req.body.lecturesDelivered,
+        lecturesAllocated: req.body.lecturesAllocated,
+        tutorialsDelivered: req.body.tutorialsDelivered,
+        tutorialsAllocated: req.body.tutorialsAllocated,
+        practicalSessionsDelivered: req.body.practicalSessionsDelivered,
+        practicalSessionsAllocated: req.body.practicalSessionsAllocated,
+        scoreOne: req.body.scoreOne,
+        user: req.user.id
+    }
+
+    new TeachingContribution(teachingContributionRecords)
+        .save()
+        .then(teachingContribution => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/annexure-1/teachingContribution');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/annexure-1/teachingContribution');
+        })
+});
 //process time table form
 router.post('/timeTable', (req, res) => {
     // add preleave data into db
@@ -989,7 +1029,7 @@ router.post('/projectBasedLearning', (req, res) => {
             .save()
             .then(projectBasedLearning => {
                 req.flash('success_msg', 'Data entered successfully');
-                res.redirect('/annexure-1/udaan');
+                res.redirect('/annexure-1/udaan');//check redirect path
             })
             .catch(err => {
                 console.log(err);
@@ -999,46 +1039,10 @@ router.post('/projectBasedLearning', (req, res) => {
     }
 });
 
-//process Udaan activities form
-router.post('/udaan', (req, res) => {
-    let errors = [];
 
-    if (req.body.udaan_start_date > req.body.udaan_end_date) {
-        errors.push({ text: 'End Date should not be before start date' });
-    }
-    if (errors.length > 0) {
-        res.render('annexure-1/udaan', {
-            errors: errors,
-            udaan_subject: req.body.udaan_subject,
-            udaan_contribution: req.body.udaan_contribution,
-            udaan_start_date: req.body.udaan_start_date,
-            udaan_end_date: req.body.udaan_end_date,
-        }
-        )
-    }
-    else {
-        // add preleave data into db
-        const udaanRecords = {
-            academic_year: year,
-            udaan_subject: req.body.udaan_subject,
-            udaan_contribution: req.body.udaan_contribution,
-            udaan_start_date: req.body.udaan_start_date,
-            udaan_end_date: req.body.udaan_end_date,
-            user: req.user.id
-        }
-        new Udaan(udaanRecords)
-            .save()
-            .then(udaan => {
-                req.flash('success_msg', 'Data entered successfully');
-                res.redirect('/annexure-1/placementActivities');
-            })
-            .catch(err => {
-                console.log(err);
-                req.flash('error_msg', 'faculty ID not found please login again.');
-                res.redirect('/annexure-1/udaan');
-            })
-    }
-});
+ 
+
+
 
 //process placement activities form
 router.post('/placementActivities', (req, res) => {
@@ -1592,6 +1596,35 @@ router.post('/departmentUGProjects', (req, res) => {
 });
 
 // Edit request (PUT request)
+
+// Put route teaching contribution New Added
+router.put('/teachingContribution/:id', (req, res) => {
+    TeachingContribution.findOne({ _id: req.params.id })
+        .then(result => {
+            result.lecturesDelivered = req.body.lecturesDelivered,
+                result.lecturesAllocated = req.body.lecturesAllocated,
+                result.tutorialsDelivered = req.body.tutorialsDelivered,
+                result.tutorialsAllocated = req.body.tutorialsAllocated,
+                result.practicalSessionsDelivered = req.body.practicalSessionsDelivered,
+                result.practicalSessionsAllocated = req.body.practicalSessionsAllocated,
+                result.scoreOne = req.body.scoreOne
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/annexure-1/teachingContribution');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/annexure-1/teachingContribution');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/annexure-1/teachingContribution');
+        })
+});
+
 router.put('/timeTable/:id', (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
         .then(result => {
@@ -1724,41 +1757,9 @@ router.put('/projectBasedLearning/:id', (req, res) => {
     }
 });
 
-router.put('/udaan/:id', (req, res) => {
-    let errors = [];
-    if (req.body.udaan_start_date > req.body.udaan_end_date) {
-        errors.push({ text: 'End Date should not be before start date' });
-    }
-    if (errors.length > 0) {
-        if (req.body.udaan_start_date > req.body.udaan_end_date) {
-            req.flash('error_msg', 'End Date should not be before start date');
-            res.redirect('/annexure-1/udaan');
-        }
-    }
-    else {
-        Udaan.findOne({ _id: req.params.id })
-            .then(result => {
-                result.udaan_subject = req.body.udaan_subject,
-                    result.udaan_contribution = req.body.udaan_contribution,
-                    result.udaan_start_date = req.body.udaan_start_date,
-                    result.udaan_end_date = req.body.udaan_end_date
 
-                result.save()
-                    .then(() => {
-                        req.flash('success_msg', 'Data updated successfully');
-                        res.redirect('/annexure-1/udaan');
-                    })
-                    .catch(() => {
-                        req.flash('error_msg', 'Data not updated. Please try logging in again.');
-                        res.redirect('/annexure-1/udaan');
-                    })
-            })
-            .catch(() => {
-                req.flash('error_msg', 'User not found. Please try logging in again.');
-                res.redirect('/annexure-1/udaan');
-            })
-    }
-});
+
+
 
 router.put('/placementActivities/:id', (req, res) => {
     let errors = [];
@@ -2296,6 +2297,20 @@ router.put('/departmentUGProjects/:id', (req, res) => {
 });
 
 // Delete data of annexure-1 forms
+
+//New Added DELETE route teaching Contribution
+router.delete('/teachingContribution/delete/:id', (req, res) => {
+    TeachingContribution.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/annexure-1/teachingContribution');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/annexure-1/teachingContribution');
+        })
+});
+
 router.delete('/timeTable/delete/:id', (req, res) => {
     TimeTable.deleteOne({ _id: req.params.id })
         .then(() => {
@@ -2356,17 +2371,7 @@ router.delete('/projectBasedLearning/delete/:id', (req, res) => {
         })
 });
 
-router.delete('/udaan/delete/:id', (req, res) => {
-    Udaan.deleteOne({ _id: req.params.id })
-        .then(() => {
-            req.flash('success_msg', 'Data deleted successfully');
-            res.redirect('/annexure-1/udaan');
-        })
-        .catch(() => {
-            req.flash('error_msg', 'User not found. Please try logging in again.');
-            res.redirect('/annexure-1/udaan');
-        })
-});
+
 
 router.delete('/placementActivities/delete/:id', (req, res) => {
     PlacementActivities.deleteOne({ _id: req.params.id })
@@ -2523,5 +2528,8 @@ router.delete('/departmentUGProjects/delete/:id', (req, res) => {
             res.redirect('/annexure-1/departmentUGProjects');
         })
 });
+
+
+
 
 module.exports = router;

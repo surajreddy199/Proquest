@@ -85,12 +85,12 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
 
                                 modules.Leave.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
+                                modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),    
                                 modules.TimeTable.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.ClassAdvisor.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.SportsActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.CulturalActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.ProjectBasedLearning.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.Udaan.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.PlacementActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.InhousePlacement.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.StudentOrganizations.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -125,11 +125,11 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                     })
                                     .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                                         leave,
-                                        timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, udaan, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                                        teachingContribution, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                                         papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                         resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
 
-                                        res.render('users/faculty/facultyOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, udaan, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition });
+                                        res.render('users/faculty/facultyOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition });
                                     })
                             })
                             .catch(err => {
@@ -435,12 +435,12 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
 
                                     modules.Leave.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
+                                    modules.TeachingContribution.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.TimeTable.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.ClassAdvisor.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.SportsActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.CulturalActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.ProjectBasedLearning.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.Udaan.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.PlacementActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.InhousePlacement.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.StudentOrganizations.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -477,13 +477,13 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         })
                                         .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                                             leave,
-                                            timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, udaan, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                                            teachingContribution, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                             resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, udaan, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -583,12 +583,12 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
             modules.Leave.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
+            modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.TimeTable.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ClassAdvisor.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.SportsActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.CulturalActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ProjectBasedLearning.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.Udaan.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.PlacementActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.InhousePlacement.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.StudentOrganizations.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -624,7 +624,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 })
                 .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                     leave,
-                    timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, udaan, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                    teachingContribution, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     if (!teachingLoad) {
@@ -637,11 +637,11 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!innovation) { innovation = { subject_name: '-', class_name: '-', semester: '-', technique: '-' } }
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!timeTable) { timeTable = { role: '-', department: '-', semester: '-' } }
+                    if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!classAdvisor) { classAdvisor = { class_name: '-', department: '-', semester: '-', duties: '-' } }
                     if (!sportsActivities) { sportsActivities = { sports_name: '-', sports_category: '-', sports_role: '-', sports_ojus_or_other: '-' } }
                     if (!culturalActivities) { culturalActivities = { cultural_name: '-', cultural_category: '-', cultural_role: '-', cultural_ojus_or_other: '-' } }
                     if (!projectBasedLearning) { projectBasedLearning = { pbl_subject: '-', pbl_role: '-', pbl_start_date: '-', pbl_end_date: '-', pbl_description: '-' } }
-                    if (!udaan) { udaan = { udaan_subject: '-', udaan_contribution: '-', udaan_start_date: '-', udaan_end_date: '-' } }
                     if (!placementActivities) { placementActivities = { placement_role: '-', no_of_companies: '-', no_of_placed_students: '-', department: '-' } }
                     if (!inhousePlacement) { inhousePlacement = { trainings_and_workshops: '-', class_name: '-', department: '-', no_of_participants: '-' } }
                     if (!studentOrganizations) { studentOrganizations = { student_organizations_trainings: '-', class_name: '-', department: '-', no_of_participants: '-', student_organization_role: '-', student_event_duration: '-', student_event_start_date: '-', student_event_end_date: '-' } }
@@ -772,6 +772,18 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     ]
                                 }
                             },
+                            { text: 'Annexure-1', style: 'subheader' },
+                            { text: '1.14 Teaching Contribution ', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['lecturesDelivered', 'lecturesAllocated', 'tutorialsDelivered', 'tutorialsAllocated', 'practicalSessionsDelivered', 'practicalSessionsAllocated', 'scoreOne' ],
+                                        [teachingContribution.lecturesDelivered, teachingContribution.lecturesAllocated,teachingContribution.tutorialsDelivered,teachingContribution.tutorialsAllocated,teachingContribution.practicalSessionsDelivered,teachingContribution.practicalSessionsAllocated,teachingContribution.scoreOne]
+                                    ]
+                                }
+                            },
 
                             { text: '1.2 Class Advisor', style: 'subheader' },
 
@@ -821,17 +833,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 }
                             },
 
-                            { text: '1.6 UDAAN Incubation Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Area of Participation', 'Contribution', 'Start Date', 'End Date',],
-                                        [udaan.udaan_subject, udaan.udaan_contribution, udaan.udaan_start_date, udaan.udaan_end_date]
-                                    ]
-                                }
-                            },
+                    
 
                             { text: '1.7 Placement Activities', style: 'subheader' },
 
@@ -1192,12 +1194,12 @@ router.post('/hod/pdf/:id', (req, res) => {
 
             modules.Leave.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
+            modules.TeachingContribution.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.TimeTable.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ClassAdvisor.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.SportsActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.CulturalActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ProjectBasedLearning.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.Udaan.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.PlacementActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.InhousePlacement.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.StudentOrganizations.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1233,7 +1235,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                 })
                 .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                     leave,
-                    timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, udaan, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                    teachingContribution, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     if (!teachingAssistant) { teachingAssistant = { faculty_name: '-', class: '-', semester: '-', subject: '-' } }
@@ -1241,12 +1243,12 @@ router.post('/hod/pdf/:id', (req, res) => {
                     if (!addedExp) { addedExp = { subject_name: '-', class: '-', semester: '-', exp_name: '-' } }
                     if (!innovation) { innovation = { subject_name: '-', class_name: '-', semester: '-', technique: '-' } }
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
+                    if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!timeTable) { timeTable = { role: '-', department: '-', semester: '-' } }
                     if (!classAdvisor) { classAdvisor = { class_name: '-', department: '-', semester: '-', duties: '-' } }
                     if (!sportsActivities) { sportsActivities = { sports_name: '-', sports_category: '-', sports_role: '-', sports_ojus_or_other: '-' } }
                     if (!culturalActivities) { culturalActivities = { cultural_name: '-', cultural_category: '-', cultural_role: '-', cultural_ojus_or_other: '-' } }
                     if (!projectBasedLearning) { projectBasedLearning = { pbl_subject: '-', pbl_role: '-', pbl_start_date: '-', pbl_end_date: '-', pbl_description: '-' } }
-                    if (!udaan) { udaan = { udaan_subject: '-', udaan_contribution: '-', udaan_start_date: '-', udaan_end_date: '-' } }
                     if (!placementActivities) { placementActivities = { placement_role: '-', no_of_companies: '-', no_of_placed_students: '-', department: '-' } }
                     if (!inhousePlacement) { inhousePlacement = { trainings_and_workshops: '-', class_name: '-', department: '-', no_of_participants: '-' } }
                     if (!studentOrganizations) { studentOrganizations = { student_organizations_trainings: '-', class_name: '-', department: '-', no_of_participants: '-', student_organization_role: '-', student_event_duration: '-', student_event_start_date: '-', student_event_end_date: '-' } }
@@ -1377,6 +1379,18 @@ router.post('/hod/pdf/:id', (req, res) => {
                                     ]
                                 }
                             },
+                            { text: 'Annexure-1', style: 'subheader' },
+                            { text: '1.1 Teaching Contribution ', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['lecturesDelivered', 'lecturesAllocated', 'tutorialsDelivered', 'tutorialsAllocated', 'practicalSessionsDelivered', 'practicalSessionsAllocated', 'scoreOne' ],
+                                        [teachingContribution.lecturesDelivered, teachingContribution.lecturesAllocated,teachingContribution.tutorialsDelivered,teachingContribution.tutorialsAllocated,teachingContribution.practicalSessionsDelivered,teachingContribution.practicalSessionsAllocated,teachingContribution.scoreOne]
+                                    ]
+                                }
+                            },
 
                             { text: '1.2 Class Advisor', style: 'subheader' },
 
@@ -1426,18 +1440,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                                 }
                             },
 
-                            { text: '1.6 UDAAN Incubation Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Area of Participation', 'Contribution', 'Start Date', 'End Date',],
-                                        [udaan.udaan_subject, udaan.udaan_contribution, udaan.udaan_start_date, udaan.udaan_end_date]
-                                    ]
-                                }
-                            },
-
+                        
                             { text: '1.7 Placement Activities', style: 'subheader' },
 
                             {
@@ -1854,7 +1857,7 @@ router.post('/hod/finalSubmit/:id/:year', (req, res) => {
             facultyA2 = facultymarks[0].annexure_2;
             facultyA3 = facultymarks[0].annexure_3;
 
-            let fianlValue = +req.body.value1 + +req.body.value2 + +req.body.value3 + +req.body.value4 + +req.body.value5
+            let finalValue = +req.body.value1 + +req.body.value2 + +req.body.value3 + +req.body.value4 + +req.body.value5
             // console.log(facultyName);
             // console.log(facultyEmail);
             const finalSubmitData = {
@@ -1867,7 +1870,7 @@ router.post('/hod/finalSubmit/:id/:year', (req, res) => {
                 annexure_1: req.body.annexure_1,
                 annexure_2: req.body.annexure_2,
                 annexure_3: req.body.annexure_3,
-                confidential: fianlValue,
+                confidential: finalValue,
                 facultyAP: facultyAP,
                 facultyLeave: facultyLeave,
                 facultyA1: facultyA1,
