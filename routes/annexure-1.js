@@ -14,6 +14,10 @@ const TeachingContribution = mongoose.model('teachingcontribution');
 require('../models/Annexure-1/LecturesExcess')
 const LecturesExcess = mongoose.model('lecturesexcess');
 
+//Load Additional Resources New Added
+require('../models/Annexure-1/AdditionalResources')
+const AdditionalResources = mongoose.model('additionalresources');
+
 // Load time table model
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
@@ -127,6 +131,29 @@ router.get('/lecturesExcess', ensureAuthenticated, (req, res) => {
             LecturesExcess.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
                 .then(result => {
                     res.render('annexure-1/lecturesExcess', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        })
+});
+// Load Additional Resources Route New Added
+router.get('/additionalResources', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            AdditionalResources.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('annexure-1/additionalResources', { result });
                 })
                 .catch(() => {
                     req.flash('error_msg', 'Error while retrieving data.');
@@ -610,6 +637,23 @@ router.get('/lecturesExcess/edit/:id', ensureAuthenticated, (req, res) => {
             res.redirect('/annexure-1/lecturesExcess');
         })
 });
+
+// Additional Resources Edit Route New Added
+router.get('/additionalResources/edit/:id', ensureAuthenticated, (req, res) => {
+    AdditionalResources.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/annexure-1/additionalResources');
+            } else {
+                res.render('annexure-1/additionalResources', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/annexure-1/additionalResources');
+        })
+});
 // Time table edit form
 router.get('/timeTable/edit/:id', ensureAuthenticated, (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
@@ -971,6 +1015,31 @@ router.post('/lecturesExcess', (req, res) => {
             res.redirect('/annexure-1/lecturesExcess');
         })
 });
+
+//process Additional Resources form New Added
+
+router.post('/additionalResources', (req, res) => {
+    const additionalResourcesRecords = {
+        academic_year: year,
+        materials: req.body.materials,
+        scoreThree: req.body.scoreThree,
+        user: req.user.id
+
+    }
+
+    new AdditionalResources(additionalResourcesRecords)
+        .save()
+        .then(additionalResources => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/annexure-1/additionalResources');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/annexure-1/additionalResources');
+        })
+});
+
 //process time table form
 router.post('/timeTable', (req, res) => {
     // add preleave data into db
@@ -1720,6 +1789,30 @@ router.put('/lecturesExcess/:id', (req, res) => {
         })
 });
 
+// Put route Additional Resources New Added
+router.put('/additionalResources/:id', (req, res) => {
+    AdditionalResources.findOne({ _id: req.params.id })
+        .then(result => {
+            result.materials = req.body.materials,
+                
+                result.scoreThree = req.body.scoreThree
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/annexure-1/additionalResources');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/annexure-1/additionalResources');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/annexure-1/additionalResources');
+        })
+});
+
 router.put('/timeTable/:id', (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
         .then(result => {
@@ -2416,6 +2509,19 @@ router.delete('/lecturesExcess/delete/:id', (req, res) => {
         .catch(() => {
             req.flash('error_msg', 'Record not deleted. Please try again.');
             res.redirect('/annexure-1/lecturesExcess');
+        })
+});
+
+//New Added DELETE route Additional Resources
+router.delete('/additionalResources/delete/:id', (req, res) => {
+    AdditionalResources.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/annexure-1/additionalResources');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/annexure-1/additionalResources');
         })
 });
 

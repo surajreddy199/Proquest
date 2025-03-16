@@ -10,6 +10,7 @@ const modules = require('./modules');
 
     modules.TeachingContribution.findOne({ user: req.user.id }).exec(),
     modules.LecturesExcess.findOne({ user: req.user.id }).exec(),
+    modules.AdditionalResources.findOne({ user: req.user.id }).exec(),
     modules.TimeTable.findOne({ user: req.user.id }).exec(),
     modules.ClassAdvisor.findOne({ user: req.user.id }).exec(),
     modules.SportsActivities.findOne({ user: req.user.id }).exec(),
