@@ -89,7 +89,8 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                 modules.LecturesExcess.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.AdditionalResources.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.InnovativeTeaching.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),    
-
+                                modules.ExaminationDuties.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),    
+                                
                                 modules.TimeTable.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.ClassAdvisor.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.SportsActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -129,11 +130,11 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                     })
                                     .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                                         leave,
-                                        teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                                        teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                                         papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                         resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
 
-                                        res.render('users/faculty/facultyOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition });
+                                        res.render('users/faculty/facultyOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition });
                                     })
                             })
                             .catch(err => {
@@ -443,6 +444,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.LecturesExcess.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.AdditionalResources.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.InnovativeTeaching.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.ExaminationDuties.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
 
                                     modules.TimeTable.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -486,13 +488,13 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         })
                                         .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                                             leave,
-                                            teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                                            teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                             resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -596,6 +598,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.LecturesExcess.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
             modules.AdditionalResources.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.InnovativeTeaching.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.ExaminationDuties.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
             modules.TimeTable.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ClassAdvisor.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -637,7 +640,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 })
                 .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                     leave,
-                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     if (!teachingLoad) {
@@ -654,6 +657,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
+                    if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '_', evaluationAnswerScripts: '_', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
 
                     if (!classAdvisor) { classAdvisor = { class_name: '-', department: '-', semester: '-', duties: '-' } }
                     if (!sportsActivities) { sportsActivities = { sports_name: '-', sports_category: '-', sports_role: '-', sports_ojus_or_other: '-' } }
@@ -837,6 +841,20 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     ]
                                 }
                             },
+
+                            { text: '1.5 Examination Duties ', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['invigilation', 'questionPaperSetting', 'evaluationAnswerScripts', 'paperModeration', 'labEvaluation', 'scoreFive' ],
+                                        [examinationDuties.invigilation, examinationDuties.questionPaperSetting,examinationDuties.evaluationAnswerScripts,examinationDuties.paperModeration,examinationDuties.labEvaluation, examinationDuties.scoreFive]
+                                    ]
+                                }
+                            },
+
+                            
 
                             { text: '1.2 Class Advisor', style: 'subheader' },
 
@@ -1251,6 +1269,7 @@ router.post('/hod/pdf/:id', (req, res) => {
             modules.LecturesExcess.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.AdditionalResources.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.InnovativeTeaching.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.ExaminationDuties.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             
             modules.TimeTable.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ClassAdvisor.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1292,7 +1311,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                 })
                 .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
                     leave,
-                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     if (!teachingAssistant) { teachingAssistant = { faculty_name: '-', class: '-', semester: '-', subject: '-' } }
@@ -1304,6 +1323,8 @@ router.post('/hod/pdf/:id', (req, res) => {
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
+                    if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '-', evaluationAnswerScripts: '-', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
+
 
                     if (!timeTable) { timeTable = { role: '-', department: '-', semester: '-' } }
                     if (!classAdvisor) { classAdvisor = { class_name: '-', department: '-', semester: '-', duties: '-' } }
@@ -1484,6 +1505,18 @@ router.post('/hod/pdf/:id', (req, res) => {
                                     body: [
                                         ['techniques', 'scoreFour' ],
                                         [innovativeTeaching.techniques, innovativeTeaching.scoreFour]
+                                    ]
+                                }
+                            },
+
+                            { text: '1.5 Examination Duties ', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['invigilation', 'questionPaperSetting', 'evaluationAnswerScripts', 'paperModeration', 'labEvaluation', 'scoreFive' ],
+                                        [examinationDuties.invigilation, examinationDuties.questionPaperSetting,examinationDuties.evaluationAnswerScripts,examinationDuties.paperModeration,examinationDuties.labEvaluation, examinationDuties.scoreFive]
                                     ]
                                 }
                             },

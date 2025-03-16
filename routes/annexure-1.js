@@ -22,6 +22,10 @@ const AdditionalResources = mongoose.model('additionalresources');
 require('../models/Annexure-1/InnovativeTeaching')
 const InnovativeTeaching = mongoose.model('innovativeteaching');
 
+//Load Examination Duties New Added
+require('../models/Annexure-1/ExaminationDuties')
+const ExaminationDuties = mongoose.model('examinationduties');
+
 // Load time table model
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
@@ -182,6 +186,30 @@ router.get('/innovativeTeaching', ensureAuthenticated, (req, res) => {
             InnovativeTeaching.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
                 .then(result => {
                     res.render('annexure-1/innovativeTeaching', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        })
+});
+
+// Load Examination Duties Route New Added
+router.get('/examinationDuties', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            ExaminationDuties.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('annexure-1/examinationDuties', { result });
                 })
                 .catch(() => {
                     req.flash('error_msg', 'Error while retrieving data.');
@@ -700,6 +728,23 @@ router.get('/innovativeTeaching/edit/:id', ensureAuthenticated, (req, res) => {
         })
 });
 
+// Examination Duties Edit Route New Added
+router.get('/examinationDuties/edit/:id', ensureAuthenticated, (req, res) => {
+    ExaminationDuties.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/annexure-1/examinationDuties');
+            } else {
+                res.render('annexure-1/examinationDuties', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/annexure-1/examinationDuties');
+        })
+});
+
 // Time table edit form
 router.get('/timeTable/edit/:id', ensureAuthenticated, (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
@@ -1107,6 +1152,33 @@ router.post('/innovativeTeaching', (req, res) => {
             console.log(err);
             req.flash('error_msg', 'Faculty ID not found. Please login again.');
             res.redirect('/annexure-1/innovativeTeaching');
+        })
+});
+
+//process Examination Duties form New Added
+
+router.post('/examinationDuties', (req, res) => {
+    const examinationDutiesRecords = {
+        academic_year: year,
+        invigilation: req.body.invigilation === "on",
+        questionPaperSetting: req.body.questionPaperSetting === "on",
+        evaluationAnswerScripts: req.body.evaluationAnswerScripts === "on",
+        paperModeration: req.body.paperModeration === "on",
+        labEvaluation: req.body.labEvaluation === "on",
+        scoreFive: req.body.scoreFive,
+        user: req.user.id
+    }
+
+    new ExaminationDuties(examinationDutiesRecords)
+        .save()
+        .then(examinationDuties => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/annexure-1/examinationDuties');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/annexure-1/examinationDuties');
         })
 });
 
@@ -1907,6 +1979,35 @@ router.put('/innovativeTeaching/:id', (req, res) => {
         })
 });
 
+// Put route Examination Duties New Added
+router.put('/examinationDuties/:id', (req, res) => {
+    ExaminationDuties.findOne({ _id: req.params.id })
+        .then(result => {
+            result.invigilation = req.body.invigilation === "on",
+                result.questionPaperSetting = req.body.questionPaperSetting === "on",
+                result.evaluationAnswerScripts = req.body.evaluationAnswerScripts === "on",
+                result.paperModeration = req.body.paperModeration === "on",
+                result.labEvaluation = req.body.labEvaluation ==="on",
+                result.scoreFive = req.body.scoreFive
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/annexure-1/examinationDuties');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/annexure-1/examinationDuties');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/annexure-1/examinationDuties');
+        })
+});
+
+
+
 router.put('/timeTable/:id', (req, res) => {
     TimeTable.findOne({ _id: req.params.id })
         .then(result => {
@@ -2629,6 +2730,19 @@ router.delete('/innovativeTeaching/delete/:id', (req, res) => {
         .catch(() => {
             req.flash('error_msg', 'Record not deleted. Please try again.');
             res.redirect('/annexure-1/innovativeTeaching');
+        })
+});
+
+//New Added DELETE route Examination Duties
+router.delete('/examinationDuties/delete/:id', (req, res) => {
+    ExaminationDuties.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/annexure-1/examinationDuties');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/annexure-1/examinationDuties');
         })
 });
 

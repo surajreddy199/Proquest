@@ -12,6 +12,7 @@ const modules = require('./modules');
     modules.LecturesExcess.findOne({ user: req.user.id }).exec(),
     modules.AdditionalResources.findOne({ user: req.user.id }).exec(),
     modules.InnovativeTeaching.findOne({ user: req.user.id }).exec(),
+    modules.ExaminationDuties.findOne({ user: req.user.id }).exec(),
 
     modules.TimeTable.findOne({ user: req.user.id }).exec(),
     modules.ClassAdvisor.findOne({ user: req.user.id }).exec(),
