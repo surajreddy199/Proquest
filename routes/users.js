@@ -133,8 +133,32 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                         teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                                         papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                         resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                                        // Calculate total score for Category 1
+                                        let categoryOneTotalScore = 0;
+                                        if (teachingContribution) categoryOneTotalScore += teachingContribution.scoreOne || 0;
+                                        if (lecturesExcess) categoryOneTotalScore += lecturesExcess.scoreTwo || 0;
+                                        if (additionalResources) categoryOneTotalScore += additionalResources.scoreThree || 0;
+                                        if (innovativeTeaching) categoryOneTotalScore += innovativeTeaching.scoreFour || 0;
+                                        if (examinationDuties) categoryOneTotalScore += examinationDuties.scoreFive || 0;
+                                        
+                                        // Minimum score validation (75)
+                                        if (categoryOneTotalScore < 75) {
+                                            req.flash('error_msg', 'Category 1 total score must be at least 75.');
+                                            return res.redirect('/faculty/facultyOverview');
+                                        }
 
-                                        res.render('users/faculty/facultyOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition });
+                                        res.render('users/faculty/facultyOverview', { 
+                                            finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, 
+                                            teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, classAdvisor, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, admissionProcessActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
+                                            teachingContributionScore: teachingContribution ? teachingContribution.scoreOne : 0,
+                                            lecturesExcessScore: lecturesExcess ? lecturesExcess.scoreTwo : 0,
+                                            additionalResourcesScore: additionalResources ? additionalResources.scoreThree : 0,
+                                            innovativeTeachingScore: innovativeTeaching ? innovativeTeaching.scoreFour : 0,
+                                            examinationDutiesScore: examinationDuties ? examinationDuties.scoreFive : 0,
+                                            categoryOneTotalScore
+                                            
+
+                                         });
                                     })
                             })
                             .catch(err => {

@@ -222,6 +222,62 @@ router.get('/examinationDuties', ensureAuthenticated, (req, res) => {
         })
 });
 
+//faculty overview score calculation category 01
+router.get('/facultyOverview', ensureAuthenticated, (req, res) => {
+    AcademicYear.findOne({ user: req.user.id }).exec()
+        .then(yearRecord => {
+            if (!yearRecord) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                return res.redirect('/');
+            }
+            let year = yearRecord.academic_year;
+
+            // Fetch all required data using Promise.all
+            Promise.all([
+                TeachingContribution.findOne({ user: req.user.id, academic_year: year }).exec(),
+                LecturesExcess.findOne({ user: req.user.id, academic_year: year }).exec(),
+                AdditionalResources.findOne({ user: req.user.id, academic_year: year }).exec(),
+                InnovativeTeaching.findOne({ user: req.user.id, academic_year: year }).exec(),
+                ExaminationDuties.findOne({ user: req.user.id, academic_year: year }).exec()
+            ])
+            .then(([teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties]) => {
+                let teachingContributionScore = teachingContribution ? teachingContribution.scoreOne : 0;
+                let lecturesExcessScore = lecturesExcess ? lecturesExcess.scoreTwo : 0;
+                let additionalResourcesScore = additionalResources ? additionalResources.scoreThree : 0;
+                let innovativeTeachingScore = innovativeTeaching ? innovativeTeaching.scoreFour : 0;
+                let examinationDutiesScore = examinationDuties ? examinationDuties.scoreFive : 0;
+
+                let categoryOneTotalScore = teachingContributionScore + lecturesExcessScore + additionalResourcesScore + innovativeTeachingScore + examinationDutiesScore;
+
+                if (categoryOneTotalScore < 75) {
+                    req.flash('error_msg', 'Total score for Category 01 should be at least 75. Please review your scores.');
+                    return res.redirect('/annexure-1/facultyOverview');
+                }
+
+                res.render('facultyOverview', {
+                    teachingContributionScore,
+                    lecturesExcessScore,
+                    additionalResourcesScore,
+                    innovativeTeachingScore,
+                    examinationDutiesScore,
+                    categoryOneTotalScore
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                req.flash('error_msg', 'Error fetching data. Please try again.');
+                res.redirect('/');
+            });
+        })
+        .catch(err => {
+            console.error(err);
+            req.flash('error_msg', 'Error fetching academic year. Please try again.');
+            res.redirect('/');
+        });
+});
+
+
+
 // Time table load route
 router.get('/timeTable', ensureAuthenticated, (req, res) => {
     AcademicYear.find({ user: req.user.id })
