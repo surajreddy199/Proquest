@@ -56,10 +56,6 @@ const TimeTable = mongoose.model('timetable');
 
 
 // Load class advisor model
-require('../models/Annexure-1/ClassAdvisor')
-const ClassAdvisor = mongoose.model('classadvisor');
-
-// Load class advisor model
 require('../models/Annexure-1/SportsActivities')
 const SportsActivities = mongoose.model('sportsactivities');
 
@@ -87,10 +83,6 @@ const StudentOrganizations = mongoose.model('studentorganizations');
 // Load indutrial visit activities model
 require('../models/Annexure-1/IndustrialVisitActivities')
 const IndustrialVisitActivities = mongoose.model('industrialvisit');
-
-// Load admission process activities model
-require('../models/Annexure-1/AdmissionProcessActivities')
-const AdmissionProcessActivities = mongoose.model('admissionprocess');
 
 // Load exam assessment external model
 require('../models/Annexure-1/ExamAssessmentExternal')
@@ -154,6 +146,11 @@ require('../models/Annexure-2/Seminars');
 const Seminars = mongoose.model('seminars');
 
 // Ammexure 3 dbs
+
+// Load Research Papers Published model
+require('../models/Annexure-3/ResearchPapersPublished');
+const ResearchPapersPublished = mongoose.model('researchpaperspublished');
+
 // Load resource person model
 require('../models/Annexure-3/ResourcePerson');
 const ResourcePerson = mongoose.model('resource_person');
@@ -177,7 +174,7 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 module.exports = {
     TeachingLoad, TeachingAssistant, NewBooks, AddedExp, Innovation,
     Leave, 
-    TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties, TimeTable, ClassAdvisor, SportsActivities, CulturalActivities, ProjectBasedLearning, PlacementActivities, InhousePlacement, StudentOrganizations, IndustrialVisitActivities, AdmissionProcessActivities, ExamAssessmentExternal, ExamActivitiesSupervision, ExamActivitiesCollegeLevel, ITMaintenance, Lakshya, MagazineNewsletter, STTP, DepartmentUGProjects, 
+    TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties, TimeTable, SportsActivities, CulturalActivities, ProjectBasedLearning, PlacementActivities, InhousePlacement, StudentOrganizations, IndustrialVisitActivities, ExamAssessmentExternal, ExamActivitiesSupervision, ExamActivitiesCollegeLevel, ITMaintenance, Lakshya, MagazineNewsletter, STTP, DepartmentUGProjects, 
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
-    ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
+    ResearchPapersPublished, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

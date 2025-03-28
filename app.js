@@ -27,6 +27,9 @@ const reset = require('./routes/reset');
 // Static folder
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/uploads', express.static('uploads'));
+
+
 // Load helpers
 const { if_eq } = require('./helpers/hbs');
 

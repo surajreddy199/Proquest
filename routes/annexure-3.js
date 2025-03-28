@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const { ensureAuthenticated } = require('../helpers/auth');
 const router = express.Router();
 const AcademicYear = require('../config/academicYear');
+const multer = require('multer');
+
 let year;
+
+// Load Research Papers Published model
+require('../models/Annexure-3/ResearchPapersPublished');
+const ResearchPapersPublished = mongoose.model('researchpaperspublished');
 
 // Load resource person model
 require('../models/Annexure-3/ResourcePerson');
@@ -638,5 +644,193 @@ router.delete('/externalProjectsOrCompetition/delete/:id', (req, res) => {
             res.redirect('/annexure-3/externalProjectsOrCompetition');
         })
 });
+
+
+
+//testing 
+
+
+
+
+// Configure Multer Storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/'); // Save files to "uploads" directory
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    },
+});
+
+const upload = multer({ storage: storage });
+
+
+
+//new post method
+router.post('/researchPapersPublished', upload.array("journal_document[]"), async (req, res) => {
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/annexure-3/researchPapersPublished');
+        }
+        const year = academicRecord.academic_year;
+
+        const publicationType = Array.isArray(req.body.publication_type) ? req.body.publication_type[0] : req.body.publication_type;
+        const journalTitles = Array.isArray(req.body.journal_title) ? req.body.journal_title : [req.body.journal_title];
+        const publicationLinks = Array.isArray(req.body.publication_link) ? req.body.publication_link : [req.body.publication_link];
+        const existingDocs = Array.isArray(req.body.journal_document_existing) ? req.body.journal_document_existing : [req.body.journal_document_existing];
+
+        let existingEntry = await ResearchPapersPublished.findOne({
+            user: req.user.id,
+            academic_year: year,
+            publication_type: publicationType
+        });
+        let fileIndex = 0; // Track files separately from journal index
+
+        let newJournals = journalTitles.map((title, index) => {
+            let documentPath = existingDocs[index] || null; // Keep existing files
+
+            // Assign new files only to the correct indexes (journal 03 and 04)
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                  documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                  fileIndex++; // Move to the next file
+            }
+
+            return {  
+                journal_title: title || '-',
+                publication_link: publicationLinks[index] || '-',
+                journal_document: documentPath,
+                score: publicationType === 'refereed' ? 15 : 10
+             };
+            });
+
+
+        
+        
+
+        if (existingEntry) {
+            let updatedJournals = existingEntry.journals.map(existing => {
+                let updated = newJournals.find(j => j.journal_title === existing.journal_title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueJournals = newJournals.filter(j => 
+                !existingEntry.journals.some(existing => existing.journal_title === j.journal_title)
+            );
+
+            existingEntry.journals = [...updatedJournals, ...newUniqueJournals];
+            existingEntry.total_score = existingEntry.journals.reduce((sum, journal) => sum + journal.score, 0);
+            await existingEntry.save();
+        } else {
+            await new ResearchPapersPublished({
+                academic_year: year,
+                publication_type: publicationType,
+                journals: newJournals,
+                total_score: newJournals.reduce((sum, journal) => sum + journal.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Research paper details saved successfully.');
+        res.redirect('/annexure-3/researchPapersPublished');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/annexure-3/researchPapersPublished');
+    }
+});
+
+router.get('/researchPapersPublished', ensureAuthenticated, async (req, res) => {
+    try {
+        // Fetch the academic year for the logged-in user
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard'); // Redirect if academic year is not set
+        }
+
+        const year = academicRecord.academic_year; // Get stored academic year
+
+        // Fetch research papers for the logged-in user and selected academic year
+        const researchPapers = await ResearchPapersPublished.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        res.render('annexure-3/researchPapersPublished', { 
+            researchPapers, 
+            academic_year: year // Pass the year to the frontend
+        });
+    } catch (error) {
+        console.error("Error fetching research papers:", error);
+        req.flash('error_msg', 'Error fetching research papers.');
+        res.redirect('/');
+    }
+});
+
+
+// old one
+// router.get('/researchPapersPublished', ensureAuthenticated, (req, res) => {
+//     // console.log("User ID from request:", req.user?.id);  // Log User ID
+
+//     ResearchPapersPublished.find({ user: req.user.id })
+//         .then(researchPapers => {
+//             // console.log("Fetched Data:", researchPapers);  // Log Fetched Data
+            
+//             res.render('annexure-3/researchPapersPublished', { researchPapers });
+//         })
+//         .catch(error => {
+//             console.error("Error fetching research papers:", error);
+//             req.flash('error_msg', 'Error fetching research papers.');
+//             res.redirect('/');
+//         });
+// });
+
+router.post('/deleteJournal', ensureAuthenticated, async (req, res) => {
+    const { publication_type, journal_title } = req.body;
+
+    try {
+
+        // ✅ Fetch the academic year for the logged-in user
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await ResearchPapersPublished.findOneAndUpdate(
+            { 
+                user: req.user.id, 
+                publication_type: publication_type,
+                academic_year: academic_year
+            },
+            { $pull: { journals: { journal_title: journal_title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Journal not found." });
+        }
+        // **Recalculate total score after deletion**
+        const newTotalScore = updatedEntry.journals.reduce((sum, journal) => sum + journal.score, 0);
+     
+        updatedEntry.total_score = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Journal deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting journal:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
+
+
+
+
 
 module.exports = router;

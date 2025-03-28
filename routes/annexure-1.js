@@ -30,9 +30,7 @@ const ExaminationDuties = mongoose.model('examinationduties');
 require('../models/Annexure-1/TimeTable')
 const TimeTable = mongoose.model('timetable');
 
-// Load class advisor model
-require('../models/Annexure-1/ClassAdvisor')
-const ClassAdvisor = mongoose.model('classadvisor');
+
 
 // Load class advisor model
 require('../models/Annexure-1/SportsActivities')
@@ -67,9 +65,7 @@ const StudentOrganizations = mongoose.model('studentorganizations');
 require('../models/Annexure-1/IndustrialVisitActivities')
 const IndustrialVisitActivities = mongoose.model('industrialvisit');
 
-// Load admission process activities model
-require('../models/Annexure-1/AdmissionProcessActivities')
-const AdmissionProcessActivities = mongoose.model('admissionprocess');
+
 
 // Load exam assessment external model
 require('../models/Annexure-1/ExamAssessmentExternal')
@@ -302,29 +298,7 @@ router.get('/timeTable', ensureAuthenticated, (req, res) => {
         })
 });
 
-// Class advisor load route
-router.get('/classAdvisor', ensureAuthenticated, (req, res) => {
-    AcademicYear.find({ user: req.user.id })
-        .then(result => {
-            if (!result) {
-                req.flash('error_msg', 'Select the academic year before proceeding');
-                res.redirect('/');
-            }
-            year = result[0].academic_year;
-            ClassAdvisor.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-                .then(result => {
-                    res.render('annexure-1/classAdvisor', { result });
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Error while retrieving data.');
-                    res.redirect('/');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Select the academic year before proceeding.');
-            res.redirect('/');
-        })
-});
+
 
 // Sports activity load route
 router.get('/sportsActivities', ensureAuthenticated, (req, res) => {
@@ -495,29 +469,6 @@ router.get('/industrialVisitActivities', ensureAuthenticated, (req, res) => {
         })
 });
 
-// admission process activities load route
-router.get('/admissionProcessActivities', ensureAuthenticated, (req, res) => {
-    AcademicYear.find({ user: req.user.id })
-        .then(result => {
-            if (!result) {
-                req.flash('error_msg', 'Select the academic year before proceeding');
-                res.redirect('/');
-            }
-            year = result[0].academic_year;
-            AdmissionProcessActivities.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-                .then(result => {
-                    res.render('annexure-1/admissionProcessActivities', { result });
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Error while retrieving data.');
-                    res.redirect('/');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Select the academic year before proceeding.');
-            res.redirect('/');
-        })
-});
 
 // exam assesssment external load route
 router.get('/examAssessmentExternal', ensureAuthenticated, (req, res) => {
@@ -818,22 +769,7 @@ router.get('/timeTable/edit/:id', ensureAuthenticated, (req, res) => {
         })
 });
 
-// Class advisor load route
-router.get('/classAdvisor/edit/:id', ensureAuthenticated, (req, res) => {
-    ClassAdvisor.findOne({ _id: req.params.id })
-        .then(result => {
-            if (result.user != req.user.id) {
-                req.flash('error_msg', 'Not Authorized');
-                res.redirect('/annexure-1/classAdvisor');
-            } else {
-                res.render('annexure-1/classAdvisor', { editResult: result });
-            }
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
-            res.redirect('/annexure-1/classAdvisor');
-        })
-});
+
 
 // Sports activity load route
 router.get('/sportsActivities/edit/:id', ensureAuthenticated, (req, res) => {
@@ -955,22 +891,6 @@ router.get('/industrialVisitActivities/edit/:id', ensureAuthenticated, (req, res
         })
 });
 
-// admission process activities load route
-router.get('/admissionProcessActivities/edit/:id', ensureAuthenticated, (req, res) => {
-    AdmissionProcessActivities.findOne({ _id: req.params.id })
-        .then(result => {
-            if (result.user != req.user.id) {
-                req.flash('error_msg', 'Not Authorized');
-                res.redirect('/annexure-1/admissionProcessActivities');
-            } else {
-                res.render('annexure-1/admissionProcessActivities', { editResult: result });
-            }
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
-            res.redirect('/annexure-1/admissionProcessActivities');
-        })
-});
 
 // exam assesssment external load route
 router.get('/examAssessmentExternal/edit/:id', ensureAuthenticated, (req, res) => {
@@ -1261,29 +1181,7 @@ router.post('/timeTable', (req, res) => {
         })
 });
 
-//process class advisor form
-router.post('/classAdvisor', (req, res) => {
-    // add preleave data into db
-    const classAdvisorRecords = {
-        academic_year: year,
-        class_name: req.body.class_name,
-        department: req.body.department,
-        semester: req.body.semester,
-        duties: req.body.duties,
-        user: req.user.id
-    }
-    new ClassAdvisor(classAdvisorRecords)
-        .save()
-        .then(classAdvisor => {
-            req.flash('success_msg', 'Data entered successfully');
-            res.redirect('/annexure-1/sportsActivities');
-        })
-        .catch(err => {
-            console.log(err);
-            req.flash('error_msg', 'faculty ID not found please login again.');
-            res.redirect('/annexure-1/classAdvisor');
-        })
-});
+
 
 //process sports activities form
 router.post('/sportsActivities', (req, res) => {
@@ -1580,50 +1478,6 @@ router.post('/industrialVisitActivities', (req, res) => {
     }
 });
 
-//process admission process activities form
-router.post('/admissionProcessActivities', (req, res) => {
-    let errors = [];
-
-    if (req.body.admission_start_date > req.body.admission_end_date) {
-        errors.push({ text: 'End Date should not be before start date' });
-    }
-    if (errors.length > 0) {
-        res.render('annexure-1/admissionProcessActivities', {
-            errors: errors,
-            admission_role: req.body.admission_role,
-            admission_duties: req.body.admission_duties,
-            admission_class: req.body.admission_class,
-            admission_start_date: req.body.admission_start_date,
-            admission_end_date: req.body.admission_end_date,
-        }
-        )
-    }
-    else {
-        // add preleave data into db
-        const admissionProcessRecords = {
-            academic_year: year,
-            admission_role: req.body.admission_role,
-            admission_duties: req.body.admission_duties,
-            admission_class: req.body.admission_class,
-            admission_start_date: req.body.admission_start_date,
-            admission_end_date: req.body.admission_end_date,
-            user: req.user.id
-        }
-
-        new AdmissionProcessActivities(admissionProcessRecords)
-            .save()
-            .then(industrialVisit => {
-                req.flash('success_msg', 'Data entered successfully');
-                res.redirect('/annexure-1/examAssessmentExternal');
-            })
-            .catch(err => {
-                console.log(err);
-                req.flash('error_msg', 'faculty ID not found please login again.');
-                res.redirect('/annexure-1/admissionProcessActivities');
-            })
-    }
-
-});
 
 //process exam assessment external form
 router.post('/examAssessmentExternal', (req, res) => {
@@ -2087,29 +1941,7 @@ router.put('/timeTable/:id', (req, res) => {
         })
 });
 
-router.put('/classAdvisor/:id', (req, res) => {
-    ClassAdvisor.findOne({ _id: req.params.id })
-        .then((result) => {
-            result.class_name = req.body.class_name,
-                result.department = req.body.department,
-                result.semester = req.body.semester,
-                result.duties = req.body.duties
 
-            result.save()
-                .then(() => {
-                    req.flash('success_msg', 'Data updated successfully');
-                    res.redirect('/annexure-1/classAdvisor');
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Data not updated. Please try logging in again.');
-                    res.redirect('/annexure-1/classAdvisor');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'User not found. Please try logging in again.');
-            res.redirect('/annexure-1/classAdvisor');
-        })
-});
 
 router.put('/sportsActivities/:id', (req, res) => {
     SportsActivities.findOne({ _id: req.params.id })
@@ -2388,42 +2220,7 @@ router.put('/industrialVisitActivities/:id', (req, res) => {
         })
 });
 
-router.put('/admissionProcessActivities/:id', (req, res) => {
-    let errors = [];
-    if (req.body.admission_start_date > req.body.admission_end_date) {
-        errors.push({ text: 'End Date should not be before start date' });
-    }
-    if (errors.length > 0) {
-        if (req.body.admission_start_date > req.body.admission_end_date) {
-            req.flash('error_msg', 'End Date should not be before start date');
-            res.redirect('/annexure-1/admissionProcessActivities');
-        }
-    }
-    else {
-        AdmissionProcessActivities.findOne({ _id: req.params.id })
-            .then(result => {
-                result.admission_role = req.body.admission_role,
-                    result.admission_duties = req.body.admission_duties,
-                    result.admission_class = req.body.admission_class,
-                    result.admission_start_date = req.body.admission_start_date,
-                    result.admission_end_date = req.body.admission_end_date
 
-                result.save()
-                    .then(() => {
-                        req.flash('success_msg', 'Data updated successfully');
-                        res.redirect('/annexure-1/admissionProcessActivities');
-                    })
-                    .catch(() => {
-                        req.flash('error_msg', 'Data not updated. Please try logging in again.');
-                        res.redirect('/annexure-1/admissionProcessActivities');
-                    })
-            })
-            .catch(() => {
-                req.flash('error_msg', 'User not found. Please try logging in again.');
-                res.redirect('/annexure-1/admissionProcessActivities');
-            })
-    }
-});
 
 router.put('/examAssessmentExternal/:id', (req, res) => {
     let errors = [];
@@ -2814,17 +2611,7 @@ router.delete('/timeTable/delete/:id', (req, res) => {
         })
 });
 
-router.delete('/classAdvisor/delete/:id', (req, res) => {
-    ClassAdvisor.deleteOne({ _id: req.params.id })
-        .then(() => {
-            req.flash('success_msg', 'Data deleted successfully');
-            res.redirect('/annexure-1/classAdvisor');
-        })
-        .catch(() => {
-            req.flash('error_msg', 'User not found. Please try logging in again.');
-            res.redirect('/annexure-1/classAdvisor');
-        })
-});
+
 
 router.delete('/sportsActivities/delete/:id', (req, res) => {
     SportsActivities.deleteOne({ _id: req.params.id })
@@ -2912,17 +2699,7 @@ router.delete('/industrialVisitActivities/delete/:id', (req, res) => {
         })
 });
 
-router.delete('/admissionProcessActivities/delete/:id', (req, res) => {
-    AdmissionProcessActivities.deleteOne({ _id: req.params.id })
-        .then(() => {
-            req.flash('success_msg', 'Data deleted successfully');
-            res.redirect('/annexure-1/admissionProcessActivities');
-        })
-        .catch(() => {
-            req.flash('error_msg', 'User not found. Please try logging in again.');
-            res.redirect('/annexure-1/admissionProcessActivities');
-        })
-});
+
 
 router.delete('/examAssessmentExternal/delete/:id', (req, res) => {
     ExamAssessmentExternal.deleteOne({ _id: req.params.id })
