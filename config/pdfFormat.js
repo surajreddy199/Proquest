@@ -1,10 +1,7 @@
 const modules = require('./modules');
 
     var loads = [modules.TeachingLoad.findOne({ user: req.user.id }).exec(),
-    modules.TeachingAssistant.findOne({ user: req.user.id }).exec(),
-    modules.NewBooks.findOne({ user: req.user.id }).exec(),
-    modules.AddedExp.findOne({ user: req.user.id }).exec(),
-    modules.Innovation.findOne({ user: req.user.id }).exec(),
+    
 
     modules.Leave.findOne({ user: req.user.id }).exec(),
 
@@ -32,4 +29,3 @@ const modules = require('./modules');
     ];
 
 
-// module.exports = loads;

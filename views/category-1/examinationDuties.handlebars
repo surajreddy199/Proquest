@@ -1,0 +1,201 @@
+<h5>Category 1</h5><br>
+<div class="container">
+    <h6>1.5 Examination Duties</h6>
+    <hr>
+
+    {{#if result}}
+    {{#each result}}
+    <div class="row" id="examinationDuties">
+        <h6><strong>Select the Examination Duties Performed</strong></h6>
+        <div class="row">
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if invigilation}}checked{{/if}} />
+                    <span>Invigilation</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if questionPaperSetting}}checked{{/if}} />
+                    <span>Question Paper Setting</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if evaluationAnswerScripts}}checked{{/if}} />
+                    <span>Evaluation of Answer Scripts</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if paperModeration}}checked{{/if}} />
+                    <span>Paper Moderation</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if labEvaluation}}checked{{/if}} />
+                    <span>Lab Evaluation</span>
+                </label>
+            </p>
+        </div>
+
+        <h6><strong>Score</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="scoreFive" id="scoreFive" 
+                    value="{{scoreFive}}" class="validate" disabled max="25">
+                <label for="scoreFive">Enter the Score (Max: 25)</label>
+            </div>
+            <div class="input-field col s6">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                    Help <i class="material-icons right">help_outline</i>
+                </a>
+            </div>
+        </div>
+
+        <a href="/category-1/examinationDuties/edit/{{id}}" 
+            class="btn waves-effect waves-light red center mb-2">Edit</a>
+        <a href="/users/faculty/facultyOverview" 
+            class="btn waves-effect waves-light purple center mb-2">Back to overview</a><br><br>
+        <form method="post" action="/category-1/examinationDuties/delete/{{id}}?_method=DELETE">
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="submit" class="btn waves-effect waves-light center red white-text" value="Delete">
+        </form>
+    </div>
+    </div>
+    {{else}}
+    {{/each}}
+    {{else}}
+
+    {{#if editResult}}
+    <div class="row" id="examinationDuties">
+        <form action="/category-1/examinationDuties/{{editResult.id}}?_method=PUT" method="post" class="col s12">
+            <input type="hidden" name="_method" value="PUT">
+
+            <h6><strong>Select the Examination Duties Performed</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="invigilation" {{#if editResult.invigilation}}checked{{/if}} />
+                        <span>Invigilation</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="questionPaperSetting" {{#if editResult.questionPaperSetting}}checked{{/if}} />
+                        <span>Question Paper Setting</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="evaluationAnswerScripts" {{#if editResult.evaluationAnswerScripts}}checked{{/if}} />
+                        <span>Evaluation of Answer Scripts</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="paperModeration" {{#if editResult.paperModeration}}checked{{/if}} />
+                        <span>Paper Moderation</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="labEvaluation" {{#if editResult.labEvaluation}}checked{{/if}} />
+                        <span>Lab Evaluation</span>
+                    </label>
+                </p>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreFive" id="scoreFive" 
+                        value="{{editResult.scoreFive}}" class="validate" required max="25">
+                    <label for="scoreFive">Enter the Score (Max: 25)</label>
+                </div>
+                <div class="input-field col s6">
+                    <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                        Help <i class="material-icons right">help_outline</i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p>
+                    <label>
+                        <input id="indeterminate-checkbox" type="checkbox" required />
+                        <span>I acknowledge that the above-filled information is verified and justified by me.</span>
+                    </label>
+                </p>
+            </div>
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit</button>
+        </form>
+    </div>
+
+    {{else}}
+
+    <div class="row" id="examinationDuties">
+        <form action="/category-1/examinationDuties" method="post" class="col s12">
+            <h6><strong>Select the Examination Duties Performed</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="invigilation" />
+                        <span>Invigilation</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="questionPaperSetting" />
+                        <span>Question Paper Setting</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="evaluationAnswerScripts" />
+                        <span>Evaluation of Answer Scripts</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="paperModeration" />
+                        <span>Paper Moderation</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="labEvaluation" />
+                        <span>Lab Evaluation</span>
+                    </label>
+                </p>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreFive" id="scoreFive" 
+                        class="validate" required max="25">
+                    <label for="scoreFive">Enter the Score (Max: 25)</label>
+                </div>
+                <div class="input-field col s6">
+                    <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                        Help <i class="material-icons right">help_outline</i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p>
+                    <label>
+                        <input id="indeterminate-checkbox" type="checkbox" required />
+                        <span>I acknowledge that the above-filled information is verified and justified by me.</span>
+                    </label>
+                </p>
+            </div>
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit</button>
+        </form>
+    </div>
+</div>
+{{/if}}
+{{/if}}

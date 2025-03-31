@@ -78,10 +78,7 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
 
                                 finalResult = result;
                                 var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.TeachingAssistant.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.NewBooks.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.AddedExp.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.Innovation.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+                                
 
                                 modules.Leave.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
@@ -116,7 +113,6 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                 modules.ShortTermTraining.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.Seminars.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
-
                                 modules.ResearchPapersPublished.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.ResourcePerson.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
                                 modules.ContributionToSyllabus.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -128,7 +124,7 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                     .then(result => {
                                         return Promise.all(result);
                                     })
-                                    .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
+                                    .then(([teachingLoad,
                                         leave,
                                         teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                                         papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
@@ -143,12 +139,23 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                         
                                         // Minimum score validation (75)
                                         if (categoryOneTotalScore < 75) {
-                                            req.flash('error_msg', 'Category 1 total score must be at least 75.');
-                                            return res.redirect('/faculty/facultyOverview');
+                                            // req.flash('error_msg', 'Category 1 total score must be at least 75.'); //checklast
+                                            return res.render('users/faculty/facultyOverview', { 
+                                                finalResult, teachingLoad, leave, 
+                                                teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
+                                                teachingContributionScore: teachingContribution ? teachingContribution.scoreOne : 0,
+                                                lecturesExcessScore: lecturesExcess ? lecturesExcess.scoreTwo : 0,
+                                                additionalResourcesScore: additionalResources ? additionalResources.scoreThree : 0,
+                                                innovativeTeachingScore: innovativeTeaching ? innovativeTeaching.scoreFour : 0,
+                                                examinationDutiesScore: examinationDuties ? examinationDuties.scoreFive : 0,
+                                                categoryOneTotalScore
+                                                
+    
+                                             });
                                         }
 
                                         res.render('users/faculty/facultyOverview', { 
-                                            finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, 
+                                            finalResult, teachingLoad, leave, 
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             teachingContributionScore: teachingContribution ? teachingContribution.scoreOne : 0,
                                             lecturesExcessScore: lecturesExcess ? lecturesExcess.scoreTwo : 0,
@@ -457,10 +464,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     //console.log(facultID);
                                     //console.log(finalResult);
                                     var loads = [modules.TeachingLoad.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.TeachingAssistant.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.NewBooks.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.AddedExp.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.Innovation.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    
 
                                     modules.Leave.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
@@ -509,7 +513,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         .then(result => {
                                             return Promise.all(result);
                                         })
-                                        .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
+                                        .then(([teachingLoad,
                                             leave,
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
@@ -517,7 +521,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, teachingAssistant, newBooks, addedExp, innovation, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -554,11 +558,11 @@ router.post('/faculty/facultyOverview/:year', (req, res) => {
         errors.push({ text: 'Please enter marks between 0 to 40' });
     } else if (!req.body.leaveRecord || req.body.leaveRecord > 40 || req.body.leaveRecord < 0) {
         errors.push({ text: 'Please enter marks between 0 to 40' });
-    } else if (!req.body.annexure_1 || req.body.annexure_1 > 40 || req.body.annexure_1 < 0) {
+    } else if (!req.body.category_1 || req.body.category_1 > 40 || req.body.category_1 < 0) {
         errors.push({ text: 'Please enter marks between 0 to 40' });
-    } else if (!req.body.annexure_2 || req.body.annexure_2 > 40 || req.body.annexure_2 < 0) {
+    } else if (!req.body.category_2 || req.body.category_2 > 40 || req.body.category_2 < 0) {
         errors.push({ text: 'Please enter marks between 0 to 40' });
-    } else if (!req.body.annexure_3 || req.body.annexure_3 > 40 || req.body.annexure_3 < 0) {
+    } else if (!req.body.category_3 || req.body.category_3 > 40 || req.body.category_3 < 0) {
         errors.push({ text: 'Please enter marks between 0 to 40' });
     }
 
@@ -567,24 +571,19 @@ router.post('/faculty/facultyOverview/:year', (req, res) => {
             errors: errors,
             academicPerformance: req.body.academicPerformance,
             leaveRecord: req.body.leaveRecord,
-            annexure_1: req.body.annexure_1,
-            annexure_2: req.body.annexure_2,
-            annexure_3: req.body.annexure_3
+            category_1: req.body.category_1,
+            category_2: req.body.category_2,
+            category_3: req.body.category_3
         });
     }
     else {
-        modules.TeachingLoad.findOne({ $and: [{ user: req.user.id }, { academic_year: req.params.year }] }).then(result => {
-            if (!result) {
-                req.flash('error_msg', 'Teaching load form is compulsory');
-                res.redirect('/users/faculty/facultyOverview');
-            } else {
                 const marks = {
-                    academic_year: year,
+                    academic_year: req.params.year, //checklast
                     academicPerformance: req.body.academicPerformance,
                     leaveRecord: req.body.leaveRecord,
-                    annexure_1: req.body.annexure_1,
-                    annexure_2: req.body.annexure_2,
-                    annexure_3: req.body.annexure_3,
+                    category_1: req.body.category_1,
+                    category_2: req.body.category_2,
+                    category_3: req.body.category_3,
                     user: req.user.id
                 }
                 new FacultyMarks(marks)
@@ -598,8 +597,8 @@ router.post('/faculty/facultyOverview/:year', (req, res) => {
                         req.flash('error_msg', 'There was an error while performing the tasks.');
                         res.redirect('back');
                     })
-            }
-        })
+            
+        
     }
 });
 
@@ -610,10 +609,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             facultyName = result[0].name;
             facultyEmail = result[0].email;
             var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.TeachingAssistant.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.NewBooks.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.AddedExp.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.Innovation.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }),
+           
 
             modules.Leave.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
@@ -660,7 +656,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 .then(result => {
                     return Promise.all(result);
                 })
-                .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
+                .then(([teachingLoad,
                     leave,
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
@@ -669,10 +665,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                         req.flash('error_msg', 'Teaching load form is compulsory to fill');
                         res.redirect('/users/faculty/facultyOverview');
                     }
-                    if (!teachingAssistant) { teachingAssistant = { faculty_name: '-', class: '-', semester: '-', subject: '-' } }
-                    if (!newBooks) { newBooks = { subject_name: '-', title: '-', semester: '-', class: '-', publication: '-', author: '-' } }
-                    if (!addedExp) { addedExp = { subject_name: '-', class: '-', semester: '-', exp_name: '-' } }
-                    if (!innovation) { innovation = { subject_name: '-', class_name: '-', semester: '-', technique: '-' } }
+                   
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!timeTable) { timeTable = { role: '-', department: '-', semester: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
@@ -713,72 +706,25 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     document = {
                         content: [
                             { text: 'Self Appraisal Report', style: 'header' },
-                            { text: 'Academic Year: ' + teachingLoad.academic_year, style: 'header' },
+                            { text: 'Academic Year: ' + teachingContribution.academic_year, style: 'header' },
 
                             'Name: ' + facultyName + '\n',
                             'Email ID: ' + facultyEmail + '\n',
 
-                            { text: 'Academic Performance', style: 'subheader' },
-                            { text: '1. Teaching Load', style: 'subheader' },
+                            // { text: 'Academic Performance', style: 'subheader' },
+                            // { text: '1. Teaching Load', style: 'subheader' },
 
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Department', 'Semester', 'Theory Load', 'Lab Load', 'Tutorials Load ', 'Theory sessions', 'Practical Sessions', 'Feedback'],
-                                        [teachingLoad.subject_name, teachingLoad.class, teachingLoad.department, teachingLoad.semester, teachingLoad.theory_subject, teachingLoad.lab_subject, teachingLoad.tutorials, teachingLoad.theory_session, teachingLoad.practical_session, teachingLoad.Student_feedback]
-                                    ]
-                                }
-                            },
+                            // {
+                            //     style: 'tableExample',
+                            //     table: {
+                            //         body: [
+                            //             ['Subject Name', 'Class', 'Department', 'Semester', 'Theory Load', 'Lab Load', 'Tutorials Load ', 'Theory sessions', 'Practical Sessions', 'Feedback'],
+                            //             [teachingLoad.subject_name, teachingLoad.class, teachingLoad.department, teachingLoad.semester, teachingLoad.theory_subject, teachingLoad.lab_subject, teachingLoad.tutorials, teachingLoad.theory_session, teachingLoad.practical_session, teachingLoad.Student_feedback]
+                            //         ]
+                            //     }
+                            // },
 
-                            { text: '2. Teaching Assistant', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['TA Name', 'Class', 'Semester', 'Subject Contribution'],
-                                        [teachingAssistant.faculty_name, teachingAssistant.class, teachingAssistant.semester, teachingAssistant.subject]
-                                    ]
-                                }
-                            },
-
-                            { text: '3. New Books Suggested to Library', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Semester', 'Title', 'Publication', 'Author '],
-                                        [newBooks.subject_name, newBooks.class, newBooks.semester, newBooks.title, newBooks.publication, newBooks.author]
-                                    ]
-                                }
-                            },
-
-                            { text: '4. Additional Experiments added to lab manual', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Semester', 'Experiment Name'],
-                                        [addedExp.subject_name, addedExp.class, addedExp.semester, addedExp.exp_name]
-                                    ]
-                                }
-                            },
-
-                            { text: '5. Innovative Teaching Technique Adopted', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Semester', 'Technique Adopted'],
-
-                                        [innovation.subject_name, innovation.class_name, innovation.semester, innovation.technique]
-                                    ]
-                                }
-                            },
+                        
                             { text: 'Leave Record', style: 'subheader' },
                             { text: '1. Pre-Sanctioned Leave Record', style: 'subheader' },
 
@@ -802,7 +748,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     ]
                                 }
                             },
-                            { text: 'Annexure-1', style: 'subheader' },
+                            { text: 'Category-1', style: 'subheader' },
                             { text: '1.1 Timetable related Activities ', style: 'subheader' },
 
                             {
@@ -1064,7 +1010,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 }
                             },
 
-                            { text: 'Annexure-2', style: 'subheader' },
+                            { text: 'Category-2', style: 'subheader' },
                             { text: '2.1 Papers Published In National Conference', style: 'subheader' },
 
                             {
@@ -1149,7 +1095,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     ]
                                 }
                             },
-                            { text: 'Annexure-3', style: 'subheader' },
+                            { text: 'Category-3', style: 'subheader' },
                             
                             { text: ' 3.1 Research Papers Published', style: 'subheader' },
                             {
@@ -1278,10 +1224,7 @@ router.post('/hod/pdf/:id', (req, res) => {
             facultyName = result[0].name;
             facultyEmail = result[0].email;
             var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.TeachingAssistant.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.NewBooks.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.AddedExp.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.Innovation.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }),
+            
 
             modules.Leave.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
@@ -1328,15 +1271,12 @@ router.post('/hod/pdf/:id', (req, res) => {
                 .then(result => {
                     return Promise.all(result);
                 })
-                .then(([teachingLoad, teachingAssistant, newBooks, addedExp, innovation,
+                .then(([teachingLoad,
                     leave,
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
-                    if (!teachingAssistant) { teachingAssistant = { faculty_name: '-', class: '-', semester: '-', subject: '-' } }
-                    if (!newBooks) { newBooks = { subject_name: '-', title: '-', semester: '-', class: '-', publication: '-', author: '-' } }
-                    if (!addedExp) { addedExp = { subject_name: '-', class: '-', semester: '-', exp_name: '-' } }
-                    if (!innovation) { innovation = { subject_name: '-', class_name: '-', semester: '-', technique: '-' } }
+                    
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
@@ -1378,72 +1318,25 @@ router.post('/hod/pdf/:id', (req, res) => {
                     document = {
                         content: [
                             { text: 'Self Appraisal Report', style: 'header' },
-                            { text: 'Academic Year: ' + teachingLoad.academic_year, style: 'header' },
+                            { text: 'Academic Year: ' + teachingContribution.academic_year, style: 'header' },
 
                             'Name: ' + facultyName + '\n',
                             'Email ID: ' + facultyEmail + '\n',
 
-                            { text: 'Academic Performance', style: 'subheader' },
-                            { text: '1. Teaching Load', style: 'subheader' },
+                            // { text: 'Academic Performance', style: 'subheader' },
+                            // { text: '1. Teaching Load', style: 'subheader' },
 
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Department', 'Semester', 'Theory Load', 'Lab Load', 'Tutorials Load ', 'Theory sessions', 'Practical Sessions', 'Feedback'],
-                                        [teachingLoad.subject_name, teachingLoad.class, teachingLoad.department, teachingLoad.semester, teachingLoad.theory_subject, teachingLoad.lab_subject, teachingLoad.tutorials, teachingLoad.theory_session, teachingLoad.practical_session, teachingLoad.Student_feedback]
-                                    ]
-                                }
-                            },
+                            // {
+                            //     style: 'tableExample',
+                            //     table: {
+                            //         body: [
+                            //             ['Subject Name', 'Class', 'Department', 'Semester', 'Theory Load', 'Lab Load', 'Tutorials Load ', 'Theory sessions', 'Practical Sessions', 'Feedback'],
+                            //             [teachingLoad.subject_name, teachingLoad.class, teachingLoad.department, teachingLoad.semester, teachingLoad.theory_subject, teachingLoad.lab_subject, teachingLoad.tutorials, teachingLoad.theory_session, teachingLoad.practical_session, teachingLoad.Student_feedback]
+                            //         ]
+                            //     }
+                            // },
 
-                            { text: '2. Teaching Assistant', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['TA Name', 'Class', 'Semester', 'Subject Contribution'],
-                                        [teachingAssistant.faculty_name, teachingAssistant.class, teachingAssistant.semester, teachingAssistant.subject]
-                                    ]
-                                }
-                            },
-
-                            { text: '3. New Books Suggested to Library', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Semester', 'Title', 'Publication', 'Author '],
-                                        [newBooks.subject_name, newBooks.class, newBooks.semester, newBooks.title, newBooks.publication, newBooks.author]
-                                    ]
-                                }
-                            },
-
-                            { text: '4. Additional Experiments added to lab manual', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Semester', 'Experiment Name'],
-                                        [addedExp.subject_name, addedExp.class, addedExp.semester, addedExp.exp_name]
-                                    ]
-                                }
-                            },
-
-                            { text: '5. Innovative Teaching Technique Adopted', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Class', 'Semester', 'Technique Adopted'],
-
-                                        [innovation.subject_name, innovation.class_name, innovation.semester, innovation.technique]
-                                    ]
-                                }
-                            },
+                            
                             { text: 'Leave Record', style: 'subheader' },
                             { text: '1. Pre-Sanctioned Leave Record', style: 'subheader' },
 
@@ -1467,7 +1360,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                                     ]
                                 }
                             },
-                            { text: 'Annexure-1', style: 'subheader' },
+                            { text: 'Category-1', style: 'subheader' },
                             { text: '1.1 Timetable related Activities ', style: 'subheader' },
 
                             {
@@ -1725,7 +1618,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                                 }
                             },
 
-                            { text: 'Annexure-2', style: 'subheader' },
+                            { text: 'Category-2', style: 'subheader' },
                             { text: '2.1 Papers Published In National Conference', style: 'subheader' },
 
                             {
@@ -1810,7 +1703,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                                     ]
                                 }
                             },
-                            { text: 'Annexure-3', style: 'subheader' },
+                            { text: 'Category-3', style: 'subheader' },
 
                             { text: ' 3.1 Research Papers Published', style: 'subheader' },
                             {
@@ -1999,9 +1892,9 @@ router.post('/hod/finalSubmit/:id/:year', (req, res) => {
             facultyDept = result[0].department;
             facultyAP = facultymarks[0].academicPerformance;
             facultyLeave = facultymarks[0].leaveRecord;
-            facultyA1 = facultymarks[0].annexure_1;
-            facultyA2 = facultymarks[0].annexure_2;
-            facultyA3 = facultymarks[0].annexure_3;
+            facultyA1 = facultymarks[0].category_1;
+            facultyA2 = facultymarks[0].category_2;
+            facultyA3 = facultymarks[0].category_3;
 
             let finalValue = +req.body.value1 + +req.body.value2 + +req.body.value3 + +req.body.value4 + +req.body.value5
             // console.log(facultyName);
@@ -2013,9 +1906,9 @@ router.post('/hod/finalSubmit/:id/:year', (req, res) => {
                 department: facultyDept,
                 academicPerformance: req.body.academicPerformance,
                 leaveRecord: req.body.leaveRecord,
-                annexure_1: req.body.annexure_1,
-                annexure_2: req.body.annexure_2,
-                annexure_3: req.body.annexure_3,
+                category_1: req.body.category_1,
+                category_2: req.body.category_2,
+                category_3: req.body.category_3,
                 confidential: finalValue,
                 facultyAP: facultyAP,
                 facultyLeave: facultyLeave,

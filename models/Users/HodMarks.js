@@ -27,15 +27,15 @@ const HodMarks = new Schema({
         type: Number,
         required: true
     },
-    annexure_1: {
+    category_1: {
         type: Number,
         required: true
     },
-    annexure_2: {
+    category_2: {
         type: Number,
         required: true
     },
-    annexure_3: {
+    category_3: {
         type: Number,
         required: true
     },

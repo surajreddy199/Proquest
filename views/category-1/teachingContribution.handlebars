@@ -1,0 +1,218 @@
+<h5>Category 1</h5><br>
+<div class="container">
+    <h6>1.1 Teaching Contribution</h6>
+    <hr>
+    {{#if result}}
+    {{#each result}}
+    <div class="row" id="teachingContribution">
+        <h6><strong>Lectures</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="lecturesDelivered" id="lecturesDelivered" 
+                    value="{{lecturesDelivered}}" class="validate" disabled>
+                <label for="lecturesDelivered">Lectures Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="lecturesAllocated" id="lecturesAllocated" 
+                    value="{{lecturesAllocated}}" class="validate" disabled>
+                <label for="lecturesAllocated">Lectures Allocated</label>
+            </div>
+        </div>
+        <h6><strong>Tutorials</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="tutorialsDelivered" id="tutorialsDelivered" 
+                    value="{{tutorialsDelivered}}" class="validate" disabled>
+                <label for="tutorialsDelivered">Tutorials Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="tutorialsAllocated" id="tutorialsAllocated" 
+                    value="{{tutorialsAllocated}}" class="validate" disabled>
+                <label for="tutorialsAllocated">Tutorials Allocated</label>
+            </div>
+        </div>
+        <h6><strong>Practical Sessions</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="practicalSessionsDelivered" id="practicalSessionsDelivered" 
+                    value="{{practicalSessionsDelivered}}" class="validate" disabled>
+                <label for="practicalSessionsDelivered">Practical Sessions Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="practicalSessionsAllocated" id="practicalSessionsAllocated" 
+                    value="{{practicalSessionsAllocated}}" class="validate" disabled>
+                <label for="practicalSessionsAllocated">Practical Sessions Allocated</label>
+            </div>
+        </div>
+
+        <h6><strong>Score</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="scoreOne" id="scoreOne" value="{{scoreOne}}" class="validate" disabled max="50">
+                <label for="scoreOne">Enter the Score (Max : 50)</label>
+            </div>
+            <div class="input-field col s6">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+
+            
+        </div>
+        
+        <a href="/category-1/teachingContribution/edit/{{id}}"
+            class="btn waves-effect waves-light red center mb-2">Edit</a>
+        <a href="/users/faculty/facultyOverview" class="btn waves-effect waves-light purple center mb-2">Back to
+            overview</a><br><br>
+        <form method="post" action="/category-1/teachingContribution/delete/{{id}}?_method=DELETE">
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="submit" class="btn waves-effect waves-light center red white-text" value="Delete">
+        </form>
+    </div>
+</div>
+{{else}}
+{{/each}}
+{{else}}
+{{#if editResult}}
+<div class="row" id="teachingContribution">
+    <form action="/category-1/teachingContribution/{{editResult.id}}?_method=PUT" method="post" class="col s12">
+        <input type="hidden" name="_method" value="PUT">
+        <h6><strong>Lectures</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="lecturesDelivered" id="lecturesDelivered" 
+                    value="{{editResult.lecturesDelivered}}" class="validate" required>
+                <label for="lecturesDelivered">Lectures Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="lecturesAllocated" id="lecturesAllocated" 
+                    value="{{editResult.lecturesAllocated}}" class="validate" required>
+                <label for="lecturesAllocated">Lectures Allocated</label>
+            </div>
+        </div>
+        <h6><strong>Tutorials</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="tutorialsDelivered" id="tutorialsDelivered" 
+                    value="{{editResult.tutorialsDelivered}}" class="validate" required>
+                <label for="tutorialsDelivered">Tutorials Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="tutorialsAllocated" id="tutorialsAllocated" 
+                    value="{{editResult.tutorialsAllocated}}" class="validate" required>
+                <label for="tutorialsAllocated">Tutorials Allocated</label>
+            </div>
+        </div>
+        <h6><strong>Practical Sessions</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="practicalSessionsDelivered" id="practicalSessionsDelivered" 
+                    value="{{editResult.practicalSessionsDelivered}}" class="validate" required>
+                <label for="practicalSessionsDelivered">Practical Sessions Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="practicalSessionsAllocated" id="practicalSessionsAllocated" 
+                    value="{{editResult.practicalSessionsAllocated}}" class="validate" required>
+                <label for="practicalSessionsAllocated">Practical Sessions Allocated</label>
+            </div>
+        </div>
+
+        <h6><strong>Score</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="scoreOne" id="scoreOne" value="{{editResult.scoreOne}}" class="validate" required max="50">
+                <label for="scoreOne">Enter the Score (Max : 50)</label>
+            </div>
+            <div class="input-field col s6">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+        </div>
+        
+        <div>
+            <p>
+                <label>
+                    <input id="indeterminate-checkbox" type="checkbox" required />
+                    <span>I acknowledge that above filled information is verified and justified by me.</span>
+                </label>
+            </p>
+        </div>
+        <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit
+        </button>
+    </form>
+
+</div>
+</div>
+</div>
+
+{{else}}
+<div class="row" id="teachingContribution">
+    <form action="/category-1/teachingContribution" method="post" class="col s12">
+        <h6><strong>Lectures</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="lecturesDelivered" id="lecturesDelivered" 
+                     class="validate" required>
+                <label for="lecturesDelivered">Lectures Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="lecturesAllocated" id="lecturesAllocated" 
+                    class="validate" required>
+                <label for="lecturesAllocated">Lectures Allocated</label>
+            </div>
+        </div>
+        <h6><strong>Tutorials</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="tutorialsDelivered" id="tutorialsDelivered" 
+                    class="validate" required>
+                <label for="tutorialsDelivered">Tutorials Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="tutorialsAllocated" id="tutorialsAllocated" 
+                    class="validate" required>
+                <label for="tutorialsAllocated">Tutorials Allocated</label>
+            </div>
+        </div>
+        <h6><strong>Practical Sessions</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="practicalSessionsDelivered" id="practicalSessionsDelivered" 
+                    class="validate" required>
+                <label for="practicalSessionsDelivered">Practical Sessions Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="practicalSessionsAllocated" id="practicalSessionsAllocated" 
+                     class="validate" required>
+                <label for="practicalSessionsAllocated">Practical Sessions Allocated</label>
+            </div>
+        </div>
+        <h6><strong>Score</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="scoreOne" id="scoreOne" class="validate" required max="50">
+                <label for="scoreOne">Enter the Score (Max : 50)</label>
+            </div>
+            <div class="input-field col s6">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+        </div>
+
+
+        
+        <div>
+            <p>
+                <label>
+                    <input id="indeterminate-checkbox" type="checkbox" required />
+                    <span>I acknowledge that above filled information is verified and justified by me.</span>
+                </label>
+            </p>
+        </div>
+        <a href="/category-2/paperspublishedinNationalConf" class="waves-effect waves-light btn red center">Not
+            Applicable</a>
+        <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit
+        </button>   
+    </form>
+</div>
+</div>
+{{/if}}
+{{/if}}
+
+

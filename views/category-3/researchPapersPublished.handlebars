@@ -1,0 +1,212 @@
+<h5>Category 3</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
+
+
+<div class="container">
+    <h6>3.1 Research Papers Published</h6>
+    <hr>
+
+    <form action="/category-3/researchPapersPublished" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="input-field col s12 md5">
+                <select name="publication_type" class="validate" id="publicationType">
+                    <option value="" disabled selected>Select Publication Type</option>
+                    <option value="refereed">Refereed Journals</option>
+                    <option value="non-refereed">Non-Refereed Journals</option>
+                    <option value="conference">Conference Proceedings</option>
+                </select>
+                <label>Publication Type</label>
+            </div>
+        </div>
+
+        <!-- Journal Entries Container -->
+        <div id="journalEntries"></div>
+
+        <input type="hidden" name="publication_type" id="hiddenPublicationType">
+        <h6>Total Individual Score: <span id="totalScore">0</span></h6>
+
+        <div class="row">
+            <div style="margin-top: 20px; display: flex; gap: 20px;"  class="input-field col s8">
+                <button type="button" id="addJournal" class="btn orange">Add Another Journal</button>   
+                 <button type="submit" id="submitBtn" class="btn green" disabled>Submit</button>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 50px;" class="input-field col s4">
+               
+                <a href="/pdfs/help.pdf" target="_blank" class="btn blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+        </div>
+        
+    </form>
+</div>
+
+
+<script>
+
+    let savedJournals = [];
+
+    {{#each researchPapers}}
+        savedJournals.push({
+            publication_type: "{{this.publication_type}}",
+            academic_year: "{{this.academic_year}}",
+            journals: [
+                {{#each this.journals}}
+                    {
+                        journal_title: "{{this.journal_title}}",
+                        publication_link: "{{this.publication_link}}",
+                        journal_document: "{{this.journal_document}}",
+                        score: {{this.score}}
+                    },
+                {{/each}}
+            ]
+        });
+    {{/each}}
+     // Get the academic year from the server
+    let selectedYear = "{{academic_year}}";
+
+    // Filter the journals by academic year
+    savedJournals = savedJournals.filter(entry => entry.academic_year === selectedYear);
+
+    document.getElementById("publicationType").addEventListener("change", function () {
+        document.getElementById("hiddenPublicationType").value = this.value;
+        loadJournalEntries(this.value);
+    });
+
+    function updateScore() {
+        let type = document.getElementById("publicationType").value;
+        let scorePerPublication = { refereed: 15, "non-refereed": 10, conference: 10 }[type] || 0;
+        let count = document.querySelectorAll(".journal-entry[data-type='" + type + "']").length;
+        document.getElementById("totalScore").innerText = count * scorePerPublication;
+        validateForm();
+    }
+
+    function addJournalEntry(type, journal = null) {
+        let entry = document.createElement("div");
+        entry.classList.add("row", "journal-entry");
+        entry.setAttribute("data-type", type);
+        entry.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="journal_title[]" value="${journal ? journal.journal_title : ''}" required>
+                <label class="active">Journal Description</label>
+            </div>
+            <div class="input-field col s12">
+                <input type="url" name="publication_link[]" value="${journal ? journal.publication_link : ''}" required>
+                <label class="active">Publication Link</label>
+            </div>
+            <div class="input-field col s6">
+                ${journal && journal.journal_document ? `
+                    <a href="/${journal.journal_document}" target="_blank" class="btn blue">View Document</a>
+                    <input type="hidden" name="journal_document_existing[]" value="${journal.journal_document}">
+                ` : '<input type="file" name="journal_document[]" accept=".pdf,.jpg,.png" class="new-journal-doc" required>'}
+            </div>
+            <div class="col s6">
+                <button type="button" class="btn red remove-journal">Remove</button>
+            </div>
+        `;
+
+        document.getElementById("journalEntries").appendChild(entry);
+        updateScore();
+    }
+
+    document.getElementById("addJournal").addEventListener("click", function() {
+        let type = document.getElementById("publicationType").value;
+        if (!type) {
+            alert("Please select a publication type first.");
+            return;
+        }
+        addJournalEntry(type);
+    });
+
+    document.addEventListener("click", function(event) {
+    if (event.target.classList.contains("remove-journal")) {
+        let entry = event.target.closest(".journal-entry");
+        let type = entry.getAttribute("data-type");
+        let title = entry.querySelector("input[name='journal_title[]']").value;
+
+        if (confirm("Are you sure you want to delete this journal?")) {
+            // Send DELETE request to the backend
+            fetch('/category-3/deleteJournal', {
+                method: 'POST', // Use POST if DELETE is not configured
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ publication_type: type, journal_title: title })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove from savedJournals (frontend)
+                    let journalData = savedJournals.find(entry => entry.publication_type === type);
+                    if (journalData) {
+                        journalData.journals = journalData.journals.filter(journal => journal.journal_title !== title);
+                    }
+
+                    // Remove from UI
+                    entry.remove();
+                    // Update Total Score
+                    if (typeof data.newTotalScore !== "undefined") {
+                        document.getElementById("totalScore").innerText = data.newTotalScore;
+                    }
+
+                    // Show Flash Message
+                    let flashMessage = document.getElementById("flashMessage");
+                    flashMessage.innerText = "Journal deleted successfully.";
+                    flashMessage.style.display = "block";
+
+                    setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    }
+});
+
+
+   
+
+    function loadJournalEntries(publicationType) {
+        document.getElementById("journalEntries").innerHTML = "";
+        let matchedJournals = savedJournals.find(entry => entry.publication_type === publicationType);
+        
+        if (matchedJournals && matchedJournals.journals.length > 0) {
+            matchedJournals.journals.forEach(journal => addJournalEntry(publicationType, journal));
+        } else {
+            addJournalEntry(publicationType);
+        }
+    }
+
+    function validateForm() {
+    let allFilled = [...document.querySelectorAll("#journalEntries input[required]")].every(input => {
+        if (input.type === "file") {
+            return input.files.length > 0 || input.closest(".journal-entry").querySelector("input[name='journal_document_existing[]']");
+        }
+        return input.value.trim() !== "";
+    });
+
+    document.getElementById("submitBtn").disabled = !allFilled;
+}
+
+document.addEventListener("input", function(event) {
+    if (event.target.closest("#journalEntries")) {
+        validateForm();
+    }
+});
+
+document.addEventListener("change", function(event) {
+    if (event.target.closest("#journalEntries") && event.target.type === "file") {
+        validateForm();
+    }
+});
+
+
+
+
+    
+
+
+</script>
+
+

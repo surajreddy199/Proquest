@@ -15,9 +15,9 @@ require('dotenv').config();
 // Load routes
 const academicPerformance = require('./routes/academicPerformance');
 const leave = require('./routes/leave');
-const annexure_1 = require('./routes/annexure-1');
-const annexure_2 = require('./routes/annexure-2');
-const annexure_3 = require('./routes/annexure-3');
+const category_1 = require('./routes/category-1');
+const category_2 = require('./routes/category-2');
+const category_3 = require('./routes/category-3');
 const profile = require('./routes/profile');
 const users = require('./routes/users');
 const reset = require('./routes/reset');
@@ -148,7 +148,7 @@ app.post('/', (req, res) => {
                 res.redirect('/');
             } else {
                 req.flash('success_msg', 'Academic year selected');
-                res.redirect('/academicPerformance/teachingLoad');
+                res.redirect('/category-1/teachingContribution');
             }
         })
         .catch(() => {
@@ -166,7 +166,7 @@ app.put('/:id', (req, res) => {
             result.save()
                 .then(result => {
                     req.flash('success_msg', 'Data updated successfully');
-                    res.redirect('/academicPerformance/teachingLoad');
+                    res.redirect('/category-1/teachingContribution');
                 })
                 .catch(() => {
                     req.flash('error_msg', 'Error while updating academiic year. Please try again.');
@@ -182,9 +182,9 @@ app.put('/:id', (req, res) => {
 // Use routes
 app.use('/academicPerformance', academicPerformance);
 app.use('/leave', leave);
-app.use('/annexure-1', annexure_1);
-app.use('/annexure-2', annexure_2);
-app.use('/annexure-3', annexure_3);
+app.use('/category-1', category_1);
+app.use('/category-2', category_2);
+app.use('/category-3', category_3);
 app.use('/profile', profile);
 app.use('/users', users);
 app.use('/forgot', reset);

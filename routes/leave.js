@@ -88,7 +88,7 @@ router.post('/', (req, res) => {
             .save()
             .then(leaves => {
                 req.flash('success_msg', 'Data entered successfully');
-                res.redirect('/annexure-1/timeTable');
+                res.redirect('/category-1/timeTable');
             })
             .catch(err => {
                 console.log(err);

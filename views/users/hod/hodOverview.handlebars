@@ -43,71 +43,7 @@
                         </li>
 
 
-                        <li class="collection-item">
-                            <p>
-                                <div>
-                                    {{#if ../teachingAssistant}}
-                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                    {{else}}
-                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                    {{/if}}
-                                    Teaching Assistant
-
-
-                                </div>
-                            </p>
-                        </li>
-
-
-                        <li class="collection-item">
-                            <p>
-                                <div>
-                                    {{#if ../newBooks}}
-                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                    {{else}}
-                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                    {{/if}}
-                                    New Books Suggested To Library
-
-
-                                </div>
-                            </p>
-                        </li>
-
-
-                        <li class="collection-item">
-                            <p>
-                                <div>
-                                    {{#if ../addedExp}}
-                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                    {{else}}
-                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                    {{/if}}
-                                    Additional Experiment Added To Lab Manual
-
-
-                                </div>
-                            </p>
-                        </li>
-
-
-                        <li class="collection-item">
-                            <p>
-                                <div>
-                                    {{#if ../innovation}}
-                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                    {{else}}
-                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                    {{/if}}
-                                    Innovative Teaching Technique Adapted
-
-
-                                </div>
-                            </p>
-                        </li>
-                    </ul>
-                </div>
-            </li>
+                        
 
             <li id="overview">
 
@@ -140,8 +76,8 @@
             <li id="overview">
                 <div class="collapsible-header"><i class="material-icons">book</i><b>Category 1</b>
                     <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="annexure_1" disabled
-                            value="{{../hodMarks.annexure_1}}" type="number" class="validate">
+                        <input id="score_inline" placeholder="Score ( /40)" name="category_1" disabled
+                            value="{{../hodMarks.category_1}}" type="number" class="validate">
                     </div>
                     <br><br><br>
                 </div>
@@ -468,8 +404,8 @@
             <li id="overview">
                 <div class="collapsible-header"><i class="material-icons">book</i><b>Category 2</b>
                     <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="annexure_2" disabled
-                            value="{{../hodMarks.annexure_2}}" type="number" class="validate">
+                        <input id="score_inline" placeholder="Score ( /40)" name="category_2" disabled
+                            value="{{../hodMarks.category_2}}" type="number" class="validate">
                     </div>
                     <br><br><br>
                 </div>
@@ -588,8 +524,8 @@
             <li id="overview">
                 <div class="collapsible-header"><i class="material-icons">book</i><b>Category 3</b>
                     <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="annexure_3" disabled
-                            value="{{../hodMarks.annexure_3}}" type="number" class="validate">
+                        <input id="score_inline" placeholder="Score ( /40)" name="category_3" disabled
+                            value="{{../hodMarks.category_3}}" type="number" class="validate">
                     </div>
                     <br><br><br>
                 </div>
@@ -879,71 +815,7 @@
                     </li>
 
 
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if ../teachingAssistant}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                Teaching Assistant
-
-
-                            </div>
-                        </p>
-                    </li>
-
-
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if ../newBooks}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                New Books Suggested To Library
-
-
-                            </div>
-                        </p>
-                    </li>
-
-
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if ../addedExp}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                Additional Experiment Added To Lab Manual
-
-
-                            </div>
-                        </p>
-                    </li>
-
-
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if ../innovation}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                Innovative Teaching Technique Adapted
-
-
-                            </div>
-                        </p>
-                    </li>
-                </ul>
-            </div>
-        </li>
+                
 
         <li id="overview">
 
@@ -976,7 +848,7 @@
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 1</b>
                 <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="annexure_1" value="{{annexure_1}}"
+                    <input id="score_inline" placeholder="Score ( /40)" name="category_1" value="{{category_1}}"
                         type="number" class="validate">
                 </div>
                 <br><br><br>
@@ -1304,7 +1176,7 @@
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 2</b>
                 <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="annexure_2" value="{{annexure_2}}"
+                    <input id="score_inline" placeholder="Score ( /40)" name="category_2" value="{{category_2}}"
                         type="number" class="validate">
                 </div>
                 <br><br><br>
@@ -1424,7 +1296,7 @@
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 3</b>
                 <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="annexure_3" value="{{annexure_3}}"
+                    <input id="score_inline" placeholder="Score ( /40)" name="category_3" value="{{category_3}}"
                         type="number" class="validate">
                 </div>
                 <br><br><br>
