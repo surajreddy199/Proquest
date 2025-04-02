@@ -10,6 +10,9 @@
     </div>
 </div>
 
+{{!-- <pre>{{json this}}</pre> --}}
+
+
 {{#each finalResult}}
 <ul class="collapsible popout" data-collapsible="accordion">
     <li id="overview">
@@ -84,7 +87,7 @@
         <div class="collapsible-header"><i class="material-icons">book</i><b>Category 1</b>
         <div class="right inline col s12 m4 l2" style="text-align: right;">
             <span style="font-weight: bold; font-size: 16px; display: inline-block; border-bottom: 1px solid black; padding-bottom: 2px;">
-                Total Score ({{categoryOneTotalScore}} / 125)
+                Total Score ({{category_1}} / 125)
             </span>
             <input id="score_inline" value="{{categoryOneTotalScore}}" name="categoryOneTotalScore"
                 type="number" class="validate" disabled style="display: none;">
@@ -97,12 +100,12 @@
                 <li class="collection-item">
                     <p>
                         <div>
-                            {{#if ../teachingContribution}}
+                            {{#if ../teachingContributionScore}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            <span>1.1 Teaching Contribution</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{teachingContributionScore}}</strong>
+                            <span>1.1 Teaching Contribution</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../teachingContributionScore}}</strong>
                             
 
                             <div class="right">
@@ -115,12 +118,12 @@
                 <li class="collection-item">
                     <p>
                         <div>
-                            {{#if ../lecturesExcess}}
+                            {{#if ../lecturesExcessScore}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            <span>1.2 Lecture in Excess</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{lecturesExcessScore}}</strong>
+                            <span>1.2 Lecture in Excess</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../lecturesExcessScore}}</strong>
 
 
                             <div class="right">
@@ -134,12 +137,12 @@
                 <li class="collection-item">
                     <p>
                         <div>
-                            {{#if ../additionalResources}}
+                            {{#if ../additionalResourcesScore}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            <span>1.3 Additional Resources</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{additionalResourcesScore}}</strong>
+                            <span>1.3 Additional Resources</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../additionalResourcesScore}}</strong>
 
 
                             <div class="right">
@@ -153,12 +156,12 @@
                 <li class="collection-item">
                     <p>
                         <div>
-                            {{#if ../innovativeTeaching}}
+                            {{#if ../innovativeTeachingScore}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            <span>1.4 Innovative Teaching</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{innovativeTeachingScore}}</strong>
+                            <span>1.4 Innovative Teaching</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../innovativeTeachingScore}}</strong>
 
 
                             <div class="right">
@@ -172,12 +175,12 @@
                 <li class="collection-item">
                     <p>
                         <div>
-                            {{#if ../examinationDuties}}
+                            {{#if ../examinationDutiesScore}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            <span>1.5 Examination Duties</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{examinationDutiesScore}}</strong>
+                            <span>1.5 Examination Duties</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../examinationDutiesScore}}</strong>
 
 
                             <div class="right">
@@ -454,7 +457,8 @@
         </div>
     </li>
 </ul>
-<h6>Your marks has been already submitted.</h6><br><br>
+<h6>Your marks for the academic year {{facultyMarks.academic_year}} have already been submitted.</h6>
+<br><br>
 {{else}}
 <form method="POST" action="/users/faculty/facultyOverview/{{year}}">
     <ul class="collapsible popout" data-collapsible="accordion">
@@ -545,7 +549,7 @@
                     <li class="collection-item">
                         <p>
                             <div>
-                                {{#if teachingContribution}}
+                                {{#if teachingContributionScore}}
                                 <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
@@ -562,7 +566,7 @@
                     <li class="collection-item">
                         <p>
                             <div>
-                                {{#if lecturesExcess}}
+                                {{#if lecturesExcessScore}}
                                 <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
@@ -581,7 +585,7 @@
                     <li class="collection-item">
                         <p>
                             <div>
-                                {{#if additionalResources}}
+                                {{#if additionalResourcesScore}}
                                 <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
@@ -600,7 +604,7 @@
                     <li class="collection-item">
                         <p>
                             <div>
-                                {{#if innovativeTeaching}}
+                                {{#if innovativeTeachingScore}}
                                 <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
@@ -619,7 +623,7 @@
                     <li class="collection-item">
                         <p>
                             <div>
-                                {{#if examinationDuties}}
+                                {{#if examinationDutiesScore}}
                                 <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>

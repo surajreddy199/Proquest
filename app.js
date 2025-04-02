@@ -11,6 +11,12 @@ const { ensureAuthenticated } = require('./helpers/auth');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const app = express();
+const hbsHelpers = require('./helpers/hbs');
+const exphbs = require('express-handlebars');
+
+
+
+
 require('dotenv').config();
 // Load routes
 const academicPerformance = require('./routes/academicPerformance');
@@ -55,13 +61,20 @@ mongoose.connect(dbURI, { useNewUrlParser: true })
 require('./models/Leave');
 const Leave = mongoose.model('leaves');
 
-//handlebars middleware
+// Handlebars middleware
 app.engine('handlebars', engine({
-    helpers: { if_eq: if_eq },
+    helpers: {
+        json: function (context) {
+            return JSON.stringify(context, null, 2); // JSON helper
+        },
+        if_eq: hbsHelpers.if_eq // Custom if_eq helper
+    },
     defaultLayout: 'main',
     handlebars: allowInsecurePrototypeAccess(Handlebars)
 }));
 app.set('view engine', 'handlebars');
+
+
 
 //body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }))

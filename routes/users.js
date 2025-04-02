@@ -5,6 +5,7 @@ const passport = require('passport');
 const router = express.Router();
 const pdfMake = require('pdfmake/build/pdfmake.js');
 const pdfFonts = require('pdfmake/build/vfs_fonts.js');
+const { calculateCategoryOneTotalScore } = require('../utils/categoryOne');
 var fs = require('fs');
 // var Chart = require('chart.js');
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -57,132 +58,164 @@ router.get('/hod/login', (req, res) => {
 });
 
 // Faculty Overview form
+
+
+//main
+// router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
+//     let finalResult;
+//     Faculty.findOne({ _id: req.user.id })
+//         .then(result => {
+//             if (!result) {
+//                 req.flash('error_msg', 'Not Authorized');
+//                 return res.redirect('back');
+//             } else {
+//                 AcademicYear.find({ user: req.user.id })
+//                     .then(result => {
+//                         if (!result || result.length === 0) {
+//                             req.flash('error_msg', 'Select the academic year before proceeding');
+//                             return res.redirect('/');
+//                         }
+//                         year = result[0].academic_year;
+
+//                         FacultyMarks.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+//                             .then(result => {
+//                                 finalResult = result;
+
+//                                 // Fetch all required data for Category 1 and other modules
+//                                 const loads = [
+//                                     modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+//                                     modules.LecturesExcess.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+//                                     modules.AdditionalResources.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+//                                     modules.InnovativeTeaching.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+//                                     modules.ExaminationDuties.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec()
+//                                 ];
+
+//                                 Promise.all(loads)
+//                                     .then(([teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties]) => {
+//                                         // Calculate total score for Category 1
+                                        
+//                                         const teachingContributionScore = teachingContribution ? teachingContribution.scoreOne || 0 : 0;
+//                                         const lecturesExcessScore = lecturesExcess ? lecturesExcess.scoreTwo || 0 : 0;
+//                                         const additionalResourcesScore = additionalResources ? additionalResources.scoreThree || 0 : 0;
+//                                         const innovativeTeachingScore = innovativeTeaching ? innovativeTeaching.scoreFour || 0 : 0;
+//                                         const examinationDutiesScore = examinationDuties ? examinationDuties.scoreFive || 0 : 0;
+
+//                                         const categoryOneTotalScore =
+//                                             teachingContributionScore +
+//                                             lecturesExcessScore +
+//                                             additionalResourcesScore +
+//                                             innovativeTeachingScore +
+//                                             examinationDutiesScore;
+
+//                                              // Debugging logs
+//                                         console.log('Category 1 Scores:', {
+//                                             teachingContributionScore,
+//                                             lecturesExcessScore,
+//                                             additionalResourcesScore,
+//                                             innovativeTeachingScore,
+//                                             examinationDutiesScore,
+//                                             categoryOneTotalScore,
+//                                         });
+
+//                                         // Render the page with all the data
+//                                         res.render('users/faculty/facultyOverview', {
+//                                             finalResult,
+//                                             teachingContribution,
+//                                             lecturesExcess,
+//                                             additionalResources,
+//                                             innovativeTeaching,
+//                                             examinationDuties,
+//                                             teachingContributionScore,
+//                                             lecturesExcessScore,
+//                                             additionalResourcesScore,
+//                                             innovativeTeachingScore,
+//                                             examinationDutiesScore,
+//                                             categoryOneTotalScore
+//                                         });
+//                                     })
+//                                     .catch(err => {
+//                                         console.error(err);
+//                                         req.flash('error_msg', 'Error fetching data. Please try again.');
+//                                         res.redirect('back');
+//                                     });
+//                             })
+//                             .catch(err => {
+//                                 console.error(err);
+//                                 req.flash('error_msg', 'Error fetching faculty marks. Please try again.');
+//                                 res.redirect('back');
+//                             });
+//                     })
+//                     .catch(err => {
+//                         console.error(err);
+//                         req.flash('error_msg', 'Academic year not selected.');
+//                         res.redirect('back');
+//                     });
+//             }
+//         })
+//         .catch(err => {
+//             console.error(err);
+//             req.flash('error_msg', 'Cannot find the user.');
+//             res.redirect('back');
+//         });
+// });
+
+
 router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
     let finalResult;
+
+    // Find the faculty user
     Faculty.findOne({ _id: req.user.id })
         .then(result => {
             if (!result) {
                 req.flash('error_msg', 'Not Authorized');
-                res.redirect('back');
-            } else {
-                AcademicYear.find({ user: req.user.id })
-                    .then(result => {
-                        if (!result) {
-                            req.flash('error_msg', 'Select the academic year before proceeding');
-                            res.redirect('/');
-                        }
-                        // academic_year_id = result[0].user;
-                        year = result[0].academic_year;
-                        FacultyMarks.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-                            .then(result => {
-
-                                finalResult = result;
-                                var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                
-
-                                modules.Leave.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-
-                                modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),    
-                                modules.LecturesExcess.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.AdditionalResources.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.InnovativeTeaching.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),    
-                                modules.ExaminationDuties.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),    
-                                
-                                modules.TimeTable.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.SportsActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.CulturalActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ProjectBasedLearning.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.PlacementActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.InhousePlacement.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.StudentOrganizations.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.IndustrialVisitActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ExamAssessmentExternal.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ExamActivitiesSupervision.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ExamActivitiesCollegeLevel.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ITMaintenance.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.Lakshya.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.MagazineNewsletter.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.STTP.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.DepartmentUGProjects.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-
-                                modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.PapersPublishedJournals.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.Moocs.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.Swayam.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ShortTermTraining.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.Seminars.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-
-                                modules.ResearchPapersPublished.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ResourcePerson.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ContributionToSyllabus.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ConsultancyAssignment.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-                                modules.ExternalProjectsOrCompetition.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec()
-                                ];
-                                Promise.all(loads)
-                                    .then(result => {
-                                        return Promise.all(result);
-                                    })
-                                    .then(([teachingLoad,
-                                        leave,
-                                        teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
-                                        papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                                        researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
-                                        // Calculate total score for Category 1
-                                        let categoryOneTotalScore = 0;
-                                        if (teachingContribution) categoryOneTotalScore += teachingContribution.scoreOne || 0;
-                                        if (lecturesExcess) categoryOneTotalScore += lecturesExcess.scoreTwo || 0;
-                                        if (additionalResources) categoryOneTotalScore += additionalResources.scoreThree || 0;
-                                        if (innovativeTeaching) categoryOneTotalScore += innovativeTeaching.scoreFour || 0;
-                                        if (examinationDuties) categoryOneTotalScore += examinationDuties.scoreFive || 0;
-                                        
-                                        // Minimum score validation (75)
-                                        if (categoryOneTotalScore < 75) {
-                                            // req.flash('error_msg', 'Category 1 total score must be at least 75.'); //checklast
-                                            return res.render('users/faculty/facultyOverview', { 
-                                                finalResult, teachingLoad, leave, 
-                                                teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
-                                                teachingContributionScore: teachingContribution ? teachingContribution.scoreOne : 0,
-                                                lecturesExcessScore: lecturesExcess ? lecturesExcess.scoreTwo : 0,
-                                                additionalResourcesScore: additionalResources ? additionalResources.scoreThree : 0,
-                                                innovativeTeachingScore: innovativeTeaching ? innovativeTeaching.scoreFour : 0,
-                                                examinationDutiesScore: examinationDuties ? examinationDuties.scoreFive : 0,
-                                                categoryOneTotalScore
-                                                
-    
-                                             });
-                                        }
-
-                                        res.render('users/faculty/facultyOverview', { 
-                                            finalResult, teachingLoad, leave, 
-                                            teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
-                                            teachingContributionScore: teachingContribution ? teachingContribution.scoreOne : 0,
-                                            lecturesExcessScore: lecturesExcess ? lecturesExcess.scoreTwo : 0,
-                                            additionalResourcesScore: additionalResources ? additionalResources.scoreThree : 0,
-                                            innovativeTeachingScore: innovativeTeaching ? innovativeTeaching.scoreFour : 0,
-                                            examinationDutiesScore: examinationDuties ? examinationDuties.scoreFive : 0,
-                                            categoryOneTotalScore
-                                            
-
-                                         });
-                                    })
-                            })
-                            .catch(err => {
-                                if (err) throw err;
-                            })
-                    })
-                    .catch(err => {
-                        req.flash('error_msg', 'Academic year not selected');
-                        res.redirect('back');
-                    })
+                return res.redirect('back');
             }
+
+            // Find the academic year
+            return AcademicYear.find({ user: req.user.id });
+        })
+        .then(result => {
+            if (!result || result.length === 0) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                return res.redirect('/');
+            }
+
+            const year = result[0].academic_year;
+
+            // Find faculty marks
+            return FacultyMarks.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    finalResult = result;
+
+                    // Use the utility function to calculate Category 1 total score
+                    return calculateCategoryOneTotalScore(req.user.id, year);
+                })
+                .then(scores => {
+                    // Debugging logs
+                    // console.log('Category 1 Scores:', scores);
+                    // console.log('Final Result:', finalResult);
+
+                    // Render the page with all the data
+                    res.render('users/faculty/facultyOverview', {
+                        finalResult,
+                        teachingContributionScore: scores.teachingContributionScore || 0,
+                        lecturesExcessScore: scores.lecturesExcessScore || 0,
+                        additionalResourcesScore: scores.additionalResourcesScore || 0,
+                        innovativeTeachingScore: scores.innovativeTeachingScore || 0,
+                        examinationDutiesScore: scores.examinationDutiesScore || 0,
+                        categoryOneTotalScore: scores.categoryOneTotalScore || 0
+                    });
+                });
         })
         .catch(err => {
-            req.flash('error_msg', 'Cannot find the user.');
+            console.error(err);
+            req.flash('error_msg', 'Error fetching data. Please try again.');
             res.redirect('back');
-        })
+        });
 });
+
+
+
 
 // Management user view
 router.get('/management/viewUsers', ensureAuthenticated, (req, res) => {
@@ -475,23 +508,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.ExaminationDuties.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
 
-                                    modules.TimeTable.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.SportsActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.CulturalActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ProjectBasedLearning.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.PlacementActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.InhousePlacement.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.StudentOrganizations.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.IndustrialVisitActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ExamAssessmentExternal.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ExamActivitiesSupervision.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ExamActivitiesCollegeLevel.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ITMaintenance.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.Lakshya.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.MagazineNewsletter.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.STTP.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.DepartmentUGProjects.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-
+                                   
                                     modules.PapersPublishedNationalConf.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.PapersPublishedJournals.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -515,13 +532,13 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         })
                                         .then(([teachingLoad,
                                             leave,
-                                            teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                                            teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                             researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -550,92 +567,102 @@ router.post('/management/login',
     passport.authenticate('management_user', { successRedirect: '/users/management/home', failureRedirect: '/users/management/login', failureFlash: true }));
 
 // Faculty final overview submission with marks
-router.post('/faculty/facultyOverview/:year', (req, res) => {
-
+router.post('/faculty/facultyOverview/:year', async (req, res) => {
     let errors = [];
 
+    // Validate inputs
     if (!req.body.academicPerformance || req.body.academicPerformance > 40 || req.body.academicPerformance < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40' });
-    } else if (!req.body.leaveRecord || req.body.leaveRecord > 40 || req.body.leaveRecord < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40' });
-    } else if (!req.body.category_1 || req.body.category_1 > 40 || req.body.category_1 < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40' });
-    } else if (!req.body.category_2 || req.body.category_2 > 40 || req.body.category_2 < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40' });
-    } else if (!req.body.category_3 || req.body.category_3 > 40 || req.body.category_3 < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40' });
+        errors.push({ text: 'Please enter marks between 0 to 40 for AP' });
+    }
+    if (!req.body.leaveRecord || req.body.leaveRecord > 40 || req.body.leaveRecord < 0) {
+        errors.push({ text: 'Please enter marks between 0 to 40 for Leave' });
+    }
+    if (!req.body.category_2 || req.body.category_2 > 40 || req.body.category_2 < 0) {
+        errors.push({ text: 'Please enter marks between 0 to 40 for Cat 02' });
+    }
+    if (!req.body.category_3 || req.body.category_3 > 40 || req.body.category_3 < 0) {
+        errors.push({ text: 'Please enter marks between 0 to 40 for Cat 03' });
     }
 
-    if (errors.length > 0) {
-        res.render('users/faculty/facultyOverview', {
-            errors: errors,
-            academicPerformance: req.body.academicPerformance,
-            leaveRecord: req.body.leaveRecord,
-            category_1: req.body.category_1,
-            category_2: req.body.category_2,
-            category_3: req.body.category_3
-        });
-    }
-    else {
-                const marks = {
-                    academic_year: req.params.year, //checklast
-                    academicPerformance: req.body.academicPerformance,
-                    leaveRecord: req.body.leaveRecord,
-                    category_1: req.body.category_1,
-                    category_2: req.body.category_2,
-                    category_3: req.body.category_3,
-                    user: req.user.id
-                }
-                new FacultyMarks(marks)
-                    .save()
-                    .then(() => {
-                        req.flash('success_msg', 'Successfully added marks for evaluation');
-                        res.redirect('/users/faculty/facultyOverview');
-                    })
-                    .catch(err => {
-                        if (err) throw err;
-                        req.flash('error_msg', 'There was an error while performing the tasks.');
-                        res.redirect('back');
-                    })
-            
-        
+
+    try {
+        const year = req.params.year;
+        const scores = await calculateCategoryOneTotalScore(req.user.id, year);
+
+        if (scores.categoryOneTotalScore < 75) {
+            errors.push({
+                text: `Category 1 total score must be at least 75. Current score: ${scores.categoryOneTotalScore}`
+            });
+        }
+
+        if (errors.length > 0) {
+            res.render('users/faculty/facultyOverview', {
+                errors,
+                academicPerformance: req.body.academicPerformance,
+                leaveRecord: req.body.leaveRecord,
+                ...scores,
+                category_2: req.body.category_2,
+                category_3: req.body.category_3
+            });
+        } else {
+            const marks = {
+                academic_year: year,
+                academicPerformance: req.body.academicPerformance,
+                leaveRecord: req.body.leaveRecord,
+                category_1: scores.categoryOneTotalScore,
+                category_2: req.body.category_2,
+                category_3: req.body.category_3,
+                user: req.user.id
+            };
+
+            await new FacultyMarks(marks).save();
+            req.flash('success_msg', 'Successfully added marks for evaluation');
+            res.redirect('/users/faculty/facultyOverview');
+        }
+    } catch (err) {
+        console.error(err);
+        req.flash('error_msg', 'Error calculating scores. Please try again.');
+        res.redirect('back');
     }
 });
 
 // PDF route POST for faculty
 router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
-    Faculty.find({ _id: req.user.id })
+    let year;
+
+    Faculty.findOne({ _id: req.user.id })
         .then(result => {
-            facultyName = result[0].name;
-            facultyEmail = result[0].email;
+            if (!result) {
+                req.flash('error_msg', 'Faculty not found');
+                return res.redirect('back');
+            }
+
+            facultyName = result.name;
+            facultyEmail = result.email;
+
+            // Fetch the academic year
+            return AcademicYear.findOne({ user: req.user.id });
+        })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Academic year not found. Please set it before proceeding.');
+                return res.redirect('back');
+            }
+
+            year = result.academic_year; // Assign the academic year
+
             var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
            
 
             modules.Leave.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
             modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.LecturesExcess.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+            modules.LecturesExcess.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.AdditionalResources.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.InnovativeTeaching.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ExaminationDuties.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
-            modules.TimeTable.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.SportsActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.CulturalActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ProjectBasedLearning.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.PlacementActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.InhousePlacement.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.StudentOrganizations.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.IndustrialVisitActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ExamAssessmentExternal.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ExamActivitiesSupervision.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ExamActivitiesCollegeLevel.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ITMaintenance.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.Lakshya.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.MagazineNewsletter.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.STTP.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.DepartmentUGProjects.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-
+          
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.PapersPublishedJournals.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -654,41 +681,38 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
             Promise.all(loads)
                 .then(result => {
+                    console.log('Fetched Data:', result); // Debugging log
+                    console.log('Year:', year);
+                    console.log('User ID:', req.user.id);
                     return Promise.all(result);
                 })
                 .then(([teachingLoad,
                     leave,
-                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
-                    if (!teachingLoad) {
-                        req.flash('error_msg', 'Teaching load form is compulsory to fill');
-                        res.redirect('/users/faculty/facultyOverview');
-                    }
-                   
+                        console.log('Individual Data:', {
+                        teachingLoad,
+                        leave,
+                        teachingContribution,
+                        lecturesExcess,
+                        additionalResources,
+                        innovativeTeaching,
+                        examinationDuties
+                    }); // Debugging log
+
+                    // if (!teachingLoad) {
+                    //     req.flash('error_msg', 'Teaching load form is compulsory to fill');   //checklast
+                    //     res.redirect('/users/faculty/facultyOverview');
+                    // }
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
-                    if (!timeTable) { timeTable = { role: '-', department: '-', semester: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '_', evaluationAnswerScripts: '_', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
 
-                    if (!sportsActivities) { sportsActivities = { sports_name: '-', sports_category: '-', sports_role: '-', sports_ojus_or_other: '-' } }
-                    if (!culturalActivities) { culturalActivities = { cultural_name: '-', cultural_category: '-', cultural_role: '-', cultural_ojus_or_other: '-' } }
-                    if (!projectBasedLearning) { projectBasedLearning = { pbl_subject: '-', pbl_role: '-', pbl_start_date: '-', pbl_end_date: '-', pbl_description: '-' } }
-                    if (!placementActivities) { placementActivities = { placement_role: '-', no_of_companies: '-', no_of_placed_students: '-', department: '-' } }
-                    if (!inhousePlacement) { inhousePlacement = { trainings_and_workshops: '-', class_name: '-', department: '-', no_of_participants: '-' } }
-                    if (!studentOrganizations) { studentOrganizations = { student_organizations_trainings: '-', class_name: '-', department: '-', no_of_participants: '-', student_organization_role: '-', student_event_duration: '-', student_event_start_date: '-', student_event_end_date: '-' } }
-                    if (!industrialVisitActivities) { industrialVisitActivities = { industrial_visit_role: '-', class_name: '-', department: '-', industrial_visit_days: '-', industrial_visit_organizer: '-', name_of_company: '-', iv_description: '-', industrial_visit_hrs: '-', iv_start_date: '-', iv_end_date: '-' } }
-                    if (!examAssessmentExternal) { examAssessmentExternal = { exam_role_external: '-', semester: '-', name_of_college_university: '-', exam_subject_external: '-', outdoor_activities: '-', papers_revaluated: '-', papers_moderated: '-' } }
-                    if (!examActivitiesSupervision) { examActivitiesSupervision = { exam_role: '-', exam_name: '-', morning_sessions: '-', evening_sessions: '-', no_of_supervision_days: '-' } }
-                    if (!examActivitiesCollegeLevel) { examActivitiesCollegeLevel = { subject_name: '-', semester: '-', exam_type: '-' } }
-                    if (!itMaintenance) { itMaintenance = { class_name: '-', IT_maintenance_desc: '-', IT_maintenance_task: '-', it_maintenance_date: '-' } }
-                    if (!lakshya) { lakshya = { lakshya_activities: '-', lakshya_description: '-', lakshya_date: '-', lakshya_no_of_participants: '-' } }
-                    if (!magazineNewsletter) { magazineNewsletter = { class_name: '-', magazine_role: '-', magazineNewsletter_type: '-', year_of_publication: '-' } }
-                    if (!sttp) { sttp = { sttp_role: '-', no_of_sttp: '-', sttp_technology: '-', sttp_duration: '-', sttp_start_date: '-', sttp_end_date: '-', sttp_participants: '-', department: '-' } }
-                    if (!departmentUGProjects) { departmentUGProjects = { dept_project_role: '-', project_title: '-', project_no_of_students: '-' } }
+                 
                     if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
                     if (!papersPublishedInternationalConf) { papersPublishedInternationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
                     if (!papersPublishedJournals) { papersPublishedJournals = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
@@ -703,7 +727,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!consultancyAssignment) { consultancyAssignment = { rolesAndResponsilbilty: '-', typeOfWorkorDomain: '-', organization: '-', duration: '-', numberofVisits: '-' } }
                     if (!externalProjectsOrCompetition) { externalProjectsOrCompetition = { description: '-', contribution: '-', university: '-', duration: '-', comments: '-' } }
 
-                    document = {
+                    //generate pdf
+                    const  document = {
                         content: [
                             { text: 'Self Appraisal Report', style: 'header' },
                             { text: 'Academic Year: ' + teachingContribution.academic_year, style: 'header' },
@@ -711,18 +736,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             'Name: ' + facultyName + '\n',
                             'Email ID: ' + facultyEmail + '\n',
 
-                            // { text: 'Academic Performance', style: 'subheader' },
-                            // { text: '1. Teaching Load', style: 'subheader' },
-
-                            // {
-                            //     style: 'tableExample',
-                            //     table: {
-                            //         body: [
-                            //             ['Subject Name', 'Class', 'Department', 'Semester', 'Theory Load', 'Lab Load', 'Tutorials Load ', 'Theory sessions', 'Practical Sessions', 'Feedback'],
-                            //             [teachingLoad.subject_name, teachingLoad.class, teachingLoad.department, teachingLoad.semester, teachingLoad.theory_subject, teachingLoad.lab_subject, teachingLoad.tutorials, teachingLoad.theory_session, teachingLoad.practical_session, teachingLoad.Student_feedback]
-                            //         ]
-                            //     }
-                            // },
+                            
 
                         
                             { text: 'Leave Record', style: 'subheader' },
@@ -749,17 +763,6 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 }
                             },
                             { text: 'Category-1', style: 'subheader' },
-                            { text: '1.1 Timetable related Activities ', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Department', 'Semester'],
-                                        [timeTable.role, timeTable.department, timeTable.semester]
-                                    ]
-                                }
-                            },
 
                             { text: '1.1 Teaching Contribution ', style: 'subheader' },
 
@@ -825,190 +828,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
                             
 
-                            { text: '1.3 Sports Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Sport Name', 'Category', 'Role', 'Other College Activity '],
-                                        [sportsActivities.sports_name, sportsActivities.sports_category, sportsActivities.sports_role, sportsActivities.sports_ojus_or_other]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.4 Cultural Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Cultural Activity Name', 'Category', 'Role', 'Other College Activity '],
-                                        [culturalActivities.cultural_name, culturalActivities.cultural_category, culturalActivities.cultural_role, culturalActivities.cultural_ojus_or_other]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.5 Project Based Learning', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Role', 'Start Date', 'End Date', 'Description'],
-                                        [projectBasedLearning.pbl_subject, projectBasedLearning.pbl_role, projectBasedLearning.pbl_start_date, projectBasedLearning.pbl_end_date, projectBasedLearning.pbl_description]
-                                    ]
-                                }
-                            },
-
-                    
-
-                            { text: '1.7 Placement Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'No. of Companies visited', 'No. of Students Placed', 'Department'],
-                                        [placementActivities.placement_role, placementActivities.no_of_companies, placementActivities.no_of_placed_students, placementActivities.department]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.8 In-house Placement Activities(Trainings and Workshops)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Trainings/Workshops conducted', 'Class', 'Department', 'No. of Students Participated'],
-                                        [inhousePlacement.trainings_and_workshops, inhousePlacement.class_name, inhousePlacement.department, inhousePlacement.no_of_participants]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.9 Student Organisation Activity', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Events Conducted', 'Class', 'Department', 'No. of Students Participated', 'Role', 'Duration(hrs)', 'Start Date ', 'End Date'],
-                                        [studentOrganizations.student_organizations_trainings, studentOrganizations.class_name, studentOrganizations.department, studentOrganizations.no_of_participants, studentOrganizations.student_organization_role, studentOrganizations.student_event_duration, studentOrganizations.student_event_start_date, studentOrganizations.student_event_end_date]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.10 Industrial Visit Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Class', 'Department', 'No. of Days', 'Organized By', 'Name of Company visited', 'Description', 'Duration(hrs)', 'Start Date', 'End Date'],
-                                        [industrialVisitActivities.industrial_visit_role, industrialVisitActivities.class_name, industrialVisitActivities.department, industrialVisitActivities.industrial_visit_days, industrialVisitActivities.industrial_visit_organizer, industrialVisitActivities.name_of_company, industrialVisitActivities.iv_description, industrialVisitActivities.industrial_visit_hrs, industrialVisitActivities.iv_start_date, industrialVisitActivities.iv_end_date]
-                                    ]
-                                }
-                            },
-
                             
-
-                            { text: ' 1.12 Exam related activities(University exams Supervision)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Exams', 'No. of morning sessions', 'No. of evening sessions', 'No. of days'],
-                                        [examActivitiesSupervision.exam_role, examActivitiesSupervision.exam_name, examActivitiesSupervision.morning_sessions, examActivitiesSupervision.evening_sessions,
-                                        examActivitiesSupervision.no_of_supervision_days]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.13 Exam related activities(External)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Semester', 'College/University', 'Subject', 'Total Number of Activities', 'No. of papers evaluated/revalauted', 'No. of papers moderated'],
-                                        [examAssessmentExternal.exam_role_external, examAssessmentExternal.semester, examAssessmentExternal.name_of_college_university, examAssessmentExternal.exam_subject_external, examAssessmentExternal.outdoor_activities, examAssessmentExternal.papers_revaluated, examAssessmentExternal.papers_moderated]
-                                    ]
-                                }
-                            },
-                            '\n', '\n', '\n', '\n', '\n',
-                            { text: ' 1.14 Exam related activities(Assessment/Oral/Practical Exams Conducted, college level)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Semester', 'Exam Type'],
-                                        [examActivitiesCollegeLevel.subject_name, examActivitiesCollegeLevel.semester, examActivitiesCollegeLevel.exam_type]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.15 IT Maintenance', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Class Name', 'Description', 'Task Completed', 'Date'],
-                                        [itMaintenance.class_name, itMaintenance.IT_maintenance_desc, itMaintenance.IT_maintenance_task, itMaintenance.it_maintenance_date]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.16 Lakshya Related Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Activities conducted', 'Description', 'Date', 'No. of students participated'],
-                                        [lakshya.lakshya_activities, lakshya.lakshya_description, lakshya.lakshya_date, lakshya.lakshya_no_of_participants]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.17 Magazine/Newsletter Related Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Class Name', 'Role', 'Type', 'Year of Publication'],
-                                        [magazineNewsletter.class_name, magazineNewsletter.magazine_role, magazineNewsletter.magazineNewsletter_type, magazineNewsletter.year_of_publication]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.18 Conduct Of STTP', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'No. of STTPs conducted', 'Technology', 'Duration(hrs)', 'Start Date', 'End Date', 'No. of Participants', 'Department'],
-                                        [sttp.sttp_role, sttp.no_of_sttp, sttp.sttp_technology, sttp.sttp_duration, sttp.sttp_start_date, sttp.sttp_end_date, sttp.sttp_participants, sttp.department]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.19 Department UG Projects Undertaken', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Title', ' No. of Students'],
-                                        [departmentUGProjects.dept_project_role, departmentUGProjects.project_title, departmentUGProjects.project_no_of_students]
-                                    ]
-                                }
-                            },
 
                             { text: 'Category-2', style: 'subheader' },
                             { text: '2.1 Papers Published In National Conference', style: 'subheader' },
@@ -1202,7 +1022,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             // alignment: 'justify'
                         }
 
-                    }
+                    };
 
                     const pdfDoc = pdfMake.createPdf(document);
                     pdfDoc.getBase64(data => {
@@ -1214,7 +1034,12 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                         res.end(download);
                     });
                 })
-        })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    req.flash('error_msg', 'Error generating PDF. Please try again.');
+                    res.redirect('back');
+                });
+        });
 });
 
 // PDF route POST for HOD
@@ -1234,23 +1059,7 @@ router.post('/hod/pdf/:id', (req, res) => {
             modules.InnovativeTeaching.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ExaminationDuties.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             
-            modules.TimeTable.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.SportsActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.CulturalActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ProjectBasedLearning.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.PlacementActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.InhousePlacement.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.StudentOrganizations.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.IndustrialVisitActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ExamAssessmentExternal.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ExamActivitiesSupervision.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ExamActivitiesCollegeLevel.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ITMaintenance.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.Lakshya.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.MagazineNewsletter.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.STTP.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.DepartmentUGProjects.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-
+           
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.PapersPublishedJournals.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1273,7 +1082,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                 })
                 .then(([teachingLoad,
                     leave,
-                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, timeTable, sportsActivities, culturalActivities, projectBasedLearning, placementActivities, inhousePlacement, studentOrganizations, industrialVisitActivities, examAssessmentExternal, examActivitiesSupervision, examActivitiesCollegeLevel, itMaintenance, lakshya, magazineNewsletter, sttp, departmentUGProjects,
+                    teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
@@ -1285,22 +1094,6 @@ router.post('/hod/pdf/:id', (req, res) => {
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '-', evaluationAnswerScripts: '-', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
 
 
-                    if (!timeTable) { timeTable = { role: '-', department: '-', semester: '-' } }
-                    if (!sportsActivities) { sportsActivities = { sports_name: '-', sports_category: '-', sports_role: '-', sports_ojus_or_other: '-' } }
-                    if (!culturalActivities) { culturalActivities = { cultural_name: '-', cultural_category: '-', cultural_role: '-', cultural_ojus_or_other: '-' } }
-                    if (!projectBasedLearning) { projectBasedLearning = { pbl_subject: '-', pbl_role: '-', pbl_start_date: '-', pbl_end_date: '-', pbl_description: '-' } }
-                    if (!placementActivities) { placementActivities = { placement_role: '-', no_of_companies: '-', no_of_placed_students: '-', department: '-' } }
-                    if (!inhousePlacement) { inhousePlacement = { trainings_and_workshops: '-', class_name: '-', department: '-', no_of_participants: '-' } }
-                    if (!studentOrganizations) { studentOrganizations = { student_organizations_trainings: '-', class_name: '-', department: '-', no_of_participants: '-', student_organization_role: '-', student_event_duration: '-', student_event_start_date: '-', student_event_end_date: '-' } }
-                    if (!industrialVisitActivities) { industrialVisitActivities = { industrial_visit_role: '-', class_name: '-', department: '-', industrial_visit_days: '-', industrial_visit_organizer: '-', name_of_company: '-', iv_description: '-', industrial_visit_hrs: '-', iv_start_date: '-', iv_end_date: '-' } }
-                    if (!examAssessmentExternal) { examAssessmentExternal = { exam_role_external: '-', semester: '-', name_of_college_university: '-', exam_subject_external: '-', outdoor_activities: '-', papers_revaluated: '-', papers_moderated: '-' } }
-                    if (!examActivitiesSupervision) { examActivitiesSupervision = { exam_role: '-', exam_name: '-', morning_sessions: '-', evening_sessions: '-', no_of_supervision_days: '-' } }
-                    if (!examActivitiesCollegeLevel) { examActivitiesCollegeLevel = { subject_name: '-', semester: '-', exam_type: '-' } }
-                    if (!itMaintenance) { itMaintenance = { class_name: '-', IT_maintenance_desc: '-', IT_maintenance_task: '-', it_maintenance_date: '-' } }
-                    if (!lakshya) { lakshya = { lakshya_activities: '-', lakshya_description: '-', lakshya_date: '-', lakshya_no_of_participants: '-' } }
-                    if (!magazineNewsletter) { magazineNewsletter = { class_name: '-', magazine_role: '-', magazineNewsletter_type: '-', year_of_publication: '-' } }
-                    if (!sttp) { sttp = { sttp_role: '-', no_of_sttp: '-', sttp_technology: '-', sttp_duration: '-', sttp_start_date: '-', sttp_end_date: '-', sttp_participants: '-', department: '-' } }
-                    if (!departmentUGProjects) { departmentUGProjects = { dept_project_role: '-', project_title: '-', project_no_of_students: '-' } }
                     if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
                     if (!papersPublishedInternationalConf) { papersPublishedInternationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
                     if (!papersPublishedJournals) { papersPublishedJournals = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
@@ -1361,17 +1154,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                                 }
                             },
                             { text: 'Category-1', style: 'subheader' },
-                            { text: '1.1 Timetable related Activities ', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Department', 'Semester'],
-                                        [timeTable.role, timeTable.department, timeTable.semester]
-                                    ]
-                                }
-                            },
+                        
                            
                             { text: '1.1 Teaching Contribution ', style: 'subheader' },
 
@@ -1434,189 +1217,7 @@ router.post('/hod/pdf/:id', (req, res) => {
 
                            
 
-                            { text: '1.3 Sports Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Sport Name', 'Category', 'Role', 'Other College Activity '],
-                                        [sportsActivities.sports_name, sportsActivities.sports_category, sportsActivities.sports_role, sportsActivities.sports_ojus_or_other]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.4 Cultural Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Cultural Activity Name', 'Category', 'Role', 'Other College Activity '],
-                                        [culturalActivities.cultural_name, culturalActivities.cultural_category, culturalActivities.cultural_role, culturalActivities.cultural_ojus_or_other]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.5 Project Based Learning', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Role', 'Start Date', 'End Date', 'Description'],
-                                        [projectBasedLearning.pbl_subject, projectBasedLearning.pbl_role, projectBasedLearning.pbl_start_date, projectBasedLearning.pbl_end_date, projectBasedLearning.pbl_description]
-                                    ]
-                                }
-                            },
-
-                        
-                            { text: '1.7 Placement Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'No. of Companies visited', 'No. of Students Placed', 'Department'],
-                                        [placementActivities.placement_role, placementActivities.no_of_companies, placementActivities.no_of_placed_students, placementActivities.department]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.8 In-house Placement Activities(Trainings and Workshops)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Trainings/Workshops conducted', 'Class', 'Department', 'No. of Students Participated'],
-                                        [inhousePlacement.trainings_and_workshops, inhousePlacement.class_name, inhousePlacement.department, inhousePlacement.no_of_participants]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.9 Student Organisation Activity', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Events Conducted', 'Class', 'Department', 'No. of Students Participated', 'Role', 'Duration(hrs)', 'Start Date ', 'End Date'],
-                                        [studentOrganizations.student_organizations_trainings, studentOrganizations.class_name, studentOrganizations.department, studentOrganizations.no_of_participants, studentOrganizations.student_organization_role, studentOrganizations.student_event_duration, studentOrganizations.student_event_start_date, studentOrganizations.student_event_end_date]
-                                    ]
-                                }
-                            },
-
-                            { text: '1.10 Industrial Visit Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Class', 'Department', 'No. of Days', 'Organized By', 'Name of Company visited', 'Description', 'Duration(hrs)', 'Start Date', 'End Date'],
-                                        [industrialVisitActivities.industrial_visit_role, industrialVisitActivities.class_name, industrialVisitActivities.department, industrialVisitActivities.industrial_visit_days, industrialVisitActivities.industrial_visit_organizer, industrialVisitActivities.name_of_company, industrialVisitActivities.iv_description, industrialVisitActivities.industrial_visit_hrs, industrialVisitActivities.iv_start_date, industrialVisitActivities.iv_end_date]
-                                    ]
-                                }
-                            },
-
                            
-
-                            { text: ' 1.12 Exam related activities(University exams Supervision)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Exams', 'No. of morning sessions', 'No. of evening sessions', 'No. of days'],
-                                        [examActivitiesSupervision.exam_role, examActivitiesSupervision.exam_name, examActivitiesSupervision.morning_sessions, examActivitiesSupervision.evening_sessions,
-                                        examActivitiesSupervision.no_of_supervision_days]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.13 Exam related activities(External)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Semester', 'College/University', 'Subject', 'Total Number of Activities', 'No. of papers evaluated/revalauted', 'No. of papers moderated'],
-                                        [examAssessmentExternal.exam_role_external, examAssessmentExternal.semester, examAssessmentExternal.name_of_college_university, examAssessmentExternal.exam_subject_external, examAssessmentExternal.outdoor_activities, examAssessmentExternal.papers_revaluated, examAssessmentExternal.papers_moderated]
-                                    ]
-                                }
-                            },
-                            '\n', '\n', '\n', '\n', '\n',
-                            { text: ' 1.14 Exam related activities(Assessment/Oral/Practical Exams Conducted, college level)', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Semester', 'Exam Type'],
-                                        [examActivitiesCollegeLevel.subject_name, examActivitiesCollegeLevel.semester, examActivitiesCollegeLevel.exam_type]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.15 IT Maintenance', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Class Name', 'Description', 'Task Completed', 'Date'],
-                                        [itMaintenance.class_name, itMaintenance.IT_maintenance_desc, itMaintenance.IT_maintenance_task, itMaintenance.it_maintenance_date]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.16 Lakshya Related Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Activities conducted', 'Description', 'Date', 'No. of students participated'],
-                                        [lakshya.lakshya_activities, lakshya.lakshya_description, lakshya.lakshya_date, lakshya.lakshya_no_of_participants]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.17 Magazine/Newsletter Related Activities', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Class Name', 'Role', 'Type', 'Year of Publication'],
-                                        [magazineNewsletter.class_name, magazineNewsletter.magazine_role, magazineNewsletter.magazineNewsletter_type, magazineNewsletter.year_of_publication]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.18 Conduct Of STTP', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'No. of STTPs conducted', 'Technology', 'Duration(hrs)', 'Start Date', 'End Date', 'No. of Participants', 'Department'],
-                                        [sttp.sttp_role, sttp.no_of_sttp, sttp.sttp_technology, sttp.sttp_duration, sttp.sttp_start_date, sttp.sttp_end_date, sttp.sttp_participants, sttp.department]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 1.19 Department UG Projects Undertaken', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Role', 'Title', ' No. of Students'],
-                                        [departmentUGProjects.dept_project_role, departmentUGProjects.project_title, departmentUGProjects.project_no_of_students]
-                                    ]
-                                }
-                            },
 
                             { text: 'Category-2', style: 'subheader' },
                             { text: '2.1 Papers Published In National Conference', style: 'subheader' },

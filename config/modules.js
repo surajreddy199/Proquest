@@ -36,71 +36,7 @@ const InnovativeTeaching = mongoose.model('innovativeteaching');
 require('../models/Category-1/ExaminationDuties');
 const ExaminationDuties = mongoose.model('examinationduties');
 
-require('../models/Category-1/TimeTable')
-const TimeTable = mongoose.model('timetable');
 
-
-
-// Load class advisor model
-require('../models/Category-1/SportsActivities')
-const SportsActivities = mongoose.model('sportsactivities');
-
-// Load class advisor model
-require('../models/Category-1/CulturalActivities')
-const CulturalActivities = mongoose.model('culturalactivities');
-
-// Load PBL model
-require('../models/Category-1/ProjectBasedLearning')
-const ProjectBasedLearning = mongoose.model('projectbasedlearning');
-
-
-// Load plavement activities model
-require('../models/Category-1/PlacementActivities')
-const PlacementActivities = mongoose.model('placementactivities');
-
-// Load inhouse placement model
-require('../models/Category-1/InhousePlacement')
-const InhousePlacement = mongoose.model('inhouseplacement');
-
-// Load student organization model
-require('../models/Category-1/StudentOrganizations')
-const StudentOrganizations = mongoose.model('studentorganizations');
-
-// Load indutrial visit activities model
-require('../models/Category-1/IndustrialVisitActivities')
-const IndustrialVisitActivities = mongoose.model('industrialvisit');
-
-// Load exam assessment external model
-require('../models/Category-1/ExamAssessmentExternal')
-const ExamAssessmentExternal = mongoose.model('examassessmetnexternal');
-
-// Load exam activities supervision model
-require('../models/Category-1/ExamActivitiesSupervision')
-const ExamActivitiesSupervision = mongoose.model('examactivitiessupervision');
-
-// Load exam activities college level model
-require('../models/Category-1/ExamActivitiesCollegeLevel')
-const ExamActivitiesCollegeLevel = mongoose.model('examactivitiescollege');
-
-// Load IT maintenance model
-require('../models/Category-1/ITMaintenance')
-const ITMaintenance = mongoose.model('itmaintenance');
-
-// Load Lakshya model
-require('../models/Category-1/Lakshya')
-const Lakshya = mongoose.model('lakshya');
-
-// Load magazine/newsletter model
-require('../models/Category-1/MagazineNewsletter')
-const MagazineNewsletter = mongoose.model('magazine-newsletter');
-
-// Load STTP model
-require('../models/Category-1/STTP')
-const STTP = mongoose.model('sttp');
-
-// Load Department UG projects model
-require('../models/Category-1/DepartmentUGProjects')
-const DepartmentUGProjects = mongoose.model('department-ug-projects');
 
 // Category 2 dbs
 // Load paper published in national conference model
@@ -160,7 +96,7 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 module.exports = {
     TeachingLoad,
     Leave, 
-    TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties, TimeTable, SportsActivities, CulturalActivities, ProjectBasedLearning, PlacementActivities, InhousePlacement, StudentOrganizations, IndustrialVisitActivities, ExamAssessmentExternal, ExamActivitiesSupervision, ExamActivitiesCollegeLevel, ITMaintenance, Lakshya, MagazineNewsletter, STTP, DepartmentUGProjects, 
+    TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
     ResearchPapersPublished, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

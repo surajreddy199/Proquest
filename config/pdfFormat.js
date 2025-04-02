@@ -11,7 +11,7 @@ const modules = require('./modules');
     modules.InnovativeTeaching.findOne({ user: req.user.id }).exec(),
     modules.ExaminationDuties.findOne({ user: req.user.id }).exec(),
 
-    modules.TimeTable.findOne({ user: req.user.id }).exec(),
+   
 
     modules.PapersPublishedNationalConf.findOne({ user: req.user.id }).exec(),
     modules.PapersPublishedInternationalConf.findOne({ user: req.user.id }).exec(),
@@ -21,6 +21,7 @@ const modules = require('./modules');
     modules.ShortTermTraining.findOne({ user: req.user.id }).exec(),
     modules.Seminars.findOne({ user: req.user.id }).exec(),
 
+    modules.ResearchPapersPublished.findOne({ user: req.user.id }).exec(),
     modules.ResourcePerson.findOne({ user: req.user.id }).exec(),
     modules.ContributionToSyllabus.findOne({ user: req.user.id }).exec(),
     modules.MemberOfUniversityCommitte.findOne({ user: req.user.id }).exec(),
