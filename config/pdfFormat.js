@@ -21,8 +21,8 @@ const modules = require('./modules');
     modules.ShortTermTraining.findOne({ user: req.user.id }).exec(),
     modules.Seminars.findOne({ user: req.user.id }).exec(),
 
-    modules.ResearchPapersPublished.findOne({ user: req.user.id }).exec(),
-    modules.BooksChaptersPublished.findOne({ user: req.user.id }).exec(),
+    modules.ResearchPapersPublished.find({ user: req.user.id }).exec(),
+    modules.BooksChaptersPublished.find({ user: req.user.id }).exec(),
 
 
     modules.ResourcePerson.findOne({ user: req.user.id }).exec(),

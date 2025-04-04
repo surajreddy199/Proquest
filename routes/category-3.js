@@ -923,6 +923,8 @@ router.post('/deleteJournal', ensureAuthenticated, async (req, res) => {
     }
 });
 
+
+
 // Delete entry from Books/Chapters Published POST Method
 router.post('/deleteBook', ensureAuthenticated, async (req, res) => {
     const { publication_type, title } = req.body;
@@ -960,6 +962,80 @@ router.post('/deleteBook', ensureAuthenticated, async (req, res) => {
         res.json({ success: false, message: "Server error." });
     }
 });
+
+// Calculate Total Score for Research Papers Published
+router.get('/researchPapersPublished/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        // Fetch the academic year for the logged-in user
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        // Fetch all research papers for the user and academic year
+        const researchPapers = await ResearchPapersPublished.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        // Calculate the total score
+        let totalThreeOneScore = 0;
+
+        researchPapers.forEach(entry => {
+            totalThreeOneScore += entry.journals.reduce((sum, journal) => sum + (journal.score || 0), 0);
+        });
+
+        res.render('category-3/researchPapersTotalScore', {
+            totalThreeOneScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for research papers:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/researchPapersPublished');
+    }
+});
+
+// Calculate Total Score for Books/Chapters Published
+router.get('/booksChaptersPublished/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        // Fetch the academic year for the logged-in user
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        // Fetch all books/chapters for the user and academic year
+        const booksChapters = await BooksChaptersPublished.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        // Calculate the total score
+        let totalThreeTwoScore = 0;
+
+        booksChapters.forEach(entry => {
+            totalThreeTwoScore += entry.entries.reduce((sum, book) => sum + (book.score || 0), 0);
+        });
+
+        // Render the total score view
+        res.render('category-3/booksChaptersTotalScore', {
+            totalThreeTwoScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for books/chapters:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/booksChaptersPublished');
+    }
+});
+
 
 
 

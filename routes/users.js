@@ -6,6 +6,8 @@ const router = express.Router();
 const pdfMake = require('pdfmake/build/pdfmake.js');
 const pdfFonts = require('pdfmake/build/vfs_fonts.js');
 const { calculateCategoryOneTotalScore } = require('../utils/categoryOne');
+const { calculateCategoryThreeTotalScore } = require('../utils/categoryThree');
+
 const { groupJournalsByPublicationType } = require('../utils/grouping');
 const { groupBooksChaptersByPublicationType } = require('../utils/grouping');
 
@@ -63,104 +65,7 @@ router.get('/hod/login', (req, res) => {
 // Faculty Overview form
 
 
-//main
-// router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
-//     let finalResult;
-//     Faculty.findOne({ _id: req.user.id })
-//         .then(result => {
-//             if (!result) {
-//                 req.flash('error_msg', 'Not Authorized');
-//                 return res.redirect('back');
-//             } else {
-//                 AcademicYear.find({ user: req.user.id })
-//                     .then(result => {
-//                         if (!result || result.length === 0) {
-//                             req.flash('error_msg', 'Select the academic year before proceeding');
-//                             return res.redirect('/');
-//                         }
-//                         year = result[0].academic_year;
 
-//                         FacultyMarks.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-//                             .then(result => {
-//                                 finalResult = result;
-
-//                                 // Fetch all required data for Category 1 and other modules
-//                                 const loads = [
-//                                     modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-//                                     modules.LecturesExcess.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-//                                     modules.AdditionalResources.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-//                                     modules.InnovativeTeaching.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-//                                     modules.ExaminationDuties.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec()
-//                                 ];
-
-//                                 Promise.all(loads)
-//                                     .then(([teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties]) => {
-//                                         // Calculate total score for Category 1
-                                        
-//                                         const teachingContributionScore = teachingContribution ? teachingContribution.scoreOne || 0 : 0;
-//                                         const lecturesExcessScore = lecturesExcess ? lecturesExcess.scoreTwo || 0 : 0;
-//                                         const additionalResourcesScore = additionalResources ? additionalResources.scoreThree || 0 : 0;
-//                                         const innovativeTeachingScore = innovativeTeaching ? innovativeTeaching.scoreFour || 0 : 0;
-//                                         const examinationDutiesScore = examinationDuties ? examinationDuties.scoreFive || 0 : 0;
-
-//                                         const categoryOneTotalScore =
-//                                             teachingContributionScore +
-//                                             lecturesExcessScore +
-//                                             additionalResourcesScore +
-//                                             innovativeTeachingScore +
-//                                             examinationDutiesScore;
-
-//                                              // Debugging logs
-//                                         console.log('Category 1 Scores:', {
-//                                             teachingContributionScore,
-//                                             lecturesExcessScore,
-//                                             additionalResourcesScore,
-//                                             innovativeTeachingScore,
-//                                             examinationDutiesScore,
-//                                             categoryOneTotalScore,
-//                                         });
-
-//                                         // Render the page with all the data
-//                                         res.render('users/faculty/facultyOverview', {
-//                                             finalResult,
-//                                             teachingContribution,
-//                                             lecturesExcess,
-//                                             additionalResources,
-//                                             innovativeTeaching,
-//                                             examinationDuties,
-//                                             teachingContributionScore,
-//                                             lecturesExcessScore,
-//                                             additionalResourcesScore,
-//                                             innovativeTeachingScore,
-//                                             examinationDutiesScore,
-//                                             categoryOneTotalScore
-//                                         });
-//                                     })
-//                                     .catch(err => {
-//                                         console.error(err);
-//                                         req.flash('error_msg', 'Error fetching data. Please try again.');
-//                                         res.redirect('back');
-//                                     });
-//                             })
-//                             .catch(err => {
-//                                 console.error(err);
-//                                 req.flash('error_msg', 'Error fetching faculty marks. Please try again.');
-//                                 res.redirect('back');
-//                             });
-//                     })
-//                     .catch(err => {
-//                         console.error(err);
-//                         req.flash('error_msg', 'Academic year not selected.');
-//                         res.redirect('back');
-//                     });
-//             }
-//         })
-//         .catch(err => {
-//             console.error(err);
-//             req.flash('error_msg', 'Cannot find the user.');
-//             res.redirect('back');
-//         });
-// });
 
 
 router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
@@ -194,11 +99,10 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                     return calculateCategoryOneTotalScore(req.user.id, year);
                 })
                 .then(scores => {
-                    // Debugging logs
-                    // console.log('Category 1 Scores:', scores);
-                    // console.log('Final Result:', finalResult);
-
-                    // Render the page with all the data
+                    // Use the utility function to calculate Category 3 total score
+                    return calculateCategoryThreeTotalScore(req.user.id, year).then(categoryThreeScores => {
+                    
+                    
                     res.render('users/faculty/facultyOverview', {
                         finalResult,
                         teachingContributionScore: scores.teachingContributionScore || 0,
@@ -206,10 +110,15 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                         additionalResourcesScore: scores.additionalResourcesScore || 0,
                         innovativeTeachingScore: scores.innovativeTeachingScore || 0,
                         examinationDutiesScore: scores.examinationDutiesScore || 0,
-                        categoryOneTotalScore: scores.categoryOneTotalScore || 0
+                        categoryOneTotalScore: scores.categoryOneTotalScore || 0,
+                        totalThreeOneScore: categoryThreeScores.totalThreeOneScore || 0,
+                            totalThreeTwoScore: categoryThreeScores.totalThreeTwoScore || 0,
+                            categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
+                            year
                     });
                 });
-        })
+        });
+    })
         .catch(err => {
             console.error(err);
             req.flash('error_msg', 'Error fetching data. Please try again.');
@@ -520,8 +429,8 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.ShortTermTraining.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.Seminars.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
-                                    modules.ResearchPapersPublished.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.BooksChaptersPublished.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.ResearchPapersPublished.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.BooksChaptersPublished.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
                                     modules.ResourcePerson.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.ContributionToSyllabus.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -1112,8 +1021,8 @@ router.post('/hod/pdf/:id', (req, res) => {
             modules.ShortTermTraining.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.Seminars.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
-            modules.ResearchPapersPublished.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.BooksChaptersPublished.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.ResearchPapersPublished.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.BooksChaptersPublished.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ResourcePerson.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),

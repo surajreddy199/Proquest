@@ -339,9 +339,12 @@
 
     <li id="overview">
         <div class="collapsible-header"><i class="material-icons">book</i><b>Category 3</b>
-            <div class="right inline col s12 m4 l2">
-                <input id="score_inline" placeholder="Score ( /40)" value="{{category_3}}" disabled name="category_3"
-                    type="number" class="validate">
+            <div class="right inline col s12 m4 l2" style="text-align: right;">
+                <span style="font-weight: bold; font-size: 16px; display: inline-block; border-bottom: 1px solid black; padding-bottom: 2px;">
+                    Total Score: {{categoryThreeTotalScore}}
+                </span>
+                <input id="score_inline" value="{{categoryThreeTotalScore}}" name="categoryThreeTotalScore"
+                    type="number" class="validate" disabled style="display: none;">
             </div>
             <br><br><br>
         </div>
@@ -350,16 +353,15 @@
                 <li class="collection-item">
                     <p>
                         <div>
-                            {{#if ../researchpaperspublished}}
+                            {{#if ../totalThreeOneScore}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            3.1 Research Papers Published
+                            <span>3.1 Research Papers Published</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{totalThreeOneScore}}</strong>
 
                             <div class="right">
-                                <a class="btn-small" href="/category-3/researchpaperspublished"
-                                    style="background-color: purple;">View</a>
+                                <a class="btn-small" href="/category-3/researchpaperspublished" style="background-color: purple;">View</a>
                             </div>
                         </div>
                     </p>
@@ -367,37 +369,20 @@
                 <li class="collection-item">
                     <p>
                         <div>
-                            {{#if ../booksChaptersPublished}}
+                            {{#if ../totalThreeTwoScore}}
                             <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            3.2 Books/Chapters Published
+                            <span>3.2 Books/Chapters Published</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{totalThreeTwoScore}}</strong>
+
+                            <div class="right">
+                                <a class="btn-small" href="/category-3/booksChaptersPublished" style="background-color: purple;">View</a>
+                            </div>
+                        </div>
+                    </p>
+                </li>
                 
-                            <div class="right">
-                                <a class="btn-small" href="/category-3/booksChaptersPublished"
-                                    style="background-color: purple;">View</a>
-                            </div>
-                        </div>
-                    </p>
-                </li>
-                <li class="collection-item">
-                    <p>
-                        <div>
-                            {{#if ../resourcePerson}}
-                            <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                            {{else}}
-                            <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                            {{/if}}
-                            3.1Resource Person in STTP/Training Course/Lecture Talks
-
-                            <div class="right">
-                                <a class="btn-small" href="/category-3/resourcePerson"
-                                    style="background-color: purple;">View</a>
-                            </div>
-                        </div>
-                    </p>
-                </li>
 
                 <li class="collection-item">
                     <p>
@@ -803,9 +788,12 @@
 
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 3</b>
-                <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="category_3" type="number"
-                        class="validate">
+                <div class="right inline col s12 m4 l2" style="text-align: right;">
+                    <span style="font-weight: bold; font-size: 16px; display: inline-block; border-bottom: 1px solid black; padding-bottom: 2px;">
+                        Total Score: {{categoryThreeTotalScore}}
+                    </span>
+                    <input id="score_inline" value="{{categoryThreeTotalScore}}" name="categoryThreeTotalScore"
+                        type="number" class="validate" disabled style="display: none;">
                 </div>
                 <br><br><br>
             </div>
@@ -814,55 +802,37 @@
                     <li class="collection-item">
                         <p>
                             <div>
-                                {{#if researchpaperspublished}}
+                                {{#if totalThreeOneScore}}
                                 <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                                 {{/if}}
-                                3.1 Research Papers Published
-
+                                <span>3.1 Research Papers Published</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{totalThreeOneScore}}</strong>
+    
                                 <div class="right">
-                                <a class="btn-small" href="/category-3/researchpaperspublished"
-                                    style="background-color: purple;">View</a>
-                            </div>
+                                    <a class="btn-small" href="/category-3/researchpaperspublished" style="background-color: purple;">View</a>
+                                </div>
                             </div>
                         </p>
                     </li>
                     <li class="collection-item">
                         <p>
                             <div>
-                                {{#if ../booksChaptersPublished}}
+                                {{#if totalThreeTwoScore}}
                                 <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                                 {{/if}}
-                                3.2 Books/Chapters Published
-                    
+                                <span>3.2 Books/Chapters Published</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{totalThreeTwoScore}}</strong>
+    
                                 <div class="right">
-                                    <a class="btn-small" href="/category-3/booksChaptersPublished"
-                                        style="background-color: purple;">View</a>
+                                    <a class="btn-small" href="/category-3/booksChaptersPublished" style="background-color: purple;">View</a>
                                 </div>
                             </div>
                         </p>
                     </li>
                     
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if resourcePerson}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                3.1Resource Person in STTP/Training Course/Lecture Talks
-
-                                <div class="right">
-                                <a class="btn-small" href="/category-3/resourcePerson"
-                                    style="background-color: purple;">View</a>
-                            </div>
-                            </div>
-                        </p>
-                    </li>
+                    
 
                     <li class="collection-item">
                         <p>
