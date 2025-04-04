@@ -6,6 +6,7 @@
     {{#each finalResult}}
     <div class="col s4">
         <form action="/users/hod/pdf/{{user}}" method="post">
+        <input type="hidden" name="academic_year" value="{{../year}}">
             <h5 class="right"> <button class="btn waves-effect waves-light" type="submit" id="submit_btn">PDF <i
                         class="fa fa-download white-text" aria-hidden="true"></i></button></h5>
         </form>

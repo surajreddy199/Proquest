@@ -112,13 +112,13 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                         examinationDutiesScore: scores.examinationDutiesScore || 0,
                         categoryOneTotalScore: scores.categoryOneTotalScore || 0,
                         totalThreeOneScore: categoryThreeScores.totalThreeOneScore || 0,
-                            totalThreeTwoScore: categoryThreeScores.totalThreeTwoScore || 0,
-                            categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
-                            year
+                        totalThreeTwoScore: categoryThreeScores.totalThreeTwoScore || 0,
+                        categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
+                        year
                     });
                 });
-        });
-    })
+            });
+        })
         .catch(err => {
             console.error(err);
             req.flash('error_msg', 'Error fetching data. Please try again.');
@@ -494,14 +494,14 @@ router.post('/faculty/facultyOverview/:year', async (req, res) => {
     if (!req.body.category_2 || req.body.category_2 > 40 || req.body.category_2 < 0) {
         errors.push({ text: 'Please enter marks between 0 to 40 for Cat 02' });
     }
-    if (!req.body.category_3 || req.body.category_3 > 40 || req.body.category_3 < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40 for Cat 03' });
-    }
+    
 
 
     try {
         const year = req.params.year;
         const scores = await calculateCategoryOneTotalScore(req.user.id, year);
+        const categoryThreeScores = await calculateCategoryThreeTotalScore(req.user.id, year);
+
 
         if (scores.categoryOneTotalScore < 75) {
             errors.push({
@@ -516,7 +516,7 @@ router.post('/faculty/facultyOverview/:year', async (req, res) => {
                 leaveRecord: req.body.leaveRecord,
                 ...scores,
                 category_2: req.body.category_2,
-                category_3: req.body.category_3
+                ...categoryThreeScores
             });
         } else {
             const marks = {
@@ -525,7 +525,7 @@ router.post('/faculty/facultyOverview/:year', async (req, res) => {
                 leaveRecord: req.body.leaveRecord,
                 category_1: scores.categoryOneTotalScore,
                 category_2: req.body.category_2,
-                category_3: req.body.category_3,
+                category_3: categoryThreeScores.categoryThreeTotalScore,
                 user: req.user.id
             };
 
@@ -636,9 +636,9 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     const groupedJournals = groupJournalsByPublicationType(researchPapersPublished);
                     const groupedBooksChapters = groupBooksChaptersByPublicationType(booksChaptersPublished);
 
-                    // Debugging logs
-console.log('BooksChaptersPublished:', JSON.stringify(booksChaptersPublished, null, 2));
-console.log('Grouped Books/Chapters:', JSON.stringify(groupedBooksChapters, null, 2));
+//                     // Debugging logs
+// console.log('BooksChaptersPublished:', JSON.stringify(booksChaptersPublished, null, 2));
+// console.log('Grouped Books/Chapters:', JSON.stringify(groupedBooksChapters, null, 2));
 
                     
                 
@@ -996,11 +996,22 @@ console.log('Grouped Books/Chapters:', JSON.stringify(groupedBooksChapters, null
 });
 
 // PDF route POST for HOD
-router.post('/hod/pdf/:id', (req, res) => {
-    Faculty.find({ _id: req.params.id })
+router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
+    const year = req.body.academic_year; // Get the academic year from the request body
+    
+
+    Faculty.findOne({ _id: req.params.id })
         .then(result => {
-            facultyName = result[0].name;
-            facultyEmail = result[0].email;
+            if (!result) {
+                req.flash('error_msg', 'Faculty not found');
+                return res.redirect('back');
+            }
+
+            facultyName = result.name;
+            facultyEmail = result.email;
+
+        
+
             var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             
 
@@ -1063,27 +1074,19 @@ router.post('/hod/pdf/:id', (req, res) => {
                     if (!consultancyAssignment) { consultancyAssignment = { rolesAndResponsilbilty: '-', typeOfWorkorDomain: '-', organization: '-', duration: '-', numberofVisits: '-' } }
                     if (!externalProjectsOrCompetition) { externalProjectsOrCompetition = { description: '-', contribution: '-', university: '-', duration: '-', comments: '-' } }
 
+                    // Combine and group journals
+                    const groupedJournals = groupJournalsByPublicationType(researchPapersPublished);
+                    const groupedBooksChapters = groupBooksChaptersByPublicationType(booksChaptersPublished);
+
                     document = {
                         content: [
                             { text: 'Self Appraisal Report', style: 'header' },
-                            { text: 'Academic Year: ' + teachingContribution.academic_year, style: 'header' },
+                            { text: 'Academic Year: ' + year, style: 'header' },
 
                             'Name: ' + facultyName + '\n',
                             'Email ID: ' + facultyEmail + '\n',
 
-                            // { text: 'Academic Performance', style: 'subheader' },
-                            // { text: '1. Teaching Load', style: 'subheader' },
-
-                            // {
-                            //     style: 'tableExample',
-                            //     table: {
-                            //         body: [
-                            //             ['Subject Name', 'Class', 'Department', 'Semester', 'Theory Load', 'Lab Load', 'Tutorials Load ', 'Theory sessions', 'Practical Sessions', 'Feedback'],
-                            //             [teachingLoad.subject_name, teachingLoad.class, teachingLoad.department, teachingLoad.semester, teachingLoad.theory_subject, teachingLoad.lab_subject, teachingLoad.tutorials, teachingLoad.theory_session, teachingLoad.practical_session, teachingLoad.Student_feedback]
-                            //         ]
-                            //     }
-                            // },
-
+                            
                             
                             { text: 'Leave Record', style: 'subheader' },
                             { text: '1. Pre-Sanctioned Leave Record', style: 'subheader' },
@@ -1262,39 +1265,56 @@ router.post('/hod/pdf/:id', (req, res) => {
                             { text: 'Category-3', style: 'subheader' },
 
                             { text: ' 3.1 Research Papers Published', style: 'subheader' },
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Publication Type', 'Journal Description', 'Publication Link', 'Journal Document', 'Score'],
-                                        ...researchPapersPublished.journals.map(journal => [
-                                            researchPapersPublished.publication_type, 
-                                            journal.journal_title, 
-                                            { text: 'View', link: journal.publication_link, color: 'blue' }, // Clickable link
-                                            { text: 'Download', link: journal.journal_document, color: 'blue' }, // Clickable file
-                                            journal.score
-                                        ]),
-                                        [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, researchPapersPublished.total_score]
-                                    ]
-                                }
-                            },
+                            ...Object.keys(groupedJournals).map(publicationType => {
+                                // Calculate the total score for the current publication type
+                                const totalScore = groupedJournals[publicationType].reduce((sum, journal) => sum + (Number(journal.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Publication Type: ${publicationType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Journal Description', 'Publication Link', 'Journal Document', 'Score'], // Table header
+                                                ...groupedJournals[publicationType].map(journal => [
+                                                    journal.journal_title || '-', // Default to '-' if undefined
+                                                    { text: 'View', link: journal.publication_link || '#', color: 'blue' }, // Clickable link
+                                                    { text: 'Download', link: `http://localhost:5000/${journal.journal_document}`, color: 'blue' }, // Clickable file
+                                                    journal.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
+
                             { text: ' 3.2 Books/Chapters Published', style: 'subheader' },
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Publication Type', 'Title', 'Publication Link', 'Document', 'Score'],
-                                        ...booksChaptersPublished.entries.map(entry => [
-                                            booksChaptersPublished.publication_type,
-                                            entry.title,
-                                            { text: 'View', link: entry.publication_link, color: 'blue' }, // Clickable link
-                                            { text: 'Download', link: entry.document, color: 'blue' }, // Clickable file
-                                            entry.score
-                                        ]),
-                                        [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, booksChaptersPublished.booksChaptersTotalScore]
-                                    ]
-                                }
-                            },
+                            ...Object.keys(groupedBooksChapters).map(publicationType => {
+                                // Calculate the total score for the current publication type
+                                const totalScore = groupedBooksChapters[publicationType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Publication Type: ${publicationType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Title', 'Publication Link', 'Document', 'Score'], // Table header
+                                                ...groupedBooksChapters[publicationType].map(entry => [
+                                                    entry.title || '-', // Default to '-' if undefined
+                                                    { text: 'View', link: entry.publication_link || '#', color: 'blue' }, // Clickable link
+                                                    { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue' }, // Clickable file
+                                                    entry.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
                             
                             
                             { text: ' 3.1 Resource Person in STTP/Training Course/Lecture Talks', style: 'subheader' },
@@ -1395,7 +1415,12 @@ router.post('/hod/pdf/:id', (req, res) => {
                         res.end(download);
                     });
                 })
-        })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    req.flash('error_msg', 'Error generating PDF. Please try again.');
+                    res.redirect('back');
+                });
+        });
 });
 
 router.get('/hod/home', ensureAuthenticated, (req, res) => {
