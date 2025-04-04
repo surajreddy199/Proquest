@@ -11,6 +11,10 @@ let year;
 require('../models/Category-3/ResearchPapersPublished');
 const ResearchPapersPublished = mongoose.model('researchpaperspublished');
 
+// Load Books/Chapters Published model
+require('../models/Category-3/BooksChaptersPublished');
+const BooksChaptersPublished = mongoose.model('bookschapterspublished');
+
 // Load resource person model
 require('../models/Category-3/ResourcePerson');
 const ResourcePerson = mongoose.model('resource_person');
@@ -666,7 +670,7 @@ const upload = multer({ storage: storage });
 
 
 
-//new post method
+//Research Papers Published post method
 router.post('/researchPapersPublished', upload.array("journal_document[]"), async (req, res) => {
 
     try {
@@ -704,11 +708,7 @@ router.post('/researchPapersPublished', upload.array("journal_document[]"), asyn
                 journal_document: documentPath,
                 score: publicationType === 'refereed' ? 15 : 10
              };
-            });
-
-
-        
-        
+            });   
 
         if (existingEntry) {
             let updatedJournals = existingEntry.journals.map(existing => {
@@ -743,6 +743,90 @@ router.post('/researchPapersPublished', upload.array("journal_document[]"), asyn
     }
 });
 
+
+// Books/Chapters Published post method
+router.post('/booksChaptersPublished', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/booksChaptersPublished');
+        }
+        const year = academicRecord.academic_year;
+
+        const publicationType = Array.isArray(req.body.publication_type) ? req.body.publication_type[0] : req.body.publication_type;
+        
+        const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+        const publicationLinks = Array.isArray(req.body.publication_link) ? req.body.publication_link : [req.body.publication_link];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        let existingEntry = await BooksChaptersPublished.findOne({
+            user: req.user.id,
+            academic_year: year,
+            publication_type: publicationType
+        });
+
+        let fileIndex = 0; // Track files separately from titles index
+
+        let newEntries = titles.map((title, index) => {
+            let documentPath = existingDocs[index] || null; // Keep existing files
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++; // Move to the next file
+            }
+
+            return {
+                title: title || '-',
+                publication_link: publicationLinks[index] || '-',
+                document: documentPath,
+                score: publicationType === 'text_reference_book_international' ? 50 :
+                       publicationType === 'chapter_edited_book_international' ? 10 :
+                       publicationType === 'subject_book_national' ? 25 :
+                       publicationType === 'chapter_edited_book_national' ? 5 :
+                       publicationType === 'subject_book_local' ? 15 :
+                       publicationType === 'chapter_edited_book_local' ? 3 :
+                       publicationType === 'chapter_knowledge_volume_international' ? 10 :
+                       publicationType === 'chapter_knowledge_volume_national' ? 5 : 0
+            };
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.title === existing.title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.title === e.title)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.booksChaptersTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new BooksChaptersPublished({
+                academic_year: year,
+                publication_type: publicationType,
+                entries: newEntries,
+                booksChaptersTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Books/Chapters details saved successfully.');
+        res.redirect('/category-3/booksChaptersPublished');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/booksChaptersPublished');
+    }
+});
+
+
+// Research Papers Published get method
+
 router.get('/researchPapersPublished', ensureAuthenticated, async (req, res) => {
     try {
         // Fetch the academic year for the logged-in user
@@ -771,7 +855,35 @@ router.get('/researchPapersPublished', ensureAuthenticated, async (req, res) => 
     }
 });
 
+// Books/Chapters Published get method
 
+router.get('/booksChaptersPublished', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const booksChapters = await BooksChaptersPublished.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        res.render('category-3/booksChaptersPublished', {
+            booksChapters,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching books/chapters published:", error);
+        req.flash('error_msg', 'Error fetching books/chapters published.');
+        res.redirect('/');
+    }
+});
+
+// Delete journal entry from Research Papers Published POST Method
 router.post('/deleteJournal', ensureAuthenticated, async (req, res) => {
     const { publication_type, journal_title } = req.body;
 
@@ -807,6 +919,44 @@ router.post('/deleteJournal', ensureAuthenticated, async (req, res) => {
 
     } catch (error) {
         console.error("Error deleting journal:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
+// Delete entry from Books/Chapters Published POST Method
+router.post('/deleteBook', ensureAuthenticated, async (req, res) => {
+    const { publication_type, title } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await BooksChaptersPublished.findOneAndUpdate(
+            {
+                user: req.user.id,
+                publication_type: publication_type,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { title: title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Book/Chapter not found." });
+        }
+
+        const newTotalScore = updatedEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+
+        updatedEntry.booksChaptersTotalScore = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Book/Chapter deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting book/chapter:", error);
         res.json({ success: false, message: "Server error." });
     }
 });

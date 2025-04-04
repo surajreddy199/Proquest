@@ -6,6 +6,9 @@ const router = express.Router();
 const pdfMake = require('pdfmake/build/pdfmake.js');
 const pdfFonts = require('pdfmake/build/vfs_fonts.js');
 const { calculateCategoryOneTotalScore } = require('../utils/categoryOne');
+const { groupJournalsByPublicationType } = require('../utils/grouping');
+const { groupBooksChaptersByPublicationType } = require('../utils/grouping');
+
 var fs = require('fs');
 // var Chart = require('chart.js');
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -518,6 +521,8 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.Seminars.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
                                     modules.ResearchPapersPublished.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.BooksChaptersPublished.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+
                                     modules.ResourcePerson.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.ContributionToSyllabus.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -534,11 +539,11 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                             leave,
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                                            researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
+                                            researchPapersPublished,booksChaptersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -671,7 +676,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.ShortTermTraining.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.Seminars.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
-            modules.ResearchPapersPublished.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.ResearchPapersPublished.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.BooksChaptersPublished.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ResourcePerson.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -681,7 +687,6 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
             Promise.all(loads)
                 .then(result => {
-                    console.log('Fetched Data:', result); // Debugging log
                     console.log('Year:', year);
                     console.log('User ID:', req.user.id);
                     return Promise.all(result);
@@ -690,21 +695,10 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     leave,
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
-                        console.log('Individual Data:', {
-                        teachingLoad,
-                        leave,
-                        teachingContribution,
-                        lecturesExcess,
-                        additionalResources,
-                        innovativeTeaching,
-                        examinationDuties
-                    }); // Debugging log
+                    researchPapersPublished, booksChaptersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                       
 
-                    // if (!teachingLoad) {
-                    //     req.flash('error_msg', 'Teaching load form is compulsory to fill');   //checklast
-                    //     res.redirect('/users/faculty/facultyOverview');
-                    // }
+                   
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
@@ -721,17 +715,30 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!shortTermTraining) { shortTermTraining = { short_term_training: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
                     if (!seminars) { seminars = { name_of_seminar: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
                     if (!researchPapersPublished) {researchPapersPublished = { publication_type: '-', journals: researchPapersPublished?.journals?.length ? researchPapersPublished.journals : [{ journal_title: '-', publication_link: '-', journal_document: '-', score: '-' }], total_score: '-' } }
+                    if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!resourcePerson) { resourcePerson = { topicName: '-', department: '-', nameofInstitute: '-', numberofParticipants: '-' } }
                     if (!contributionToSyllabus) { contributionToSyllabus = { nameofSub: '-', role: '-', nameofUniversity: '-', otherDetails: '-' } }
                     if (!memberOfUniversityCommitte) { memberOfUniversityCommitte = { nameofCommittee: '-', rolesAndResponsibility: '-', designation: '-' } }
                     if (!consultancyAssignment) { consultancyAssignment = { rolesAndResponsilbilty: '-', typeOfWorkorDomain: '-', organization: '-', duration: '-', numberofVisits: '-' } }
                     if (!externalProjectsOrCompetition) { externalProjectsOrCompetition = { description: '-', contribution: '-', university: '-', duration: '-', comments: '-' } }
 
+
+                    // Combine and group journals
+                    const groupedJournals = groupJournalsByPublicationType(researchPapersPublished);
+                    const groupedBooksChapters = groupBooksChaptersByPublicationType(booksChaptersPublished);
+
+                    // Debugging logs
+console.log('BooksChaptersPublished:', JSON.stringify(booksChaptersPublished, null, 2));
+console.log('Grouped Books/Chapters:', JSON.stringify(groupedBooksChapters, null, 2));
+
+                    
+                
+
                     //generate pdf
                     const  document = {
                         content: [
                             { text: 'Self Appraisal Report', style: 'header' },
-                            { text: 'Academic Year: ' + teachingContribution.academic_year, style: 'header' },
+                            { text: 'Academic Year: ' + year, style: 'header' },
 
                             'Name: ' + facultyName + '\n',
                             'Email ID: ' + facultyEmail + '\n',
@@ -918,22 +925,58 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             { text: 'Category-3', style: 'subheader' },
                             
                             { text: ' 3.1 Research Papers Published', style: 'subheader' },
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Publication Type', 'Journal Description', 'Publication Link', 'Journal Document', 'Score'],
-                                        ...researchPapersPublished.journals.map(journal => [
-                                            researchPapersPublished.publication_type, 
-                                            journal.journal_title, 
-                                            { text: 'View', link: journal.publication_link, color: 'blue' }, // Clickable link
-                                            { text: 'Download', link: journal.journal_document, color: 'blue' }, // Clickable file
-                                            journal.score
-                                        ]),
-                                        [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, researchPapersPublished.total_score]
-                                    ]
-                                }
-                            },
+                            ...Object.keys(groupedJournals).map(publicationType => {
+                                // Calculate the total score for the current publication type
+                                const totalScore = groupedJournals[publicationType].reduce((sum, journal) => sum + (Number(journal.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Publication Type: ${publicationType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Journal Description', 'Publication Link', 'Journal Document', 'Score'], // Table header
+                                                ...groupedJournals[publicationType].map(journal => [
+                                                    journal.journal_title || '-', // Default to '-' if undefined
+                                                    { text: 'View', link: journal.publication_link || '#', color: 'blue' }, // Clickable link
+                                                    { text: 'Download', link: `http://localhost:5000/${journal.journal_document}`, color: 'blue' }, // Clickable file
+                                                    journal.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
+
+                            { text: ' 3.2 Books/Chapters Published', style: 'subheader' },
+                            ...Object.keys(groupedBooksChapters).map(publicationType => {
+                                // Calculate the total score for the current publication type
+                                const totalScore = groupedBooksChapters[publicationType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Publication Type: ${publicationType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Title', 'Publication Link', 'Document', 'Score'], // Table header
+                                                ...groupedBooksChapters[publicationType].map(entry => [
+                                                    entry.title || '-', // Default to '-' if undefined
+                                                    { text: 'View', link: entry.publication_link || '#', color: 'blue' }, // Clickable link
+                                                    { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue' }, // Clickable file
+                                                    entry.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
+                            
+                            
                             
 
                             { text: ' 3.1 Resource Person in STTP/Training Course/Lecture Talks', style: 'subheader' },
@@ -1030,6 +1073,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             'Content-Type': 'application/pdf',
                             'Content-Disposition': `attachment;filename=${facultyName}.pdf`
                         });
+                        // console.log('PDF Content:', JSON.stringify(document.content, null, 2));
                         const download = Buffer.from(data.toString('utf-8'), 'base64');
                         res.end(download);
                     });
@@ -1069,6 +1113,7 @@ router.post('/hod/pdf/:id', (req, res) => {
             modules.Seminars.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
             modules.ResearchPapersPublished.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.BooksChaptersPublished.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ResourcePerson.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1084,7 +1129,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                     leave,
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    researchPapersPublished,booksChaptersPublished, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
@@ -1102,6 +1147,7 @@ router.post('/hod/pdf/:id', (req, res) => {
                     if (!shortTermTraining) { shortTermTraining = { short_term_training: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
                     if (!seminars) { seminars = { name_of_seminar: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
                     if (!researchPapersPublished) {researchPapersPublished = { publication_type: '-', journals: researchPapersPublished?.journals?.length ? researchPapersPublished.journals : [{ journal_title: '-', publication_link: '-', journal_document: '-', score: '-' }], total_score: '-' } }
+                    if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!resourcePerson) { resourcePerson = { topicName: '-', department: '-', nameofInstitute: '-', numberofParticipants: '-' } }
                     if (!contributionToSyllabus) { contributionToSyllabus = { nameofSub: '-', role: '-', nameofUniversity: '-', otherDetails: '-' } }
                     if (!memberOfUniversityCommitte) { memberOfUniversityCommitte = { nameofCommittee: '-', rolesAndResponsibility: '-', designation: '-' } }
@@ -1320,6 +1366,23 @@ router.post('/hod/pdf/:id', (req, res) => {
                                             journal.score
                                         ]),
                                         [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, researchPapersPublished.total_score]
+                                    ]
+                                }
+                            },
+                            { text: ' 3.2 Books/Chapters Published', style: 'subheader' },
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Publication Type', 'Title', 'Publication Link', 'Document', 'Score'],
+                                        ...booksChaptersPublished.entries.map(entry => [
+                                            booksChaptersPublished.publication_type,
+                                            entry.title,
+                                            { text: 'View', link: entry.publication_link, color: 'blue' }, // Clickable link
+                                            { text: 'Download', link: entry.document, color: 'blue' }, // Clickable file
+                                            entry.score
+                                        ]),
+                                        [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, booksChaptersPublished.booksChaptersTotalScore]
                                     ]
                                 }
                             },

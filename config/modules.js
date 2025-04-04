@@ -73,6 +73,10 @@ const Seminars = mongoose.model('seminars');
 require('../models/Category-3/ResearchPapersPublished');
 const ResearchPapersPublished = mongoose.model('researchpaperspublished');
 
+// Load Books/Chapters Published model
+require('../models/Category-3/BooksChaptersPublished');
+const BooksChaptersPublished = mongoose.model('bookschapterspublished');
+
 // Load resource person model
 require('../models/Category-3/ResourcePerson');
 const ResourcePerson = mongoose.model('resource_person');
@@ -98,5 +102,5 @@ module.exports = {
     Leave, 
     TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
-    ResearchPapersPublished, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
+    ResearchPapersPublished,BooksChaptersPublished, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }
