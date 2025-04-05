@@ -115,6 +115,7 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                         totalThreeOneScore: categoryThreeScores.totalThreeOneScore || 0,
                         totalThreeTwoScore: categoryThreeScores.totalThreeTwoScore || 0,
                         totalThreeThreeScore: categoryThreeScores.totalThreeThreeScore || 0,
+                        totalThreeFourScore: categoryThreeScores.totalThreeFourScore || 0,
                         categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
                         year
                     });
@@ -434,6 +435,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.ResearchPapersPublished.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.BooksChaptersPublished.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.SponsoredProjects.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.ConsultancyProjects.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
 
                                     modules.ResourcePerson.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -452,11 +454,11 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                             leave,
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
+                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -592,6 +594,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.ResearchPapersPublished.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.BooksChaptersPublished.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.SponsoredProjects.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.ConsultancyProjects.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
             modules.ResourcePerson.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -610,7 +613,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     leave,
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
 
                    
@@ -632,6 +635,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!researchPapersPublished) {researchPapersPublished = { publication_type: '-', journals: researchPapersPublished?.journals?.length ? researchPapersPublished.journals : [{ journal_title: '-', publication_link: '-', journal_document: '-', score: '-' }], total_score: '-' } }
                     if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!sponsoredProjects) { sponsoredProjects = { project_type: '-', entries: sponsoredProjects?.entries?.length ? sponsoredProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], sponsoredProjectsTotalScore: '-' } }
+                    if (!consultancyProjects) { consultancyProjects = { entries: consultancyProjects?.entries?.length ? consultancyProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], consultancyTotalScore: '-' } }
 
                     if (!resourcePerson) { resourcePerson = { topicName: '-', department: '-', nameofInstitute: '-', numberofParticipants: '-' } }
                     if (!contributionToSyllabus) { contributionToSyllabus = { nameofSub: '-', role: '-', nameofUniversity: '-', otherDetails: '-' } }
@@ -693,7 +697,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['lecturesDelivered', 'lecturesAllocated', 'tutorialsDelivered', 'tutorialsAllocated', 'practicalSessionsDelivered', 'practicalSessionsAllocated', 'scoreOne' ],
+                                        ['Lectures Delivered', 'Lectures Allocated', 'Tutorials Delivered', 'Tutorials Allocated', 'Practical Sessions Delivered', 'Practical Sessions Allocated', 'Score' ],
                                         [teachingContribution.lecturesDelivered, teachingContribution.lecturesAllocated,teachingContribution.tutorialsDelivered,teachingContribution.tutorialsAllocated,teachingContribution.practicalSessionsDelivered,teachingContribution.practicalSessionsAllocated,teachingContribution.scoreOne]
                                     ]
                                 }
@@ -705,7 +709,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['lecturesTaken', 'tutorialsTaken', 'practicalSessionsTaken', 'scoreTwo' ],
+                                        ['Lectures Taken', 'Tutorials Taken', 'Practical Sessions Taken', 'Score' ],
                                         [lecturesExcess.lecturesTaken, lecturesExcess.tutorialsTaken, lecturesExcess.practicalSessionsTaken, lecturesExcess.scoreTwo]
                                     ]
                                 }
@@ -717,7 +721,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['materials', 'scoreThree' ],
+                                        ['Materials', 'Score' ],
                                         [additionalResources.materials, additionalResources.scoreThree]
                                     ]
                                 }
@@ -729,7 +733,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['techniques', 'scoreFour' ],
+                                        ['Techniques', 'Score' ],
                                         [innovativeTeaching.techniques, innovativeTeaching.scoreFour]
                                     ]
                                 }
@@ -741,7 +745,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['invigilation', 'questionPaperSetting', 'evaluationAnswerScripts', 'paperModeration', 'labEvaluation', 'scoreFive' ],
+                                        ['Invigilation', 'Question Paper Setting', 'Evaluation Answer Scripts', 'Paper Moderation', 'Lab Evaluation', 'Score ' ],
                                         [examinationDuties.invigilation, examinationDuties.questionPaperSetting,examinationDuties.evaluationAnswerScripts,examinationDuties.paperModeration,examinationDuties.labEvaluation, examinationDuties.scoreFive]
                                     ]
                                 }
@@ -918,6 +922,24 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     }
                                 ];
                             }),
+                            { text: '3.4 Consultancy Projects Carried Out/Ongoing', style: 'subheader' },
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Title', 'Funding Agency', 'Amount Mobilized', 'Document', 'Score'], // Table header
+                                        ...consultancyProjects.entries.map(entry => [
+                                            entry.title || '-', // Default to '-' if undefined
+                                            entry.funding_agency || '-', // Default to '-' if undefined
+                                            entry.amount || '-', // Default to '-' if undefined
+                                            { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }, // Clickable file
+                                            entry.score || '-' // Default to '-' if undefined
+                                        ]),
+                                        // Add a row for the total score
+                                        [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, consultancyProjects.consultancyTotalScore || '-']
+                                    ]
+                                }
+                            },
                             
                             
                             
@@ -1069,6 +1091,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
             modules.ResearchPapersPublished.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.BooksChaptersPublished.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.SponsoredProjects.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.ConsultancyProjects.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
             modules.ResourcePerson.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1085,7 +1108,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     leave,
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
                     if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
@@ -1105,6 +1128,8 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     if (!researchPapersPublished) {researchPapersPublished = { publication_type: '-', journals: researchPapersPublished?.journals?.length ? researchPapersPublished.journals : [{ journal_title: '-', publication_link: '-', journal_document: '-', score: '-' }], total_score: '-' } }
                     if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!sponsoredProjects) { sponsoredProjects = { project_type: '-', entries: sponsoredProjects?.entries?.length ? sponsoredProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], sponsoredProjectsTotalScore: '-' } }
+                    if (!consultancyProjects) { consultancyProjects = { entries: consultancyProjects?.entries?.length ? consultancyProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], consultancyTotalScore: '-' } }
+
 
 
                     if (!resourcePerson) { resourcePerson = { topicName: '-', department: '-', nameofInstitute: '-', numberofParticipants: '-' } }
@@ -1160,7 +1185,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['lecturesDelivered', 'lecturesAllocated', 'tutorialsDelivered', 'tutorialsAllocated', 'practicalSessionsDelivered', 'practicalSessionsAllocated', 'scoreOne' ],
+                                        ['Lectures Delivered', 'Lectures Allocated', 'Tutorials Delivered', 'Tutorials Allocated', 'Practical Sessions Delivered', 'Practical Sessions Allocated', 'Score' ],
                                         [teachingContribution.lecturesDelivered, teachingContribution.lecturesAllocated,teachingContribution.tutorialsDelivered,teachingContribution.tutorialsAllocated,teachingContribution.practicalSessionsDelivered,teachingContribution.practicalSessionsAllocated,teachingContribution.scoreOne]
                                     ]
                                 }
@@ -1171,7 +1196,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['lecturesTaken', 'tutorialsTaken', 'practicalSessionsTaken', 'scoreTwo' ],
+                                        ['Lectures Taken', 'Tutorials Taken', 'Practical Sessions Taken', 'Score' ],
                                         [lecturesExcess.lecturesTaken, lecturesExcess.tutorialsTaken, lecturesExcess.practicalSessionsTaken, lecturesExcess.scoreTwo]
                                     ]
                                 }
@@ -1183,7 +1208,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['materials', 'scoreThree' ],
+                                        ['Materials', 'Score' ],
                                         [additionalResources.materials, additionalResources.scoreThree]
                                     ]
                                 }
@@ -1195,7 +1220,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['techniques', 'scoreFour' ],
+                                        ['Techniques', 'Score' ],
                                         [innovativeTeaching.techniques, innovativeTeaching.scoreFour]
                                     ]
                                 }
@@ -1207,7 +1232,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['invigilation', 'questionPaperSetting', 'evaluationAnswerScripts', 'paperModeration', 'labEvaluation', 'scoreFive' ],
+                                        ['Invigilation', 'Question Paper Setting', 'Evaluation Answer Scripts', 'Paper Moderation', 'Lab Evaluation', 'Score' ],
                                         [examinationDuties.invigilation, examinationDuties.questionPaperSetting,examinationDuties.evaluationAnswerScripts,examinationDuties.paperModeration,examinationDuties.labEvaluation, examinationDuties.scoreFive]
                                     ]
                                 }
@@ -1382,6 +1407,24 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                     }
                                 ];
                             }),
+                            { text: '3.4 Consultancy Projects Carried Out/Ongoing', style: 'subheader' },
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Title', 'Funding Agency', 'Amount Mobilized', 'Document', 'Score'], // Table header
+                                        ...consultancyProjects.entries.map(entry => [
+                                            entry.title || '-', // Default to '-' if undefined
+                                            entry.funding_agency || '-', // Default to '-' if undefined
+                                            entry.amount || '-', // Default to '-' if undefined
+                                            { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }, // Clickable file
+                                            entry.score || '-' // Default to '-' if undefined
+                                        ]),
+                                        // Add a row for the total score
+                                        [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, consultancyProjects.consultancyTotalScore || '-']
+                                    ]
+                                }
+                            },
                             
                             
                             { text: ' 3.1 Resource Person in STTP/Training Course/Lecture Talks', style: 'subheader' },

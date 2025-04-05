@@ -19,6 +19,11 @@ const BooksChaptersPublished = mongoose.model('bookschapterspublished');
 require('../models/Category-3/SponsoredProjects');
 const SponsoredProjects = mongoose.model('sponsoredprojects');
 
+// Load Consultancy Projects model
+require('../models/Category-3/ConsultancyProjects');
+const ConsultancyProjects = mongoose.model('consultancyprojects');
+
+
 
 
 // Load resource person model
@@ -906,6 +911,78 @@ router.post('/sponsoredProjects', upload.array("document[]"), async (req, res) =
     }
 });
 
+// Consultancy Projects post method
+router.post('/consultancyProjects', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/consultancyProjects');
+        }
+        const year = academicRecord.academic_year;
+
+        const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+        const fundingAgencies = Array.isArray(req.body.funding_agency) ? req.body.funding_agency : [req.body.funding_agency];
+        const amounts = Array.isArray(req.body.amount) ? req.body.amount : [req.body.amount];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        let existingEntry = await ConsultancyProjects.findOne({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let fileIndex = 0;
+
+        let newEntries = titles.map((title, index) => {
+            let documentPath = existingDocs[index] || null;
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++;
+            }
+
+            return {
+                title: title || '-',
+                funding_agency: fundingAgencies[index] || '-',
+                amount: amounts[index] || 0,
+                document: documentPath,
+                score: Math.floor((amounts[index] || 0) / 200000) * 10 // Calculate score dynamically
+            };
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.title === existing.title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.title === e.title)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.consultancyTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new ConsultancyProjects({
+                academic_year: year,
+                entries: newEntries,
+                consultancyTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+        // console.log("New Consultancy Projects Data:", newEntries);   //checklast
+
+        req.flash('success_msg', 'Consultancy projects details saved successfully.');
+        res.redirect('/category-3/consultancyProjects');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/consultancyProjects');
+    }
+});
+
 
 // Research Papers Published get method
 
@@ -988,6 +1065,35 @@ router.get('/sponsoredProjects', ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error("Error fetching sponsored projects:", error);
         req.flash('error_msg', 'Error fetching sponsored projects.');
+        res.redirect('/');
+    }
+});
+
+// Consultancy Projects get method
+router.get('/consultancyProjects', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const consultancyProjects = await ConsultancyProjects.findOne({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        console.log("Fetched Consultancy Projects:", consultancyProjects); // Debugging snippet
+
+        res.render('category-3/consultancyProjects', {
+            consultancyProjects,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching consultancy projects:", error);
+        req.flash('error_msg', 'Error fetching consultancy projects.');
         res.redirect('/');
     }
 });
@@ -1110,6 +1216,43 @@ router.post('/deleteSponsoredProject', ensureAuthenticated, async (req, res) => 
     }
 });
 
+// Delete entry from Consultancy Projects POST Method
+router.post('/deleteConsultancyProject', ensureAuthenticated, async (req, res) => {
+    const { title } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await ConsultancyProjects.findOneAndUpdate(
+            {
+                user: req.user.id,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { title: title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Consultancy project not found." });
+        }
+
+        const newTotalScore = updatedEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+
+        updatedEntry.consultancyTotalScore = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Consultancy project deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting consultancy project:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
 // Calculate Total Score for Research Papers Published
 router.get('/researchPapersPublished/totalScore', ensureAuthenticated, async (req, res) => {
     try {
@@ -1213,6 +1356,39 @@ router.get('/sponsoredProjects/totalScore', ensureAuthenticated, async (req, res
         console.error("Error calculating total score for sponsored projects:", error);
         req.flash('error_msg', 'Error calculating total score.');
         res.redirect('/category-3/sponsoredProjects');
+    }
+});
+
+// Calculate Total Score for Consultancy Projects
+router.get('/consultancyProjects/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const consultancyProjects = await ConsultancyProjects.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let totalThreeFourScore = 0;
+
+        consultancyProjects.forEach(entry => {
+            totalThreeFourScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+        });
+
+        res.render('category-3/consultancyProjectsTotalScore', {
+            totalThreeFourScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for consultancy projects:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/consultancyProjects');
     }
 });
 

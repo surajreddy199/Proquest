@@ -1,6 +1,7 @@
 <div class="row">
     <div class="col s8">
         <h5>Faculty Overview</h5>
+        <h6>Academic Year: {{year}}</h6>
     </div>
     <div class="col s4">
         <form action="/users/faculty/pdf" method="post">
@@ -390,10 +391,26 @@
                             {{else}}
                             <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                             {{/if}}
-                            <span>3.3 Sponsored Projects Carried Out/Ongoing</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../totalThreeThreeScore}}</strong>
+                            <span>3.3.1 Sponsored Projects Carried Out/Ongoing</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../totalThreeThreeScore}}</strong>
 
                             <div class="right">
                                 <a class="btn-small" href="/category-3/sponsoredProjects" style="background-color: purple;">View</a>
+                            </div>
+                        </div>
+                    </p>
+                </li>
+                <li class="collection-item">
+                    <p>
+                        <div>
+                            {{#if ../totalThreeFourScore}}
+                            <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                            {{else}}
+                            <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                            {{/if}}
+                            <span>3.3.2 Consultancy Projects Carried Out/Ongoing</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../totalThreeFourScore}}</strong>
+
+                            <div class="right">
+                                <a class="btn-small" href="/category-3/consultancyProjects" style="background-color: purple;">View</a>
                             </div>
                         </div>
                     </p>
@@ -855,10 +872,26 @@
                                 {{else}}
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                                 {{/if}}
-                                <span>3.3 Sponsored Projects Carried Out/Ongoing</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{totalThreeThreeScore}}</strong>
+                                <span>3.3.1 Sponsored Projects Carried Out/Ongoing</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{totalThreeThreeScore}}</strong>
 
                                 <div class="right">
                                     <a class="btn-small" href="/category-3/sponsoredProjects" style="background-color: purple;">View</a>
+                                </div>
+                            </div>
+                        </p>
+                    </li>
+                    <li class="collection-item">
+                        <p>
+                            <div>
+                                {{#if totalThreeFourScore}}
+                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                                {{else}}
+                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                                {{/if}}
+                                <span>3.3.2 Consultancy Projects Carried Out/Ongoing</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{totalThreeFourScore}}</strong>
+
+                                <div class="right">
+                                    <a class="btn-small" href="/category-3/consultancyProjects" style="background-color: purple;">View</a>
                                 </div>
                             </div>
                         </p>
