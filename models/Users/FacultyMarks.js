@@ -7,14 +7,7 @@ const FacultyMarks = new Schema({
         type: Number,
         required: true
     },
-    academicPerformance: {
-        type: Number,
-        required: true
-    },
-    leaveRecord: {
-        type: Number,
-        required: true
-    },
+    
     category_1: {
         type: Number,
         required: true

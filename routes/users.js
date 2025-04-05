@@ -411,10 +411,9 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     year = req.params.year;
                                     //console.log(facultID);
                                     //console.log(finalResult);
-                                    var loads = [modules.TeachingLoad.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    var loads = [
                                     
 
-                                    modules.Leave.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
                                     modules.TeachingContribution.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.LecturesExcess.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -450,15 +449,15 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         .then(result => {
                                             return Promise.all(result);
                                         })
-                                        .then(([teachingLoad,
-                                            leave,
+                                        .then(([
+                                            
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                             researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingLoad, leave, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -491,12 +490,8 @@ router.post('/faculty/facultyOverview/:year', async (req, res) => {
     let errors = [];
 
     // Validate inputs
-    if (!req.body.academicPerformance || req.body.academicPerformance > 40 || req.body.academicPerformance < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40 for AP' });
-    }
-    if (!req.body.leaveRecord || req.body.leaveRecord > 40 || req.body.leaveRecord < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40 for Leave' });
-    }
+    
+    
     if (!req.body.category_2 || req.body.category_2 > 40 || req.body.category_2 < 0) {
         errors.push({ text: 'Please enter marks between 0 to 40 for Cat 02' });
     }
@@ -518,8 +513,6 @@ router.post('/faculty/facultyOverview/:year', async (req, res) => {
         if (errors.length > 0) {
             res.render('users/faculty/facultyOverview', {
                 errors,
-                academicPerformance: req.body.academicPerformance,
-                leaveRecord: req.body.leaveRecord,
                 ...scores,
                 category_2: req.body.category_2,
                 ...categoryThreeScores
@@ -527,8 +520,6 @@ router.post('/faculty/facultyOverview/:year', async (req, res) => {
         } else {
             const marks = {
                 academic_year: year,
-                academicPerformance: req.body.academicPerformance,
-                leaveRecord: req.body.leaveRecord,
                 category_1: scores.categoryOneTotalScore,
                 category_2: req.body.category_2,
                 category_3: categoryThreeScores.categoryThreeTotalScore,
@@ -571,10 +562,9 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
             year = result.academic_year; // Assign the academic year
 
-            var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            var loads = [
            
 
-            modules.Leave.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
             modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.LecturesExcess.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -609,15 +599,14 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     console.log('User ID:', req.user.id);
                     return Promise.all(result);
                 })
-                .then(([teachingLoad,
-                    leave,
+                .then(([
+                
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
 
                    
-                    if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
@@ -663,32 +652,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             'Name: ' + facultyName + '\n',
                             'Email ID: ' + facultyEmail + '\n',
 
-                            
 
-                        
-                            { text: 'Leave Record', style: 'subheader' },
-                            { text: '1. Pre-Sanctioned Leave Record', style: 'subheader' },
 
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Causal Leave', 'Outdoor Leave', 'Medical Leave', 'Special Leave'],
-                                        [leave.pre_casual_leave, leave.pre_outdoor_leave, leave.pre_medical_leave, leave.pre_special_leave]
-                                    ]
-                                }
-                            },
-                            { text: '1. Post-Sanctioned Leave Record', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Causal Leave', 'Outdoor Leave', 'Medical Leave', 'Special Leave'],
-                                        [leave.post_casual_leave, leave.post_outdoor_leave, leave.post_medical_leave, leave.post_special_leave]
-                                    ]
-                                }
-                            },
                             { text: 'Category-1', style: 'subheader' },
 
                             { text: '1.1 Teaching Contribution ', style: 'subheader' },
@@ -896,7 +861,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 ];
                             }),
 
-                            { text: ' 3.3 Sponsored Projects Carried Out/Ongoing', style: 'subheader' },
+                            { text: ' 3.3.1 Sponsored Projects Carried Out/Ongoing', style: 'subheader' },
                             ...Object.keys(groupedSponsoredProjects).map(projectType => {
                                 // Calculate the total score for the current project type
                                 const totalScore = groupedSponsoredProjects[projectType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
@@ -922,7 +887,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     }
                                 ];
                             }),
-                            { text: '3.4 Consultancy Projects Carried Out/Ongoing', style: 'subheader' },
+                            { text: '3.3.2 Consultancy Projects Carried Out/Ongoing', style: 'subheader' },
                             {
                                 style: 'tableExample',
                                 table: {
@@ -1068,10 +1033,9 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
         
 
-            var loads = [modules.TeachingLoad.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            var loads = [
             
 
-            modules.Leave.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
             modules.TeachingContribution.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.LecturesExcess.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1104,13 +1068,12 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                 .then(result => {
                     return Promise.all(result);
                 })
-                .then(([teachingLoad,
-                    leave,
+                .then(([
+                
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
-                    if (!leave) { leave = { pre_casual_leave: '-', pre_outdoor_leave: '-', pre_medical_leave: '-', pre_special_leave: '-', post_casual_leave: '-', post_outdoor_leave: '-', post_medical_leave: '-', post_special_leave: '-' } }
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
@@ -1152,30 +1115,6 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                             'Email ID: ' + facultyEmail + '\n',
 
                             
-                            
-                            { text: 'Leave Record', style: 'subheader' },
-                            { text: '1. Pre-Sanctioned Leave Record', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Causal Leave', 'Outdoor Leave', 'Medical Leave', 'Special Leave'],
-                                        [leave.pre_casual_leave, leave.pre_outdoor_leave, leave.pre_medical_leave, leave.pre_special_leave]
-                                    ]
-                                }
-                            },
-                            { text: '1. Post-Sanctioned Leave Record', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Causal Leave', 'Outdoor Leave', 'Medical Leave', 'Special Leave'],
-                                        [leave.post_casual_leave, leave.post_outdoor_leave, leave.post_medical_leave, leave.post_special_leave]
-                                    ]
-                                }
-                            },
                             { text: 'Category-1', style: 'subheader' },
                         
                            
@@ -1381,7 +1320,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 ];
                             }),
 
-                            { text: ' 3.3 Sponsored Projects Carried Out/Ongoing', style: 'subheader' },
+                            { text: ' 3.3.1 Sponsored Projects Carried Out/Ongoing', style: 'subheader' },
                             ...Object.keys(groupedSponsoredProjects).map(projectType => {
                                 // Calculate the total score for the current project type
                                 const totalScore = groupedSponsoredProjects[projectType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
@@ -1407,7 +1346,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                     }
                                 ];
                             }),
-                            { text: '3.4 Consultancy Projects Carried Out/Ongoing', style: 'subheader' },
+                            { text: '3.3.2 Consultancy Projects Carried Out/Ongoing', style: 'subheader' },
                             {
                                 style: 'tableExample',
                                 table: {
@@ -1583,7 +1522,7 @@ router.get('/hod/deleteFaculty/:id', ensureAuthenticated, (req, res) => {
         })
 });
 
-var facultyAP, facultyLeave, facultyA1, facultyA2, facultyA3, facultyDept;
+var facultyA1, facultyA2, facultyA3, facultyDept;
 router.post('/hod/finalSubmit/:id/:year', (req, res) => {
 
     let errors = [];
@@ -1598,8 +1537,6 @@ router.post('/hod/finalSubmit/:id/:year', (req, res) => {
             facultyName = result[0].name;
             facultyEmail = result[0].email;
             facultyDept = result[0].department;
-            facultyAP = facultymarks[0].academicPerformance;
-            facultyLeave = facultymarks[0].leaveRecord;
             facultyA1 = facultymarks[0].category_1;
             facultyA2 = facultymarks[0].category_2;
             facultyA3 = facultymarks[0].category_3;
@@ -1612,14 +1549,10 @@ router.post('/hod/finalSubmit/:id/:year', (req, res) => {
                 faculty_name: facultyName,
                 faculty_email: facultyEmail,
                 department: facultyDept,
-                academicPerformance: req.body.academicPerformance,
-                leaveRecord: req.body.leaveRecord,
                 category_1: req.body.category_1,
                 category_2: req.body.category_2,
                 category_3: req.body.category_3,
                 confidential: finalValue,
-                facultyAP: facultyAP,
-                facultyLeave: facultyLeave,
                 facultyA1: facultyA1,
                 facultyA2: facultyA2,
                 facultyA3: facultyA3,

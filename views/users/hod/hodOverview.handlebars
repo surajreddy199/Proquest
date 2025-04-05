@@ -18,64 +18,9 @@
     {{#if ../hodMarks}}
     <form action="/users/hod/finalSubmit" method="post">
         <ul class="collapsible popout" data-collapsible="accordion">
-            <li id="overview">
-                <div class="collapsible-header"><i class="material-icons">book</i><b>Academic Performance</b>
-                    <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="academicPerformance" disabled
-                            value="{{../hodMarks.academicPerformance}}" type="number" class="validate">
-                    </div>
-                    <br><br><br>
-                </div>
-                <div class="collapsible-body">
-                    <ul class="collection">
-                        <li class="collection-item">
-                            <p>
-                                <div>
-                                    {{#if ../teachingLoad}}
-                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                    {{else}}
-                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                    {{/if}}
-                                    Teaching Load
+            
 
-
-                                </div>
-                            </p>
-                        </li>
-
-
-                        
-                    </ul>
-                </div>
-            </li>
-
-            <li id="overview">
-
-                <div class="collapsible-header"><i class="material-icons">book</i><b>Leave Form</b>
-                    <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="leaveRecord" disabled
-                            value="{{../hodMarks.leaveRecord}}" type="number" class="validate">
-                    </div>
-                    <br><br><br>
-                </div>
-                <div class="collapsible-body">
-                    <ul class="collection">
-                        <li class="collection-item">
-                            <p>
-                                <div>{{#if ../leave}}
-                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                    {{else}}
-                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                    {{/if}}
-                                    Leave Record
-
-
-                                </div>
-                            </p>
-                        </li>
-                    </ul>
-                </div>
-            </li>
+            
 
             <li id="overview">
                 <div class="collapsible-header"><i class="material-icons">book</i><b>Category 1</b>
@@ -602,64 +547,9 @@
 {{else}}
 <form action="/users/hod/finalSubmit/{{user}}/{{../year}}" method="post">
     <ul class="collapsible popout" data-collapsible="accordion">
-        <li id="overview">
-            <div class="collapsible-header"><i class="material-icons">book</i><b>Academic Performance</b>
-                <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="academicPerformance"
-                        value="{{academicPerformance}}" type="number" class="validate">
-                </div>
-                <br><br><br>
-            </div>
-            <div class="collapsible-body">
-                <ul class="collection">
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if ../teachingLoad}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                Teaching Load
+        
 
-
-                            </div>
-                        </p>
-                    </li>
-
-
-                    
-                </ul>
-            </div>
-        </li>
-
-        <li id="overview">
-
-            <div class="collapsible-header"><i class="material-icons">book</i><b>Leave Form</b>
-                <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="leaveRecord" value="{{leaveRecord}}"
-                        type="number" class="validate">
-                </div>
-                <br><br><br>
-            </div>
-            <div class="collapsible-body">
-                <ul class="collection">
-                    <li class="collection-item">
-                        <p>
-                            <div>{{#if ../leave}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                Leave Record
-
-
-                            </div>
-                        </p>
-                    </li>
-                </ul>
-            </div>
-        </li>
+        
 
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 1</b>
@@ -671,20 +561,6 @@
             </div>
             <div class="collapsible-body">
                 <ul class="collection">
-                    <li class="collection-item">
-                        <p>
-                            <div>
-                                {{#if ../timeTable}}
-                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
-                                {{else}}
-                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
-                                {{/if}}
-                                1.1 Timetable Related Activities
-
-
-                            </div>
-                        </p>
-                    </li>
 
                     <li class="collection-item">
                             <p>

@@ -19,8 +19,7 @@ const exphbs = require('express-handlebars');
 
 require('dotenv').config();
 // Load routes
-const academicPerformance = require('./routes/academicPerformance');
-const leave = require('./routes/leave');
+
 const category_1 = require('./routes/category-1');
 const category_2 = require('./routes/category-2');
 const category_3 = require('./routes/category-3');
@@ -57,9 +56,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true })
 
 //mongoose.set('useCreateIndex', true);
 
-//load leave model
-require('./models/Leave');
-const Leave = mongoose.model('leaves');
+
 
 // Handlebars middleware
 app.engine('handlebars', engine({
@@ -193,8 +190,7 @@ app.put('/:id', (req, res) => {
 });
 
 // Use routes
-app.use('/academicPerformance', academicPerformance);
-app.use('/leave', leave);
+
 app.use('/category-1', category_1);
 app.use('/category-2', category_2);
 app.use('/category-3', category_3);

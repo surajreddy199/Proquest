@@ -2,16 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 
-// Academic Performance
-// Load teaching model
-require('../models/AcademicPerformance/TeachingLoad')
-const TeachingLoad = mongoose.model('teachingload');
 
 
 
-// Leave record
-require('../models/Leave');
-const Leave = mongoose.model('leaves');
+
+
 
 // Category 1
 // Load Teaching Contribution model
@@ -111,10 +106,7 @@ const ConsultancyAssignment = mongoose.model('consultancy_assignment');
 require('../models/Category-3/ExternalProjectsOrCompetition');
 const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_competition');
 
-module.exports = {
-    TeachingLoad,
-    Leave, 
-    TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
+module.exports = {TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
     ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

@@ -19,14 +19,7 @@ const HodMarks = new Schema({
         type: String,
         required: true
     },
-    academicPerformance: {
-        type: Number,
-        required: true
-    },
-    leaveRecord: {
-        type: Number,
-        required: true
-    },
+    
     category_1: {
         type: Number,
         required: true
@@ -42,15 +35,7 @@ const HodMarks = new Schema({
     confidential: {
         type: Number,
         require: true
-    },
-    facultyAP: {
-        type: Number,
-        required: true
-    },
-    facultyLeave: {
-        type: Number,
-        required: true
-    },
+    }, 
     facultyA1: {
         type: Number,
         required: true

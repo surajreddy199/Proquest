@@ -1,10 +1,6 @@
 const modules = require('./modules');
 
-    var loads = [modules.TeachingLoad.findOne({ user: req.user.id }).exec(),
-    
-
-    modules.Leave.findOne({ user: req.user.id }).exec(),
-
+    var loads = [
     modules.TeachingContribution.findOne({ user: req.user.id }).exec(),
     modules.LecturesExcess.findOne({ user: req.user.id }).exec(),
     modules.AdditionalResources.findOne({ user: req.user.id }).exec(),
@@ -16,8 +12,7 @@ const modules = require('./modules');
     modules.PapersPublishedNationalConf.findOne({ user: req.user.id }).exec(),
     modules.PapersPublishedInternationalConf.findOne({ user: req.user.id }).exec(),
     modules.PapersPublishedJournals.findOne({ user: req.user.id }).exec(),
-    // modules.Moocs.findOne({ user: req.user.id }).exec(),
-    // modules.Swayam.findOne({ user: req.user.id }).exec(),
+   
     modules.ShortTermTraining.findOne({ user: req.user.id }).exec(),
     modules.Seminars.findOne({ user: req.user.id }).exec(),
 
