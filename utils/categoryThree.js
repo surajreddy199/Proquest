@@ -1,11 +1,13 @@
 const ResearchPapersPublished = require('../models/Category-3/ResearchPapersPublished');
 const BooksChaptersPublished = require('../models/Category-3/BooksChaptersPublished');
+const SponsoredProjects = require('../models/Category-3/SponsoredProjects'); // Import SponsoredProjects model
 
 async function calculateCategoryThreeTotalScore(userId, academicYear) {
     try {
-        const [researchPapers, booksChapters] = await Promise.all([
+        const [researchPapers, booksChapters, sponsoredProjects] = await Promise.all([
             ResearchPapersPublished.find({ user: userId, academic_year: academicYear }).exec(),
-            BooksChaptersPublished.find({ user: userId, academic_year: academicYear }).exec()
+            BooksChaptersPublished.find({ user: userId, academic_year: academicYear }).exec(),
+            SponsoredProjects.find({ user: userId, academic_year: academicYear }).exec() // Fetch SponsoredProjects data
         ]);
 
         // Calculate total score for Research Papers Published
@@ -20,12 +22,19 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
             totalThreeTwoScore += entry.entries.reduce((sum, book) => sum + (book.score || 0), 0);
         });
 
+        // Calculate total score for Sponsored Projects
+        let totalThreeThreeScore = 0;
+        sponsoredProjects.forEach(entry => {
+            totalThreeThreeScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+        });
+
         // Calculate total score for Category 3
-        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore;
+        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeScore;
 
         return {
             totalThreeOneScore,
             totalThreeTwoScore,
+            totalThreeThreeScore, // Include SponsoredProjects score
             categoryThreeTotalScore
         };
     } catch (err) {

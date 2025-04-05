@@ -23,6 +23,7 @@ const modules = require('./modules');
 
     modules.ResearchPapersPublished.find({ user: req.user.id }).exec(),
     modules.BooksChaptersPublished.find({ user: req.user.id }).exec(),
+    modules.SponsoredProjects.find({ user: req.user.id }).exec(),
 
 
     modules.ResourcePerson.findOne({ user: req.user.id }).exec(),

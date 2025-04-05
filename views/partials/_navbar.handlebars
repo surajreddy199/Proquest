@@ -18,6 +18,7 @@
                 class="material-icons right">arrow_drop_down</i></a></li>
           <li><a class="dropdown-trigger" href="" data-target="category-3-web">Category 3<i
                 class="material-icons right">arrow_drop_down</i></a></li>
+          
 
           <li><a class="dropdown-trigger" href="" data-target="profile"><i class="material-icons">account_box</i></a>
           </li>
@@ -70,8 +71,7 @@
               internaltional conference</a></li>
           <li><a href="/category-2/papersPublishedinJournals" class="black-text">2.3 Paper published in Journals</a>
           </li>
-          {{!-- <li><a href="/category-2/moocs" class="black-text">2.4 MOOCS</a></li> --}}
-          {{!-- <li><a href="/category-2/swayam" class="black-text">2.5 SWAYAM</a></li> --}}
+          
           <li><a href="/category-2/shortTermTraining" class="black-text">2.4 Short term training program</a></li>
           <li><a href="/category-2/seminars" class="black-text">2.5 Seminars</a></li>
           <li class="divider"></li>
@@ -79,16 +79,20 @@
         <ul id="category-3-web" class="dropdown-content text-black">
           <li><a href="/category-3/researchPapersPublished" class="black-text">3.1 Research Papers Published</a></li>
           <li><a href="/category-3/booksChaptersPublished" class="black-text">3.2 Books/Chapters Published</a></li>
+          <li>
+            <a href="#!" class="black-text">3.3 Research Projects</a>
+            <ul class="nested-submenu" style="margin-left: 20px;">
+              <li><a href="/category-3/sponsoredProjects" class="black-text">3.3.1 Sponsored Projects</a></li>
+            </ul>
+          </li>
+          
+                      
 
-          <li><a href="/category-3/resourcePerson" class="black-text">3.1 Resource Person in STTP/Training Course/Lecture Talks</a></li>
-          <li><a href="/category-3/contributionToSyllabus" class="black-text">3.2 Contribution To Syllabus Framing</a>
-          </li>
-          <li><a href="/category-3/memberOfUniversityCommitte" class="black-text">3.3 Member Of University Committe</a>
-          </li>
-          <li><a href="/category-3/consultancyAssignment" class="black-text">3.4 Consultancy Assignment</a></li>
-          <li><a href="/category-3/externalProjectsOrCompetition" class="black-text">3.5 External Projects Or
-              Competitions Participations</a></li>
+          <li><a href="/category-3/resourcePerson" class="black-text">3.4 Resource Person in STTP/Training Course/Lecture Talks</a></li>
         </ul>
+
+
+
         <ul id="profile" class="dropdown-content text-black">
           <li><a href="/profile/faculty/index" class="black-text">View Profile</a></li>
           
@@ -107,6 +111,10 @@
     </div>
   </nav>
 </div>
+
+
+
+
 {{!-- side bar content for mobile view --}}
 <ul id="mobile-demo" class="sidenav">
   {{#if_eq user.type 'faculty'}}
@@ -181,8 +189,15 @@
           <ul>
             <li><a href="/category-3/researchPapersPublished" class="black-text">3.1 Research Papers Published</a></li>
             <li><a href="/category-3/booksChaptersPublished" class="black-text">3.2 Books/Chapters Published</a></li>
+            <li>
+              <a href="#!" class="black-text">3.3 Research Projects</a>
+              <ul class="nested-submenu" style="margin-left: 20px;">
+                <li><a href="/category-3/sponsoredProjects" class="black-text">3.3.1 Sponsored Projects</a></li>
+              </ul>
+            </li>
+            
 
-            <li><a href="/category-3/resourcePerson" class="black-text">3.1 Resource Person</a></li>
+            <li><a href="/category-3/resourcePerson" class="black-text">3.4 Resource Person</a></li>
             <li><a href="/category-3/contributionToSyllabus" class="black-text">3.2 Contribution To Syllabus</a>
             </li>
             <li><a href="/category-3/memberOfUniversityCommitte" class="black-text">3.3 Member Of University</a></li>
@@ -228,3 +243,4 @@
   <li><a href="/">Home</a></li>
   {{/unless}}
 </ul>
+

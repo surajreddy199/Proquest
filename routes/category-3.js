@@ -15,6 +15,12 @@ const ResearchPapersPublished = mongoose.model('researchpaperspublished');
 require('../models/Category-3/BooksChaptersPublished');
 const BooksChaptersPublished = mongoose.model('bookschapterspublished');
 
+// Load Sponsored Projects model
+require('../models/Category-3/SponsoredProjects');
+const SponsoredProjects = mongoose.model('sponsoredprojects');
+
+
+
 // Load resource person model
 require('../models/Category-3/ResourcePerson');
 const ResourcePerson = mongoose.model('resource_person');
@@ -824,6 +830,82 @@ router.post('/booksChaptersPublished', upload.array("document[]"), async (req, r
     }
 });
 
+// Sponsored Projects post method
+router.post('/sponsoredProjects', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/sponsoredProjects');
+        }
+        const year = academicRecord.academic_year;
+
+        const projectType = Array.isArray(req.body.project_type) ? req.body.project_type[0] : req.body.project_type;
+        const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+        const fundingAgencies = Array.isArray(req.body.funding_agency) ? req.body.funding_agency : [req.body.funding_agency];
+        const amounts = Array.isArray(req.body.amount) ? req.body.amount : [req.body.amount];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        let existingEntry = await SponsoredProjects.findOne({
+            user: req.user.id,
+            academic_year: year,
+            project_type: projectType
+        });
+
+        let fileIndex = 0;
+
+        let newEntries = titles.map((title, index) => {
+            let documentPath = existingDocs[index] || null;
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++;
+            }
+
+            return {
+                title: title || '-',
+                funding_agency: fundingAgencies[index] || '-',
+                amount: amounts[index] || 0,
+                document: documentPath,
+                score: projectType === 'major_above_30_lakhs' ? 20 :
+                       projectType === 'major_5_to_30_lakhs' ? 15 :
+                       projectType === 'minor_50k_to_5_lakhs' ? 10 : 0
+            };
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.title === existing.title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.title === e.title)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.sponsoredProjectsTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new SponsoredProjects({
+                academic_year: year,
+                project_type: projectType,
+                entries: newEntries,
+                sponsoredProjectsTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Sponsored projects details saved successfully.');
+        res.redirect('/category-3/sponsoredProjects');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/sponsoredProjects');
+    }
+});
+
 
 // Research Papers Published get method
 
@@ -879,6 +961,33 @@ router.get('/booksChaptersPublished', ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error("Error fetching books/chapters published:", error);
         req.flash('error_msg', 'Error fetching books/chapters published.');
+        res.redirect('/');
+    }
+});
+
+// Sponsored Projects get method
+router.get('/sponsoredProjects', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const sponsoredProjects = await SponsoredProjects.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        res.render('category-3/sponsoredProjects', {
+            sponsoredProjects,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching sponsored projects:", error);
+        req.flash('error_msg', 'Error fetching sponsored projects.');
         res.redirect('/');
     }
 });
@@ -963,6 +1072,44 @@ router.post('/deleteBook', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// Delete entry from Sponsored Projects POST Method
+router.post('/deleteSponsoredProject', ensureAuthenticated, async (req, res) => {
+    const { project_type, title } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await SponsoredProjects.findOneAndUpdate(
+            {
+                user: req.user.id,
+                project_type: project_type,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { title: title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Sponsored project not found." });
+        }
+
+        const newTotalScore = updatedEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+
+        updatedEntry.sponsoredProjectsTotalScore = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Sponsored project deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting sponsored project:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
 // Calculate Total Score for Research Papers Published
 router.get('/researchPapersPublished/totalScore', ensureAuthenticated, async (req, res) => {
     try {
@@ -1033,6 +1180,39 @@ router.get('/booksChaptersPublished/totalScore', ensureAuthenticated, async (req
         console.error("Error calculating total score for books/chapters:", error);
         req.flash('error_msg', 'Error calculating total score.');
         res.redirect('/category-3/booksChaptersPublished');
+    }
+});
+
+// Calculate Total Score for Sponsored Projects
+router.get('/sponsoredProjects/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const sponsoredProjects = await SponsoredProjects.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let totalThreeThreeScore = 0;
+
+        sponsoredProjects.forEach(entry => {
+            totalThreeThreeScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+        });
+
+        res.render('category-3/sponsoredProjectsTotalScore', {
+            totalThreeThreeScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for sponsored projects:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/sponsoredProjects');
     }
 });
 

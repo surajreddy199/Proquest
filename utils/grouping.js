@@ -45,8 +45,23 @@ function groupBooksChaptersByPublicationType(booksChapters) {
     return groupByProperty(allEntries, "publication_type");
 }
 
+/**
+ * Combines and groups sponsored projects by project type.
+ * @param {Object} sponsoredProjects - The object containing sponsored projects data.
+ * @returns {Object} - An object where keys are project types and values are arrays of sponsored projects.
+ */
+function groupSponsoredProjectsByProjectType(sponsoredProjects) {
+    const allEntries = Array.isArray(sponsoredProjects)
+        ? sponsoredProjects.reduce((acc, project) => acc.concat(project.entries || []), [])
+        : [];
+
+    // Use groupByProperty to group by "project_type"
+    return groupByProperty(allEntries, "project_type");
+}
+
 module.exports = {
     groupByProperty,
     groupJournalsByPublicationType,
     groupBooksChaptersByPublicationType,
+    groupSponsoredProjectsByProjectType,
 };
