@@ -292,6 +292,18 @@
                         <li class="collection-item">
                             <p>
                                 <div>
+                                    {{#if ../completedProjects}}
+                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                                    {{else}}
+                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                                    {{/if}}
+                                    3.3.3 Completed Projects
+                                </div>
+                            </p>
+                        </li>
+                        <li class="collection-item">
+                            <p>
+                                <div>
                                     {{#if ../resourcePerson}}
                                     <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
                                     {{else}}
@@ -818,6 +830,23 @@
                             </div>
                         </p>
                     </li>
+                    <li class="collection-item">
+                        <p>
+                            <div>
+                                {{#if ../completedProjects}}
+                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                                {{else}}
+                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                                {{/if}}
+                                3.3.3 Completed Projects
+                            </div>
+                        </p>
+                    </li>
+
+
+
+
+                    
                     <li class="collection-item">
                         <p>
                             <div>

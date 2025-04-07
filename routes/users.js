@@ -11,6 +11,7 @@ const { calculateCategoryThreeTotalScore } = require('../utils/categoryThree');
 const { groupJournalsByPublicationType } = require('../utils/grouping');
 const { groupBooksChaptersByPublicationType } = require('../utils/grouping');
 const { groupSponsoredProjectsByProjectType } = require('../utils/grouping');
+const { groupCompletedProjectsByProjectType } = require('../utils/grouping');
 
 var fs = require('fs');
 // var Chart = require('chart.js');
@@ -116,6 +117,7 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                         totalThreeTwoScore: categoryThreeScores.totalThreeTwoScore || 0,
                         totalThreeThreeScore: categoryThreeScores.totalThreeThreeScore || 0,
                         totalThreeFourScore: categoryThreeScores.totalThreeFourScore || 0,
+                        totalThreeThreeThreeScore: categoryThreeScores.totalThreeThreeThreeScore || 0,
                         categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
                         year
                     });
@@ -435,6 +437,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.BooksChaptersPublished.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.SponsoredProjects.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.ConsultancyProjects.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.CompletedProjects.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
 
                                     modules.ResourcePerson.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -453,11 +456,11 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                             
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
+                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects,  resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -585,6 +588,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.BooksChaptersPublished.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.SponsoredProjects.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ConsultancyProjects.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.CompletedProjects.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
             modules.ResourcePerson.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -603,7 +607,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
 
                    
@@ -625,6 +629,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!sponsoredProjects) { sponsoredProjects = { project_type: '-', entries: sponsoredProjects?.entries?.length ? sponsoredProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], sponsoredProjectsTotalScore: '-' } }
                     if (!consultancyProjects) { consultancyProjects = { entries: consultancyProjects?.entries?.length ? consultancyProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], consultancyTotalScore: '-' } }
+                    if (!completedProjects) { completedProjects = { project_type: '-', entries: completedProjects?.entries?.length ? completedProjects.entries : [{ title: '-', quality_evaluation: '-', report_accepted: '-', document: '-', score: '-' }], completedProjectsTotalScore: '-' } }
 
                     if (!resourcePerson) { resourcePerson = { topicName: '-', department: '-', nameofInstitute: '-', numberofParticipants: '-' } }
                     if (!contributionToSyllabus) { contributionToSyllabus = { nameofSub: '-', role: '-', nameofUniversity: '-', otherDetails: '-' } }
@@ -637,6 +642,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     const groupedJournals = groupJournalsByPublicationType(researchPapersPublished);
                     const groupedBooksChapters = groupBooksChaptersByPublicationType(booksChaptersPublished);
                     const groupedSponsoredProjects = groupSponsoredProjectsByProjectType(sponsoredProjects);
+                    const groupedCompletedProjects = groupCompletedProjectsByProjectType(completedProjects);
 
 
 
@@ -887,6 +893,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     }
                                 ];
                             }),
+
                             { text: '3.3.2 Consultancy Projects Carried Out/Ongoing', style: 'subheader' },
                             {
                                 style: 'tableExample',
@@ -905,6 +912,35 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     ]
                                 }
                             },
+
+                            { text: '3.3.3 Completed Projects', style: 'subheader' },
+                            ...Object.keys(groupedCompletedProjects).map(projectType => {
+                                // Calculate the total score for the current project type
+                                const totalScore = groupedCompletedProjects[projectType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Project Type: ${projectType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Title', 'Quality Evaluation', 'Report Accepted', 'Document', 'Score'], // Table header
+                                                ...groupedCompletedProjects[projectType].map(entry => [
+                                                    entry.title || '-', // Default to '-' if undefined
+                                                    (entry.quality_evaluation || '-').toUpperCase(), // Normalize "Yes" or "No" to uppercase
+                                                    (entry.report_accepted || '-').toUpperCase(), // Normalize "Yes" or "No" to uppercase
+                                                    entry.document
+                                                        ? { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }
+                                                        : '-', // Handle missing document gracefully
+                                                    entry.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
                             
                             
                             
@@ -1056,6 +1092,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
             modules.BooksChaptersPublished.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.SponsoredProjects.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ConsultancyProjects.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.CompletedProjects.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
             modules.ResourcePerson.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1072,7 +1109,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, resourcePerson, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
@@ -1092,6 +1129,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!sponsoredProjects) { sponsoredProjects = { project_type: '-', entries: sponsoredProjects?.entries?.length ? sponsoredProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], sponsoredProjectsTotalScore: '-' } }
                     if (!consultancyProjects) { consultancyProjects = { entries: consultancyProjects?.entries?.length ? consultancyProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], consultancyTotalScore: '-' } }
+                    if (!completedProjects) { completedProjects = { project_type: '-', entries: completedProjects?.entries?.length ? completedProjects.entries : [{ title: '-', quality_evaluation: '-', report_accepted: '-', document: '-', score: '-' }], completedProjectsTotalScore: '-' } }
 
 
 
@@ -1105,6 +1143,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     const groupedJournals = groupJournalsByPublicationType(researchPapersPublished);
                     const groupedBooksChapters = groupBooksChaptersByPublicationType(booksChaptersPublished);
                     const groupedSponsoredProjects = groupSponsoredProjectsByProjectType(sponsoredProjects);
+                    const groupedCompletedProjects = groupCompletedProjectsByProjectType(completedProjects);
 
                     document = {
                         content: [
@@ -1364,6 +1403,35 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                     ]
                                 }
                             },
+
+                            { text: '3.3.3 Completed Projects', style: 'subheader' },
+                            ...Object.keys(groupedCompletedProjects).map(projectType => {
+                                // Calculate the total score for the current project type
+                                const totalScore = groupedCompletedProjects[projectType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Project Type: ${projectType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Title', 'Quality Evaluation', 'Report Accepted', 'Document', 'Score'], // Table header
+                                                ...groupedCompletedProjects[projectType].map(entry => [
+                                                    entry.title || '-', // Default to '-' if undefined
+                                                    (entry.quality_evaluation || '-').toUpperCase(), // Normalize "Yes" or "No" to uppercase
+                                                    (entry.report_accepted || '-').toUpperCase(), // Normalize "Yes" or "No" to uppercase
+                                                    entry.document
+                                                        ? { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }
+                                                        : '-', // Handle missing document gracefully
+                                                    entry.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
                             
                             
                             { text: ' 3.1 Resource Person in STTP/Training Course/Lecture Talks', style: 'subheader' },

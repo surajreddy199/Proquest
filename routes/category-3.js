@@ -23,6 +23,10 @@ const SponsoredProjects = mongoose.model('sponsoredprojects');
 require('../models/Category-3/ConsultancyProjects');
 const ConsultancyProjects = mongoose.model('consultancyprojects');
 
+// Load Completed Projects model
+require('../models/Category-3/CompletedProjects');
+const CompletedProjects = mongoose.model('completedprojects');
+
 
 
 
@@ -983,6 +987,81 @@ router.post('/consultancyProjects', upload.array("document[]"), async (req, res)
     }
 });
 
+// Completed Projects post method
+router.post('/completedProjects', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/completedProjects');
+        }
+        const year = academicRecord.academic_year;
+
+        const projectType = Array.isArray(req.body.project_type) ? req.body.project_type[0] : req.body.project_type;
+        const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+        const qualityEvaluations = Array.isArray(req.body.quality_evaluation) ? req.body.quality_evaluation : [req.body.quality_evaluation];
+        const reportAccepted = Array.isArray(req.body.report_accepted) ? req.body.report_accepted : [req.body.report_accepted];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        let fileIndex = 0;
+
+        let newEntries = titles.map((title, index) => {
+            let documentPath = existingDocs[index] || null;
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++;
+            }
+
+            return {
+                title: title || '-',
+                quality_evaluation: qualityEvaluations[index], // Use the value directly
+                report_accepted: reportAccepted[index], // Use the value directly
+                document: documentPath,
+                score: projectType === 'Major' ? 20 : 10,
+                project_type: projectType
+            };
+        });
+
+        let existingEntry = await CompletedProjects.findOne({
+            user: req.user.id,
+            academic_year: year,
+            project_type: projectType
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.title === existing.title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.title === e.title)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.completedProjectsTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new CompletedProjects({
+                academic_year: year,
+                project_type: projectType,
+                entries: newEntries,
+                completedProjectsTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Completed projects details saved successfully.');
+        res.redirect('/category-3/completedProjects');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/completedProjects');
+    }
+});
+
 
 // Research Papers Published get method
 
@@ -1085,7 +1164,6 @@ router.get('/consultancyProjects', ensureAuthenticated, async (req, res) => {
             academic_year: year
         });
 
-        console.log("Fetched Consultancy Projects:", consultancyProjects); // Debugging snippet
 
         res.render('category-3/consultancyProjects', {
             consultancyProjects,
@@ -1094,6 +1172,36 @@ router.get('/consultancyProjects', ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error("Error fetching consultancy projects:", error);
         req.flash('error_msg', 'Error fetching consultancy projects.');
+        res.redirect('/');
+    }
+});
+
+
+// Completed Projects GET method
+router.get('/completedProjects', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        // Fetch completed projects for the user and academic year
+        const completedProjects = await CompletedProjects.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        // Pass data to the Handlebars template
+        res.render('category-3/completedProjects', {
+            completedProjects, // Pass the completed projects data
+            academic_year: year // Pass the academic year
+        });
+    } catch (error) {
+        console.error("Error fetching completed projects:", error);
+        req.flash('error_msg', 'Error fetching completed projects.');
         res.redirect('/');
     }
 });
@@ -1253,6 +1361,44 @@ router.post('/deleteConsultancyProject', ensureAuthenticated, async (req, res) =
     }
 });
 
+// Delete entry from Completed Projects POST Method
+router.post('/deleteCompletedProject', ensureAuthenticated, async (req, res) => {
+    const { project_type, title } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await CompletedProjects.findOneAndUpdate(
+            {
+                user: req.user.id,
+                project_type: project_type,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { title: title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Completed project not found." });
+        }
+
+        const newTotalScore = updatedEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+
+        updatedEntry.completedProjectsTotalScore = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Completed project deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting completed project:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
 // Calculate Total Score for Research Papers Published
 router.get('/researchPapersPublished/totalScore', ensureAuthenticated, async (req, res) => {
     try {
@@ -1389,6 +1535,39 @@ router.get('/consultancyProjects/totalScore', ensureAuthenticated, async (req, r
         console.error("Error calculating total score for consultancy projects:", error);
         req.flash('error_msg', 'Error calculating total score.');
         res.redirect('/category-3/consultancyProjects');
+    }
+});
+
+// Calculate Total Score for Completed Projects
+router.get('/completedProjects/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const completedProjects = await CompletedProjects.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let totalThreeThreeThreeScore = 0;
+
+        completedProjects.forEach(entry => {
+            totalThreeThreeThreeScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+        });
+
+        res.render('category-3/completedProjectsTotalScore', {
+            totalThreeThreeThreeScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for completed projects:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/completedProjects');
     }
 });
 

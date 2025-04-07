@@ -80,6 +80,12 @@ const SponsoredProjects = mongoose.model('sponsoredprojects');
 require('../models/Category-3/ConsultancyProjects');
 const ConsultancyProjects = mongoose.model('consultancyprojects');
 
+// Load Completed Projects model
+require('../models/Category-3/CompletedProjects');
+const CompletedProjects = mongoose.model('completedprojects');
+
+
+
 
 
 
@@ -108,5 +114,5 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 
 module.exports = {TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
-    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
+    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

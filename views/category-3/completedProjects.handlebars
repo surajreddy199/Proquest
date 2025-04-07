@@ -1,0 +1,239 @@
+<h5>Category 3</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
+<div class="container">
+    <h6>3.3.3 Completed Projects</h6>
+    <hr>
+
+    <form action="/category-3/completedProjects" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="input-field col s12 md5">
+                <select name="project_type" class="validate" id="projectType">
+                    <option value="" disabled selected>Select Project Type</option>
+                    <option value="Major">Major Project</option>
+                    <option value="Minor">Minor Project</option>
+                </select>
+                <label>Project Type</label>
+            </div>
+        </div>
+
+        <!-- Project Entries Container -->
+        <div id="projectEntries"></div>
+
+        <input type="hidden" name="project_type" id="hiddenProjectType">
+        <h6>Total Individual Score: <span id="projectsTotalScore">0</span></h6>
+
+        <div class="row">
+            <div style="margin-top: 20px; display: flex; gap: 20px;" class="input-field col s8">
+                <button type="button" id="addProject" class="btn orange">Add Another Entry</button>
+                <button type="submit" id="submitBtn" class="btn green" disabled>Submit</button>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 50px;" class="input-field col s4">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    let savedProjects = [];
+
+    {{#each completedProjects}}
+        savedProjects.push({
+            project_type: "{{this.project_type}}",
+            academic_year: "{{this.academic_year}}",
+            entries: [
+                {{#each this.entries}}
+                    {
+                        title: "{{this.title}}",
+                        quality_evaluation: "{{this.quality_evaluation}}",
+                        report_accepted: "{{this.report_accepted}}",
+                        document: "{{this.document}}",
+                        score: {{this.score}}
+                    },
+                {{/each}}
+            ]
+        });
+    {{/each}}
+
+    // Get the academic year from the server
+    let selectedYear = "{{academic_year}}";
+
+    // Filter the entries by academic year
+    savedProjects = savedProjects.filter(entry => entry.academic_year === selectedYear);
+
+    const scoreMapping = {
+        Major: 20,
+        Minor: 10
+    };
+
+    document.getElementById("projectType").addEventListener("change", function () {
+        document.getElementById("hiddenProjectType").value = this.value;
+        loadProjectEntries(this.value);
+    });
+
+    function updateProjectsScore() {
+        let type = document.getElementById("projectType").value;
+        let scorePerEntry = scoreMapping[type] || 0;
+        let count = document.querySelectorAll(".project-entry[data-type='" + type + "']").length;
+        document.getElementById("projectsTotalScore").innerText = count * scorePerEntry;
+        validateForm();
+    }
+
+    function addProjectEntry(type, project = null) {
+        let entry = document.createElement("div");
+        entry.classList.add("row", "project-entry");
+        entry.setAttribute("data-type", type);
+        entry.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="title[]" value="${project ? project.title : ''}" required>
+                <label class="active">Project Title</label>
+            </div>
+
+            <div class="input-field col s12">
+                <input type="text" name="quality_evaluation[]" value="${project ? project.quality_evaluation : ''}" placeholder="Yes or No" required>
+                <label class="active">Quality Evaluation Completed</label>
+            </div>
+
+            <div class="input-field col s12">
+                <input type="text" name="report_accepted[]" value="${project ? project.report_accepted : ''}" placeholder="Yes or No" required>
+                <label class="active">Report Accepted by Funding Agency</label>
+            </div>
+
+            <div class="input-field col s6" style="margin-top: 50px;">
+                ${project && project.document ? `
+                    <a href="/${project.document}" target="_blank" class="btn blue">View Document</a>
+                    <input type="hidden" name="document_existing[]" value="${project.document}">
+                ` : '<input type="file" name="document[]" accept=".pdf,.jpg,.png" class="new-project-doc" required>'}
+            </div>
+
+            <div class="col s6">
+                <button type="button" class="btn red remove-project">Remove</button>
+            </div>
+        `;
+
+        document.getElementById("projectEntries").appendChild(entry);
+        updateProjectsScore();
+    }
+
+    document.getElementById("addProject").addEventListener("click", function () {
+        let type = document.getElementById("projectType").value;
+        if (!type) {
+            alert("Please select a project type first.");
+            return;
+        }
+        addProjectEntry(type);
+    });
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-project")) {
+            let entry = event.target.closest(".project-entry");
+            let type = entry.getAttribute("data-type");
+            let title = entry.querySelector("input[name='title[]']").value;
+
+            if (confirm("Are you sure you want to delete this entry?")) {
+                // Send DELETE request to the backend
+                fetch('/category-3/deleteCompletedProject', {
+                    method: 'POST', // Use POST if DELETE is not configured
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ project_type: type, title: title })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from savedProjects (frontend)
+                        let projectData = savedProjects.find(entry => entry.project_type === type);
+                        if (projectData) {
+                            projectData.entries = projectData.entries.filter(project => project.title !== title);
+                        }
+
+                        // Remove from UI
+                        entry.remove();
+                        // Update Total Score
+                        if (typeof data.newTotalScore !== "undefined") {
+                            document.getElementById("projectsTotalScore").innerText = data.newTotalScore;
+                        }
+
+                        // Show Flash Message
+                        let flashMessage = document.getElementById("flashMessage");
+                        flashMessage.innerText = "Entry deleted successfully.";
+                        flashMessage.style.display = "block";
+
+                        setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    });
+
+    function loadProjectEntries(projectType) {
+        document.getElementById("projectEntries").innerHTML = "";
+        let matchedProjects = savedProjects.find(entry => entry.project_type === projectType);
+
+        if (matchedProjects && matchedProjects.entries.length > 0) {
+            matchedProjects.entries.forEach(project => addProjectEntry(projectType, project));
+        } else {
+            addProjectEntry(projectType);
+        }
+    }
+    document.querySelector("form").addEventListener("submit", function (event) {
+        // Validate "Yes" or "No" for quality_evaluation and report_accepted
+        let validYesNo = [...document.querySelectorAll("input[name='quality_evaluation[]'], input[name='report_accepted[]']")].every(input => {
+            const value = input.value.trim().toLowerCase();
+            return value === "yes" || value === "no";
+        });
+
+        if (!validYesNo) {
+            event.preventDefault(); // Prevent form submission
+            alert("Please enter only 'Yes' or 'No' in the Quality Evaluation and Report Accepted fields.");
+        }
+        // Validate for duplicate titles
+        let titles = [...document.querySelectorAll("input[name='title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = titles.some((title, index) => titles.indexOf(title) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Duplicate titles are not allowed. Please ensure all project titles are unique.");
+            return;
+        }
+    });
+
+    function validateForm() {
+        let allFilled = [...document.querySelectorAll("#projectEntries input[required]")].every(input => {
+            if (input.type === "file") {
+                return input.files.length > 0 || input.closest(".project-entry").querySelector("input[name='document_existing[]']");
+            }
+            return input.value.trim() !== "";
+        });
+
+        // Validate "Yes" or "No" for quality_evaluation and report_accepted   //checklast I think this is not needed
+        let validYesNo = [...document.querySelectorAll("input[name='quality_evaluation[]'], input[name='report_accepted[]']")].every(input => {
+            const value = input.value.trim().toLowerCase(); 
+            return value === "yes" || value === "no";
+        });
+
+        // Validate for duplicate titles
+        let titles = [...document.querySelectorAll("input[name='title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = titles.some((title, index) => titles.indexOf(title) !== index); //checklast  I think this is not needed
+
+        document.getElementById("submitBtn").disabled = !(allFilled);
+    }
+
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#projectEntries")) {
+            validateForm();
+        }
+    });
+
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#projectEntries") && event.target.type === "file") {
+            validateForm();
+        }
+    });
+</script>
