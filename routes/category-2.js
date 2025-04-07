@@ -667,7 +667,7 @@ router.post('/seminars', (req, res) => {
             .save()
             .then(seminars => {
                 req.flash('success_msg', 'Data entered successfully');
-                res.redirect('/category-3/resourcePerson');
+                res.redirect('/category-2/seminars');
             })
             .catch(err => {
                 console.log(err);

@@ -1,0 +1,242 @@
+<h5>Category 3</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
+<div class="container">
+    <h6>3.3.4 Projects Outcome/Outputs</h6>
+    <hr>
+
+    <form action="/category-3/projectOutcomes" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="input-field col s12 md5">
+                <select name="outcome_level" class="validate" id="outcomeLevel">
+                    <option value="" disabled selected>Select Outcome Level</option>
+                    <option value="national">National Level</option>
+                    <option value="international">International Level</option>
+                </select>
+                <label>Outcome Level</label>
+            </div>
+        </div>
+
+        <!-- Outcome Entries Container -->
+        <div id="outcomeEntries"></div>
+
+        <input type="hidden" name="outcome_level" id="hiddenOutcomeLevel">
+        <h6>Total Individual Score: <span id="outcomesTotalScore">0</span></h6>
+
+        <div class="row">
+            <div style="margin-top: 20px; display: flex; gap: 20px;" class="input-field col s8">
+                <button type="button" id="addOutcome" class="btn orange">Add Another Entry</button>
+                <button type="submit" id="submitOutcomeBtn" class="btn green" disabled>Submit</button>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 50px;" class="input-field col s4">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+    });
+    let savedOutcomes = [];
+
+    {{#each projectOutcomes}}
+        savedOutcomes.push({
+            outcome_level: "{{this.outcome_level}}",
+            academic_year: "{{this.academic_year}}",
+            entries: [
+                {{#each this.entries}}
+                    {
+                        title: "{{this.title}}",
+                        type: "{{this.type}}",
+                        description: "{{this.description}}",
+                        document: "{{this.document}}",
+                        score: {{this.score}}
+                    },
+                {{/each}}
+            ]
+        });
+    {{/each}}
+
+    // Get the academic year from the server
+    let selectedYear = "{{academic_year}}";
+
+    // Filter the entries by academic year
+    savedOutcomes = savedOutcomes.filter(entry => entry.academic_year === selectedYear);
+
+    const scoreMapping = {
+        national: 30,
+        international: 50
+    };
+
+    document.getElementById("outcomeLevel").addEventListener("change", function () {
+        document.getElementById("hiddenOutcomeLevel").value = this.value;
+        loadOutcomeEntries(this.value);
+    });
+
+    function updateOutcomesScore() {
+        let type = document.getElementById("outcomeLevel").value;
+        let scorePerEntry = scoreMapping[type] || 0;
+        let count = document.querySelectorAll(".outcome-entry[data-type='" + type + "']").length;
+        document.getElementById("outcomesTotalScore").innerText = count * scorePerEntry;
+        validateOutcomeForm();
+    }
+
+    function addOutcomeEntry(type, outcome = null) {
+        let entry = document.createElement("div");
+        entry.classList.add("row", "outcome-entry");
+        entry.setAttribute("data-type", type);
+        entry.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="title[]" value="${outcome ? outcome.title : ''}" required>
+                <label class="active">Title of the Output</label>
+            </div>
+            <div class="input-field col s12">
+                <select name="type[]" class="validate" required>
+                    <option value="" disabled ${!outcome ? 'selected' : ''}>Select Type of Output</option>
+                    <option value="patent" ${outcome && outcome.type === 'patent' ? 'selected' : ''}>Patent</option>
+                    <option value="technology_transfer" ${outcome && outcome.type === 'technology_transfer' ? 'selected' : ''}>Technology Transfer</option>
+                    <option value="product" ${outcome && outcome.type === 'product' ? 'selected' : ''}>Product</option>
+                    <option value="process" ${outcome && outcome.type === 'process' ? 'selected' : ''}>Process</option>
+                </select>
+                <label>Type of Output</label>
+            </div>
+            <div class="input-field col s12">
+                <textarea name="description[]" class="materialize-textarea" required>${outcome ? outcome.description : ''}</textarea>
+                <label class="active">Brief Description</label>
+            </div>
+            <div class="input-field col s6">
+                ${outcome && outcome.document ? `
+                    <a href="/${outcome.document}" target="_blank" class="btn blue">View Document</a>
+                    <input type="hidden" name="document_existing[]" value="${outcome.document}">
+                ` : '<input type="file" name="document[]" accept=".pdf,.jpg,.png" class="new-outcome-doc" required>'}
+            </div>
+            <div class="col s6">
+                <button type="button" class="btn red remove-outcome">Remove</button>
+            </div>
+        `;
+
+        document.getElementById("outcomeEntries").appendChild(entry);
+        // Reinitialize the select elements after adding a new entry
+        const elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+        updateOutcomesScore();
+    }
+
+    document.getElementById("addOutcome").addEventListener("click", function () {
+        let type = document.getElementById("outcomeLevel").value;
+        if (!type) {
+            alert("Please select an outcome level first.");
+            return;
+        }
+        addOutcomeEntry(type);
+    });
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-outcome")) {
+            let entry = event.target.closest(".outcome-entry");
+            let type = entry.getAttribute("data-type");
+            let title = entry.querySelector("input[name='title[]']").value;
+
+            if (confirm("Are you sure you want to delete this entry?")) {
+                // Send DELETE request to the backend
+                fetch('/category-3/deleteProjectOutcome', {
+                    method: 'POST', // Use POST if DELETE is not configured
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ outcome_level: type, title: title })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from savedOutcomes (frontend)
+                        let outcomeData = savedOutcomes.find(entry => entry.outcome_level === type);
+                        if (outcomeData) {
+                            outcomeData.entries = outcomeData.entries.filter(outcome => outcome.title !== title);
+                        }
+
+                        // Remove from UI
+                        entry.remove();
+                        // Update Total Score
+                        if (typeof data.newTotalScore !== "undefined") {
+                            document.getElementById("outcomesTotalScore").innerText = data.newTotalScore;
+                        }
+
+                        // Show Flash Message
+                        let flashMessage = document.getElementById("flashMessage");
+                        flashMessage.innerText = "Entry deleted successfully.";
+                        flashMessage.style.display = "block";
+
+                        setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    });
+
+    function loadOutcomeEntries(outcomeLevel) {
+        document.getElementById("outcomeEntries").innerHTML = "";
+        let matchedOutcomes = savedOutcomes.find(entry => entry.outcome_level === outcomeLevel);
+
+        if (matchedOutcomes && matchedOutcomes.entries.length > 0) {
+            matchedOutcomes.entries.forEach(outcome => addOutcomeEntry(outcomeLevel, outcome));
+        } else {
+            addOutcomeEntry(outcomeLevel);
+        }
+    }
+    document.querySelector("form").addEventListener("submit", function (event) {
+        // Validate for duplicate titles
+        let titles = [...document.querySelectorAll("input[name='title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = titles.some((title, index) => titles.indexOf(title) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Duplicate titles are not allowed. Please ensure all project titles are unique.");
+            return;
+        }
+    });
+
+    function validateOutcomeForm() {
+        let allFilled = [...document.querySelectorAll("#outcomeEntries input[required], #outcomeEntries textarea[required]")].every(input => {
+            if (input.type === "file") {
+                return input.files.length > 0 || input.closest(".outcome-entry").querySelector("input[name='document_existing[]']");
+            }
+            return input.value.trim() !== "";
+        });
+
+        // Ensure type of output is selected
+        let allTypesSelected = [...document.querySelectorAll("select[name='type[]']")].every(select => select.value.trim() !== "");
+        if (!allTypesSelected) {
+            document.getElementById("submitOutcomeBtn").disabled = true;
+            return;
+        }
+
+        document.getElementById("submitOutcomeBtn").disabled = !allFilled;
+    }
+
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#outcomeEntries")) {
+            validateOutcomeForm();
+        }
+    });
+
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#outcomeEntries") && event.target.type === "file") {
+            validateOutcomeForm();
+        }
+    });
+        document.addEventListener("change", function (event) {
+        if (event.target.closest("#outcomeEntries") && event.target.tagName === "SELECT") {
+            validateOutcomeForm();
+        }
+    });
+
+    
+</script>

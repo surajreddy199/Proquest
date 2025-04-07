@@ -23,7 +23,6 @@ const modules = require('./modules');
     modules.CompletedProjects.find({ user: req.user.id }).exec(),
 
 
-    modules.ResourcePerson.findOne({ user: req.user.id }).exec(),
     modules.ContributionToSyllabus.findOne({ user: req.user.id }).exec(),
     modules.MemberOfUniversityCommitte.findOne({ user: req.user.id }).exec(),
     modules.ConsultancyAssignment.findOne({ user: req.user.id }).exec(),

@@ -84,6 +84,9 @@ const ConsultancyProjects = mongoose.model('consultancyprojects');
 require('../models/Category-3/CompletedProjects');
 const CompletedProjects = mongoose.model('completedprojects');
 
+// Load Project Outcomes model
+require('../models/Category-3/ProjectOutcomes');
+const ProjectOutcomes = mongoose.model('projectoutcomes');
 
 
 
@@ -92,9 +95,7 @@ const CompletedProjects = mongoose.model('completedprojects');
 
 
 
-// Load resource person model
-require('../models/Category-3/ResourcePerson');
-const ResourcePerson = mongoose.model('resource_person');
+
 
 // Load resource person model
 require('../models/Category-3//ContributionToSyllabus');
@@ -114,5 +115,5 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 
 module.exports = {TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
-    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ResourcePerson, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
+    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

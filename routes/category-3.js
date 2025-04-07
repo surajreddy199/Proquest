@@ -27,12 +27,14 @@ const ConsultancyProjects = mongoose.model('consultancyprojects');
 require('../models/Category-3/CompletedProjects');
 const CompletedProjects = mongoose.model('completedprojects');
 
+// Load Project Outcomes model
+require('../models/Category-3/ProjectOutcomes');
+const ProjectOutcomes = mongoose.model('projectoutcomes');
 
 
 
-// Load resource person model
-require('../models/Category-3/ResourcePerson');
-const ResourcePerson = mongoose.model('resource_person');
+
+
 
 // Load resource person model
 require('../models/Category-3//ContributionToSyllabus');
@@ -50,29 +52,6 @@ const ConsultancyAssignment = mongoose.model('consultancy_assignment');
 require('../models/Category-3/ExternalProjectsOrCompetition');
 const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_competition');
 
-// Resourse person load route
-router.get('/resourcePerson', ensureAuthenticated, (req, res) => {
-    AcademicYear.find({ user: req.user.id })
-        .then(result => {
-            if (!result) {
-                req.flash('error_msg', 'Select the academic year before proceeding');
-                res.redirect('/');
-            }
-            year = result[0].academic_year;
-            ResourcePerson.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-                .then(result => {
-                    res.render('category-3/resourcePerson', { result });
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Error while retrieving data.');
-                    res.redirect('/');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Select the academic year before proceeding.');
-            res.redirect('/');
-        })
-});
 
 // contribute to syllabus load route
 router.get('/contributionToSyllabus', ensureAuthenticated, (req, res) => {
@@ -170,23 +149,6 @@ router.get('/externalProjectsOrCompetition', ensureAuthenticated, (req, res) => 
         })
 });
 
-// Load edit Route for Category-3
-// Resourse person load route
-router.get('/resourcePerson/edit/:id', ensureAuthenticated, (req, res) => {
-    ResourcePerson.findOne({ _id: req.params.id })
-        .then(result => {
-            if (result.user != req.user.id) {
-                req.flash('error_msg', 'Not Authorized');
-                res.redirect('/category-3/resourcePerson');
-            } else {
-                res.render('category-3/resourcePerson', { editResult: result });
-            }
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
-            res.redirect('/category-3/resourcePerson');
-        })
-});
 
 // contribute to syllabus load route
 router.get('/contributionToSyllabus/edit/:id', ensureAuthenticated, (req, res) => {
@@ -257,46 +219,7 @@ router.get('/externalProjectsOrCompetition/edit/:id', ensureAuthenticated, (req,
 });
 
 
-// Processing resource person form
-router.post('/resourcePerson', (req, res) => {
-    let errors = [];
 
-    if (!req.body.numberofParticipants || req.body.numberofParticipants < 0) {
-        errors.push({ text: 'Participants cannot be less than 0' });
-    }
-    if (errors.length > 0) {
-        res.render('category-3/resourcePerson', {
-            errors: errors,
-            topicName: req.body.topicName,
-            department: req.body.department,
-            nameofInstitute: req.body.nameofInstitute,
-            numberofParticipants: req.body.numberofParticipants
-        }
-        )
-    }
-    else {
-        // add preleave data into db
-        const resourcePerson = {
-            academic_year: year,
-            topicName: req.body.topicName,
-            department: req.body.department,
-            nameofInstitute: req.body.nameofInstitute,
-            numberofParticipants: req.body.numberofParticipants,
-            user: req.user.id
-        }
-        new ResourcePerson(resourcePerson)
-            .save()
-            .then(resourcePersonRecords => {
-                req.flash('success_msg', 'Data entered successfully');
-                res.redirect('/category-3/contributionToSyllabus');
-            })
-            .catch(err => {
-                console.log(err);
-                req.flash('error_msg', 'faculty ID not found please login again.');
-                res.redirect('/category-3/resourcePerson');
-            })
-    }
-});
 
 // Processing contribution to syllabus form
 router.post('/contributionToSyllabus', (req, res) => {
@@ -435,43 +358,7 @@ router.post('/externalProjectsOrCompetition', (req, res) => {
     }
 });
 
-// PUT request Route
-router.put('/resourcePerson/:id', (req, res) => {
-    let errors = [];
-    if (!req.body.numberofParticipants || req.body.numberofParticipants < 0) {
-        errors.push({ text: 'Participants cannot be less than 0' });
-    }
-    if (errors.length > 0) {
 
-        if (!req.body.numberofParticipants || req.body.numberofParticipants < 0) {
-            req.flash('error_msg', 'Participants cannot be less than 0');
-            res.redirect('/category-3/resourcePerson');
-        }
-    }
-    else {
-        ResourcePerson.findOne({ _id: req.params.id })
-            .then(result => {
-                result.topicName = req.body.topicName,
-                    result.department = req.body.department,
-                    result.nameofInstitute = req.body.nameofInstitute,
-                    result.numberofParticipants = req.body.numberofParticipants
-
-                result.save()
-                    .then(() => {
-                        req.flash('success_msg', 'Data updated Successfully');
-                        res.redirect('/category-3/resourcePerson');
-                    })
-                    .catch(() => {
-                        req.flash('error_msg', 'Data not updated. Please try logging in again.');
-                        res.redirect('/category-3/resourcePerson');
-                    })
-            })
-            .catch(() => {
-                req.flash('error_msg', 'User not found. Please try logging in again.');
-                res.redirect('/category-3/resourcePerson');
-            })
-    }
-});
 
 router.put('/contributionToSyllabus/:id', (req, res) => {
     ContributionToSyllabus.findOne({ _id: req.params.id })
@@ -604,17 +491,7 @@ router.put('/externalProjectsOrCompetition/:id', (req, res) => {
 });
 
 // Delete Route
-router.delete('/resourcePerson/delete/:id', (req, res) => {
-    ResourcePerson.deleteOne({ _id: req.params.id })
-        .then(() => {
-            req.flash('success_msg', 'Data is deleted successfully');
-            res.redirect('/category-3/resourcePerson');
-        })
-        .catch(() => {
-            req.flash('error_msg', 'User not found. Please try logging in again.');
-            res.redirect('/category-3/resourcePerson');
-        })
-});
+
 
 router.delete('/contributionToSyllabus/delete/:id', (req, res) => {
     ContributionToSyllabus.deleteOne({ _id: req.params.id })
@@ -1062,6 +939,80 @@ router.post('/completedProjects', upload.array("document[]"), async (req, res) =
     }
 });
 
+// Project Outcomes POST method
+router.post('/projectOutcomes', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/projectOutcomes');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const outcomeLevel = Array.isArray(req.body.outcome_level) ? req.body.outcome_level[0] : req.body.outcome_level;
+        const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+        const types = Array.isArray(req.body.type) ? req.body.type : [req.body.type];
+        const descriptions = Array.isArray(req.body.description) ? req.body.description : [req.body.description];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        let fileIndex = 0;
+
+        let newEntries = titles.map((title, index) => {
+            let documentPath = existingDocs[index] || null;
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++;
+            }
+
+            return {
+                title: title || '-',
+                type: types[index] || '-',
+                description: descriptions[index] || '-',
+                document: documentPath,
+                score: outcomeLevel === 'national' ? 30 : 50
+            };
+        });
+
+        let existingEntry = await ProjectOutcomes.findOne({
+            user: req.user.id,
+            academic_year: year,
+            outcome_level: outcomeLevel
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.title === existing.title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.title === e.title)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.projectOutcomesTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new ProjectOutcomes({
+                academic_year: year,
+                outcome_level: outcomeLevel,
+                entries: newEntries,
+                projectOutcomesTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Project outcomes details saved successfully.');
+        res.redirect('/category-3/projectOutcomes');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/projectOutcomes');
+    }
+});
 
 // Research Papers Published get method
 
@@ -1206,6 +1157,33 @@ router.get('/completedProjects', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// Project Outcomes GET method
+router.get('/projectOutcomes', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const projectOutcomes = await ProjectOutcomes.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        res.render('category-3/projectOutcomes', {
+            projectOutcomes,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching project outcomes:", error);
+        req.flash('error_msg', 'Error fetching project outcomes.');
+        res.redirect('/');
+    }
+});
+
 // Delete journal entry from Research Papers Published POST Method
 router.post('/deleteJournal', ensureAuthenticated, async (req, res) => {
     const { publication_type, journal_title } = req.body;
@@ -1245,8 +1223,6 @@ router.post('/deleteJournal', ensureAuthenticated, async (req, res) => {
         res.json({ success: false, message: "Server error." });
     }
 });
-
-
 
 // Delete entry from Books/Chapters Published POST Method
 router.post('/deleteBook', ensureAuthenticated, async (req, res) => {
@@ -1395,6 +1371,44 @@ router.post('/deleteCompletedProject', ensureAuthenticated, async (req, res) => 
 
     } catch (error) {
         console.error("Error deleting completed project:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
+// Delete entry from Project Outcomes POST Method
+router.post('/deleteProjectOutcome', ensureAuthenticated, async (req, res) => {
+    const { outcome_level, title } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await ProjectOutcomes.findOneAndUpdate(
+            {
+                user: req.user.id,
+                outcome_level: outcome_level,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { title: title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Project outcome not found." });
+        }
+
+        const newTotalScore = updatedEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+
+        updatedEntry.projectOutcomesTotalScore = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Project outcome deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting project outcome:", error);
         res.json({ success: false, message: "Server error." });
     }
 });
@@ -1568,6 +1582,39 @@ router.get('/completedProjects/totalScore', ensureAuthenticated, async (req, res
         console.error("Error calculating total score for completed projects:", error);
         req.flash('error_msg', 'Error calculating total score.');
         res.redirect('/category-3/completedProjects');
+    }
+});
+
+// Calculate Total Score for Project Outcomes
+router.get('/projectOutcomes/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const projectOutcomes = await ProjectOutcomes.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let totalThreeThreeFourScore = 0;
+
+        projectOutcomes.forEach(entry => {
+            totalThreeThreeFourScore += entry.entries.reduce((sum, outcome) => sum + (outcome.score || 0), 0);
+        });
+
+        res.render('category-3/projectOutcomesTotalScore', {
+            totalThreeThreeFourScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for project outcomes:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/projectOutcomes');
     }
 });
 
