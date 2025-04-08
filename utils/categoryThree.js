@@ -6,10 +6,11 @@ const CompletedProjects = require('../models/Category-3/CompletedProjects'); // 
 const ProjectOutcomes = require('../models/Category-3/ProjectOutcomes'); // Import ProjectOutcomes model
 const ResearchGuidance = require('../models/Category-3/ResearchGuidance'); // Import ResearchGuidance model
 const TrainingCourses = require('../models/Category-3/TrainingCourses'); // Import TrainingCourses model
+const ConferencePapersEntry = require('../models/Category-3/ConferencePapersEntry'); // Import ConferencePapersEntry model
 
 async function calculateCategoryThreeTotalScore(userId, academicYear) {
     try {
-        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses] = await Promise.all([
+        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapers] = await Promise.all([
             ResearchPapersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             BooksChaptersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             SponsoredProjects.find({ user: userId, academic_year: academicYear }).exec(),
@@ -17,7 +18,8 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
             CompletedProjects.find({ user: userId, academic_year: academicYear }).exec(),
             ProjectOutcomes.find({ user: userId, academic_year: academicYear }).exec(),
             ResearchGuidance.find({ user: userId, academic_year: academicYear }).exec(),
-            TrainingCourses.find({ user: userId, academic_year: academicYear }).exec()
+            TrainingCourses.find({ user: userId, academic_year: academicYear }).exec(),
+            ConferencePapersEntry.find({ user: userId, academic_year: academicYear }).exec() 
         ]);
 
         // Calculate total score for Research Papers Published
@@ -76,8 +78,16 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
         if (totalThreeFiveOneScore > 30) {
             totalThreeFiveOneScore = 30;
         }
+
+        // Calculate total score for Conference Papers Entry
+        let totalThreeFiveTwoScore = 0; // Initialize score for Conference Papers
+        conferencePapers.forEach(entry => {
+            totalThreeFiveTwoScore += entry.entries.reduce((sum, paper) => sum + (paper.score || 0), 0);
+        });
+
+
         // Calculate total score for Category 3
-        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeOneScore + totalThreeThreeTwoScore + totalThreeThreeThreeScore + totalThreeThreeFourScore + totalThreeFourScore + totalThreeFiveOneScore;
+        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeOneScore + totalThreeThreeTwoScore + totalThreeThreeThreeScore + totalThreeThreeFourScore + totalThreeFourScore + totalThreeFiveOneScore + totalThreeFiveTwoScore; // Include Conference Papers score
 
         return {
             totalThreeOneScore,
@@ -88,6 +98,7 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
             totalThreeThreeFourScore, // Include ProjectOutcomes score
             totalThreeFourScore,
             totalThreeFiveOneScore,
+            totalThreeFiveTwoScore, // Include ConferencePapers score
             categoryThreeTotalScore
         };
     } catch (err) {

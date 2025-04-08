@@ -1,0 +1,252 @@
+<h5>Category 3</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
+<div class="container">
+    <h6>3.5.2 Papers in Conferences/Seminars/Workshops</h6>
+    <hr>
+
+    <form action="/category-3/conferencePapersEntry" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="input-field col s12">
+                <select name="event_type" class="validate" id="eventType">
+                    <option value="" disabled selected>Select Event Type</option>
+                    <option value="international">International Conference</option>
+                    <option value="national">National Conference</option>
+                    <option value="regional">Regional/State Level</option>
+                    <option value="local">Local – University/College</option>
+                </select>
+                <label>Event Type</label>
+            </div>
+        </div>
+
+        <!-- Paper Entries Container -->
+        <div id="paperEntries"></div>
+
+        <input type="hidden" name="event_type" id="hiddenEventType">
+        <h6>Total Individual Score: <span id="papersTotalScore">0</span></h6>
+
+        <div class="row">
+            <div style="margin-top: 20px; display: flex; gap: 20px;" class="input-field col s8">
+                <button type="button" id="addPaper" class="btn orange">Add Another Entry</button>
+                <button type="submit" id="submitBtn" class="btn green" disabled>Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+    });
+    let savedPapers = [];
+
+    {{#each conferencePapers}}
+        savedPapers.push({
+            event_type: "{{this.event_type}}",
+            academic_year: "{{this.academic_year}}",
+            entries: [
+                {{#each this.entries}}
+                    {
+                        title: "{{this.title}}",
+                        event_name: "{{this.event_name}}",
+                        date: "{{this.date}}",
+                        presentation_type: "{{this.presentation_type}}",
+                        document: "{{this.document}}",
+                        score: {{this.score}}
+                    },
+                {{/each}}
+            ]
+        });
+    {{/each}}
+
+    // Get the academic year from the server
+    let selectedYear = "{{academic_year}}";
+
+    // Filter the entries by academic year
+    savedPapers = savedPapers.filter(entry => entry.academic_year === selectedYear);
+
+    const scoreMapping = {
+        international: 10,
+        national: 7.5,
+        regional: 5,
+        local: 3
+    };
+
+    document.getElementById("eventType").addEventListener("change", function () {
+        document.getElementById("hiddenEventType").value = this.value;
+        loadPaperEntries(this.value);
+    });
+
+    function updatePapersScore() {
+        let type = document.getElementById("eventType").value;
+        let scorePerEntry = scoreMapping[type] || 0;
+        let count = document.querySelectorAll(".paper-entry[data-type='" + type + "']").length;
+        document.getElementById("papersTotalScore").innerText = (count * scorePerEntry).toFixed(1);
+        validateForm();
+    }
+
+    function addPaperEntry(type, paper = null) {
+        let formattedDate = paper && paper.date ? new Date(paper.date).toISOString().split('T')[0] : ''; // Format the date to YYYY-MM-DD
+        let entry = document.createElement("div");
+        entry.classList.add("row", "paper-entry");
+        entry.setAttribute("data-type", type);
+        entry.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="title[]" value="${paper ? paper.title : ''}" required>
+                <label class="active">Paper Title</label>
+            </div>
+            <div class="input-field col s12">
+                <input type="text" name="event_name[]" value="${paper ? paper.event_name : ''}" required>
+                <label class="active">Event Name</label>
+            </div>
+            <div class="input-field col s12">
+                <input type="date" name="date[]" value="${formattedDate}" required>
+                <label class="active">Date</label>
+            </div>
+            <div class="input-field col s12">
+                <select name="presentation_type[]" required>
+                    <option value="" disabled ${!paper ? 'selected' : ''}>Select Presentation Type</option>
+                    <option value="oral" ${paper && paper.presentation_type === 'oral' ? 'selected' : ''}>Oral</option>
+                    <option value="poster" ${paper && paper.presentation_type === 'poster' ? 'selected' : ''}>Poster</option>
+                </select>
+                <label>Presentation Type</label>
+            </div>
+            <div class="input-field col s6">
+                ${paper && paper.document ? `
+                    <a href="/${paper.document}" target="_blank" class="btn blue">View Document</a>
+                    <input type="hidden" name="document_existing[]" value="${paper.document}">
+                ` : '<input type="file" name="document[]" accept=".pdf,.jpg,.png" class="new-paper-doc" required>'}
+            </div>
+            <div class="col s6">
+                <button type="button" class="btn red remove-paper">Remove</button>
+            </div>
+        `;
+    
+        document.getElementById("paperEntries").appendChild(entry);
+    
+        // Reinitialize the select elements after adding a new entry
+        const elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+        updatePapersScore();
+    }
+
+    document.getElementById("addPaper").addEventListener("click", function () {
+        let type = document.getElementById("eventType").value;
+        if (!type) {
+            alert("Please select an event type first.");
+            return;
+        }
+        addPaperEntry(type);
+    });
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-paper")) {
+            let entry = event.target.closest(".paper-entry");
+            let type = entry.getAttribute("data-type");
+            let title = entry.querySelector("input[name='title[]']").value;
+
+            if (confirm("Are you sure you want to delete this entry?")) {
+                // Send DELETE request to the backend
+                fetch('/category-3/deleteConferencePaper', {
+                    method: 'POST', // Use POST if DELETE is not configured
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ event_type: type, title: title })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from savedPapers (frontend)
+                        let paperData = savedPapers.find(entry => entry.event_type === type);
+                        if (paperData) {
+                            paperData.entries = paperData.entries.filter(paper => paper.title !== title);
+                        }
+
+                        // Remove from UI
+                        entry.remove();
+                        // Update Total Score
+                        if (typeof data.newTotalScore !== "undefined") {
+                            document.getElementById("papersTotalScore").innerText = data.newTotalScore;
+                        }
+
+                        // Show Flash Message
+                        let flashMessage = document.getElementById("flashMessage");
+                        flashMessage.innerText = "Entry deleted successfully.";
+                        flashMessage.style.display = "block";
+
+                        setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    });
+
+    function loadPaperEntries(eventType) {
+        document.getElementById("paperEntries").innerHTML = "";
+        let matchedPapers = savedPapers.find(entry => entry.event_type === eventType);
+
+        if (matchedPapers && matchedPapers.entries.length > 0) {
+            matchedPapers.entries.forEach(paper => addPaperEntry(eventType, paper));
+        } else {
+            addPaperEntry(eventType);
+        }
+    }
+
+    document.querySelector("form").addEventListener("submit", function (event) {
+        // Validate for duplicate titles
+        let titles = [...document.querySelectorAll("input[name='title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = titles.some((title, index) => titles.indexOf(title) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Duplicate titles are not allowed. Please ensure all paper titles are unique.");
+            return;
+        }
+    });
+
+    function validateForm() {
+        let allFilled = [...document.querySelectorAll("#paperEntries input[required], #paperEntries select[required]")].every(input => {
+            if (input.type === "file") {
+                return input.files.length > 0 || input.closest(".paper-entry").querySelector("input[name='document_existing[]']");
+            }
+            return input.value.trim() !== "";
+        });
+
+        // Ensure type of output is selected
+        let allTypesSelected = [...document.querySelectorAll("select[name='presentation_type[]']")].every(select => select.value.trim() !== "");
+        
+
+        document.getElementById("submitBtn").disabled = !(allFilled && allTypesSelected);
+    }
+
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#paperEntries")) {
+            validateForm();
+        }
+    });
+
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#paperEntries") && event.target.type === "file") {
+            validateForm();
+        }
+    });
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#paperEntries") && event.target.tagName === "SELECT") {
+            validateForm();
+        }
+    });
+
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#paperEntries") && event.target.name === "presentation_type[]") {
+            updatePapersScore();
+        }
+    });
+
+    
+</script>

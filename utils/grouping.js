@@ -115,6 +115,21 @@ function groupTrainingCoursesByType(trainingCourses) {
     return groupByProperty(allEntries, "duration_type");
 }
 
+/**
+ * Combines and groups conference papers by a specified property.
+ * @param {Object} conferencePapers - The object containing conference papers data.
+ * @param {string} groupBy - The property to group by (e.g., 'event_type', 'presentation_type').
+ * @returns {Object} - An object where keys are the group names and values are arrays of conference papers.
+ */
+function groupConferencePapersByType(conferencePapers) {
+    const allEntries = Array.isArray(conferencePapers)
+        ? conferencePapers.reduce((acc, paper) => acc.concat(paper.entries || []), [])
+        : [];
+
+    // Use groupByProperty to group by the specified property
+    return groupByProperty(allEntries, "event_type");
+}
+
 module.exports = {
     groupByProperty,
     groupJournalsByPublicationType,
@@ -124,4 +139,5 @@ module.exports = {
     groupProjectOutcomesByType,
     groupResearchGuidanceByType,
     groupTrainingCoursesByType,
+    groupConferencePapersByType,
 };
