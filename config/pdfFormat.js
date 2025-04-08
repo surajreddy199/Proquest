@@ -25,6 +25,7 @@ const modules = require('./modules');
     modules.ResearchGuidance.find({ user: req.user.id }).exec(),
     modules.TrainingCourses.find({ user: req.user.id }).exec(),
     modules.ConferencePapersEntry.find({ user: req.user.id }).exec(),
+    modules.InvitedLectures.find({ user: req.user.id }).exec(),
 
 
     modules.ContributionToSyllabus.findOne({ user: req.user.id }).exec(),

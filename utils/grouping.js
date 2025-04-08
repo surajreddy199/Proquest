@@ -130,6 +130,20 @@ function groupConferencePapersByType(conferencePapers) {
     return groupByProperty(allEntries, "event_type");
 }
 
+/**
+ * Combines and groups invited lectures by lecture type.
+ * @param {Object} invitedLectures - The object containing invited lectures data.
+ * @returns {Object} - An object where keys are lecture types (e.g., 'international', 'national') and values are arrays of invited lectures.
+ */
+function groupInvitedLecturesByType(invitedLectures) {
+    const allEntries = Array.isArray(invitedLectures)
+        ? invitedLectures.reduce((acc, lecture) => acc.concat(lecture.entries || []), [])
+        : [];
+
+    // Use groupByProperty to group by "lecture_type"
+    return groupByProperty(allEntries, "lecture_type");
+}
+
 module.exports = {
     groupByProperty,
     groupJournalsByPublicationType,
@@ -140,4 +154,5 @@ module.exports = {
     groupResearchGuidanceByType,
     groupTrainingCoursesByType,
     groupConferencePapersByType,
+    groupInvitedLecturesByType,  
 };

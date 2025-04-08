@@ -16,6 +16,8 @@ const { groupProjectOutcomesByType } = require('../utils/grouping');
 const { groupResearchGuidanceByType } = require('../utils/grouping');
 const { groupTrainingCoursesByType } = require('../utils/grouping');
 const { groupConferencePapersByType } = require('../utils/grouping');
+const { groupInvitedLecturesByType } = require('../utils/grouping');
+
 
 
 
@@ -129,6 +131,7 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                         totalThreeFourScore: categoryThreeScores.totalThreeFourScore || 0,
                         totalThreeFiveOneScore: categoryThreeScores.totalThreeFiveOneScore || 0,
                         totalThreeFiveTwoScore: categoryThreeScores.totalThreeFiveTwoScore || 0,
+                        totalThreeFiveThreeScore: categoryThreeScores.totalThreeFiveThreeScore || 0,
                         categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
                         year
                     });
@@ -453,6 +456,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.ResearchGuidance.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.TrainingCourses.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.ConferencePapersEntry.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.InvitedLectures.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     
 
 
@@ -471,11 +475,11 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                             
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                                             papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
+                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -608,6 +612,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.ResearchGuidance.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.TrainingCourses.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ConferencePapersEntry.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.InvitedLectures.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
 
 
@@ -627,7 +632,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
 
                    
@@ -654,6 +659,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!researchGuidance) { researchGuidance = { guidance_type: '-', entries: researchGuidance?.entries?.length ? researchGuidance.entries : [{ candidate_name: '-', status: '-', description: '-', document: '-', score: '-' }], researchGuidanceTotalScore: '-' } }
                     if (!trainingCourses) trainingCourses = { duration_type: '-', academic_year: '-', entries: trainingCourses?.entries?.length ? trainingCourses.entries : [{ programme_title: '-', organizing_institution: '-', duration: '-', course_type: '-', document: '-', score: '-' }], trainingCoursesTotalScore: '-' };
                     if (!conferencePapersEntry) conferencePapersEntry = { event_type: '-', entries: conferencePapersEntry?.entries?.length ? conferencePapersEntry.entries : [{ title: '-', event_name: '-', date: '-', presentation_type: '-', document: '-', score: '-' }], conferencePapersTotalScore: '-' };
+                    if (!invitedLectures) { invitedLectures = { lecture_type: '-', entries: invitedLectures?.entries?.length ? invitedLectures.entries : [{ title: '-', event: '-', date: '-', document: '-', score: '-' }], invitedLecturesTotalScore: '-' }; }
 
                     if (!contributionToSyllabus) { contributionToSyllabus = { nameofSub: '-', role: '-', nameofUniversity: '-', otherDetails: '-' } }
                     if (!memberOfUniversityCommitte) { memberOfUniversityCommitte = { nameofCommittee: '-', rolesAndResponsibility: '-', designation: '-' } }
@@ -670,6 +676,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     const groupedResearchGuidance = groupResearchGuidanceByType(researchGuidance);
                     const groupedTrainingCourses = groupTrainingCoursesByType(trainingCourses);
                     const groupedConferencePapers = groupConferencePapersByType(conferencePapersEntry);
+                    const groupedInvitedLectures = groupInvitedLecturesByType(invitedLectures);
 
 
 
@@ -1076,6 +1083,32 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     }
                                 ];
                             }),
+                            { text: '3.5.3 Invited Lectures or Presentations for Conferences/Symposia', style: 'subheader' },
+                            ...Object.keys(groupedInvitedLectures).map(lectureType => {
+                                // Calculate the total score for the current lecture type
+                                const totalScore = groupedInvitedLectures[lectureType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Lecture Type: ${lectureType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Title', 'Event', 'Date', 'Document', 'Score'], // Table header
+                                                ...groupedInvitedLectures[lectureType].map(entry => [
+                                                    entry.title || '-', // Default to '-' if undefined
+                                                    entry.event || '-', // Default to '-' if undefined
+                                                    entry.date || '-', // Default to '-' if undefined
+                                                    { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }, // Clickable file
+                                                    entry.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
 
 
 
@@ -1225,6 +1258,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
             modules.ResearchGuidance.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.TrainingCourses.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ConferencePapersEntry.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.InvitedLectures.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
 
 
             modules.ContributionToSyllabus.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1241,7 +1275,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
@@ -1266,6 +1300,8 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     if (!researchGuidance) { researchGuidance = { guidance_type: '-', entries: researchGuidance?.entries?.length ? researchGuidance.entries : [{ candidate_name: '-', status: '-', description: '-', document: '-', score: '-' }], researchGuidanceTotalScore: '-' } }
                     if (!trainingCourses) trainingCourses = { duration_type: '-', academic_year: '-', entries: trainingCourses?.entries?.length ? trainingCourses.entries : [{ programme_title: '-', organizing_institution: '-', duration: '-', course_type: '-', document: '-', score: '-' }], trainingCoursesTotalScore: '-' };
                     if (!conferencePapersEntry) conferencePapersEntry = { event_type: '-', entries: conferencePapersEntry?.entries?.length ? conferencePapersEntry.entries : [{ title: '-', event_name: '-', date: '-', presentation_type: '-', document: '-', score: '-' }], conferencePapersTotalScore: '-' };
+                    if (!invitedLectures) { invitedLectures = { lecture_type: '-', entries: invitedLectures?.entries?.length ? invitedLectures.entries : [{ title: '-', event: '-', date: '-', document: '-', score: '-' }], invitedLecturesTotalScore: '-' }; }
+
 
 
 
@@ -1286,6 +1322,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     const groupedResearchGuidance = groupResearchGuidanceByType(researchGuidance);
                     const groupedTrainingCourses = groupTrainingCoursesByType(trainingCourses);
                     const groupedConferencePapers = groupConferencePapersByType(conferencePapersEntry);
+                    const groupedInvitedLectures = groupInvitedLecturesByType(invitedLectures);
 
                     document = {
                         content: [
@@ -1676,6 +1713,32 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                                 ]),
                                                 // Add a row for the total score
                                                 [{ text: 'Total Score:', colSpan: 5, bold: true, alignment: 'right' }, {}, {}, {}, {}, totalScore]
+                                            ]
+                                        }
+                                    }
+                                ];
+                            }),
+                            { text: '3.5.3 Invited Lectures or Presentations for Conferences/Symposia', style: 'subheader' },
+                            ...Object.keys(groupedInvitedLectures).map(lectureType => {
+                                // Calculate the total score for the current lecture type
+                                const totalScore = groupedInvitedLectures[lectureType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
+                            
+                                return [
+                                    { text: `Lecture Type: ${lectureType}`, style: 'subheader' },
+                                    {
+                                        style: 'tableExample',
+                                        table: {
+                                            body: [
+                                                ['Title', 'Event', 'Date', 'Document', 'Score'], // Table header
+                                                ...groupedInvitedLectures[lectureType].map(entry => [
+                                                    entry.title || '-', // Default to '-' if undefined
+                                                    entry.event || '-', // Default to '-' if undefined
+                                                    entry.date || '-', // Default to '-' if undefined
+                                                    { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }, // Clickable file
+                                                    entry.score || '-' // Default to '-' if undefined
+                                                ]),
+                                                // Add a row for the total score
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
                                             ]
                                         }
                                     }

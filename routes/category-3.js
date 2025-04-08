@@ -43,6 +43,10 @@ const TrainingCourses = mongoose.model('trainingcourses');
 require('../models/Category-3/ConferencePapersEntry');
 const ConferencePapersEntry = mongoose.model('conferencepapers');
 
+// Load Invited Lectures model
+require('../models/Category-3/InvitedLectures');
+const InvitedLectures = mongoose.model('invitedlectures');
+
 
 
 
@@ -1270,6 +1274,81 @@ router.post('/conferencePapersEntry', upload.array("document[]"), async (req, re
     }
 });
 
+// POST method for Invited Lectures
+router.post('/invitedLectures', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/invitedLectures');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const lectureType = Array.isArray(req.body.lecture_type) ? req.body.lecture_type[0] : req.body.lecture_type;
+        const titles = Array.isArray(req.body.title) ? req.body.title : [req.body.title];
+        const events = Array.isArray(req.body.event) ? req.body.event : [req.body.event];
+        const dates = Array.isArray(req.body.date) ? req.body.date : [req.body.date];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        let fileIndex = 0;
+
+        let newEntries = titles.map((title, index) => {
+            let documentPath = existingDocs[index] || null;
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++;
+            }
+
+            return {
+                title: title || '-',
+                event: events[index] || '-',
+                date: dates[index] || null,
+                document: documentPath,
+                score: lectureType === 'international' ? 10 : 5
+            };
+        });
+
+        let existingEntry = await InvitedLectures.findOne({
+            user: req.user.id,
+            academic_year: year,
+            lecture_type: lectureType
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.title === existing.title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.title === e.title)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.invitedLecturesTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new InvitedLectures({
+                academic_year: year,
+                lecture_type: lectureType,
+                entries: newEntries,
+                invitedLecturesTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Invited lectures details saved successfully.');
+        res.redirect('/category-3/invitedLectures');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/invitedLectures');
+    }
+});
+
 
 
 
@@ -1530,6 +1609,33 @@ router.get('/conferencePapersEntry', ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error("Error fetching conference papers:", error);
         req.flash('error_msg', 'Error fetching conference papers.');
+        res.redirect('/');
+    }
+});
+
+// GET method for Invited Lectures
+router.get('/invitedLectures', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const invitedLectures = await InvitedLectures.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        res.render('category-3/invitedLectures', {
+            invitedLectures,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching invited lectures:", error);
+        req.flash('error_msg', 'Error fetching invited lectures.');
         res.redirect('/');
     }
 });
@@ -1898,6 +2004,46 @@ router.post('/deleteConferencePaper', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// DELETE entry from Invited Lectures POST Method
+router.post('/deleteInvitedLecture', ensureAuthenticated, async (req, res) => {
+    const { lecture_type, title } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await InvitedLectures.findOneAndUpdate(
+            {
+                user: req.user.id,
+                lecture_type: lecture_type,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { title: title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Invited lecture not found." });
+        }
+
+        const newTotalScore = updatedEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+
+        updatedEntry.invitedLecturesTotalScore = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Invited lecture deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting invited lecture:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
+
+
 
 
 
@@ -2208,6 +2354,39 @@ router.get('/conferencePapersEntry/totalScore', ensureAuthenticated, async (req,
         console.error("Error calculating total score for conference papers:", error);
         req.flash('error_msg', 'Error calculating total score.');
         res.redirect('/category-3/conferencePapersEntry');
+    }
+});
+
+// Calculate Total Score for Invited Lectures
+router.get('/invitedLectures/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const invitedLectures = await InvitedLectures.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let totalThreeFiveThreeScore = 0;
+
+        invitedLectures.forEach(entry => {
+            totalThreeFiveThreeScore += entry.entries.reduce((sum, lecture) => sum + (lecture.score || 0), 0);
+        });
+
+        res.render('category-3/invitedLecturesTotalScore', {
+            totalThreeFiveThreeScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for invited lectures:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/invitedLectures');
     }
 });
 

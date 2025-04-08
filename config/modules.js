@@ -100,6 +100,10 @@ const TrainingCourses = mongoose.model('trainingcourses');
 require('../models/Category-3/ConferencePapersEntry');
 const ConferencePapersEntry = mongoose.model('conferencepapers');
 
+// Load Invited Lectures model
+require('../models/Category-3/InvitedLectures');
+const InvitedLectures = mongoose.model('invitedlectures');
+
 
 
 
@@ -127,5 +131,5 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 
 module.exports = {TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
-    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ResearchGuidance, TrainingCourses, ConferencePapersEntry, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
+    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ResearchGuidance, TrainingCourses, ConferencePapersEntry, InvitedLectures, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

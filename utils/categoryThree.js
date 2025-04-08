@@ -7,10 +7,11 @@ const ProjectOutcomes = require('../models/Category-3/ProjectOutcomes'); // Impo
 const ResearchGuidance = require('../models/Category-3/ResearchGuidance'); // Import ResearchGuidance model
 const TrainingCourses = require('../models/Category-3/TrainingCourses'); // Import TrainingCourses model
 const ConferencePapersEntry = require('../models/Category-3/ConferencePapersEntry'); // Import ConferencePapersEntry model
+const InvitedLectures = require('../models/Category-3/InvitedLectures'); // Import InvitedLectures model
 
 async function calculateCategoryThreeTotalScore(userId, academicYear) {
     try {
-        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapers] = await Promise.all([
+        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapers,invitedLectures] = await Promise.all([
             ResearchPapersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             BooksChaptersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             SponsoredProjects.find({ user: userId, academic_year: academicYear }).exec(),
@@ -19,7 +20,8 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
             ProjectOutcomes.find({ user: userId, academic_year: academicYear }).exec(),
             ResearchGuidance.find({ user: userId, academic_year: academicYear }).exec(),
             TrainingCourses.find({ user: userId, academic_year: academicYear }).exec(),
-            ConferencePapersEntry.find({ user: userId, academic_year: academicYear }).exec() 
+            ConferencePapersEntry.find({ user: userId, academic_year: academicYear }).exec(),
+            InvitedLectures.find({ user: userId, academic_year: academicYear }).exec() 
         ]);
 
         // Calculate total score for Research Papers Published
@@ -85,9 +87,15 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
             totalThreeFiveTwoScore += entry.entries.reduce((sum, paper) => sum + (paper.score || 0), 0);
         });
 
+        // Calculate total score for Invited Lectures
+        let totalThreeFiveThreeScore = 0; // Initialize score for Invited Lectures
+        invitedLectures.forEach(entry => {
+            totalThreeFiveThreeScore += entry.entries.reduce((sum, lecture) => sum + (lecture.score || 0), 0);
+        });
+
 
         // Calculate total score for Category 3
-        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeOneScore + totalThreeThreeTwoScore + totalThreeThreeThreeScore + totalThreeThreeFourScore + totalThreeFourScore + totalThreeFiveOneScore + totalThreeFiveTwoScore; // Include Conference Papers score
+        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeOneScore + totalThreeThreeTwoScore + totalThreeThreeThreeScore + totalThreeThreeFourScore + totalThreeFourScore + totalThreeFiveOneScore + totalThreeFiveTwoScore +totalThreeFiveThreeScore; // Include Conference Papers score
 
         return {
             totalThreeOneScore,
@@ -99,6 +107,7 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
             totalThreeFourScore,
             totalThreeFiveOneScore,
             totalThreeFiveTwoScore, // Include ConferencePapers score
+            totalThreeFiveThreeScore, // Include InvitedLectures score
             categoryThreeTotalScore
         };
     } catch (err) {
