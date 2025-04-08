@@ -1,0 +1,268 @@
+<h5>Category 3</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
+<div class="container">
+    <h6>3.4 Research Guidance</h6>
+    <hr>
+
+    <form action="/category-3/researchGuidance" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="input-field col s12 md5">
+                <select name="guidance_type" class="validate" id="guidanceType">
+                    <option value="" disabled selected>Select Guidance Type</option>
+                    <option value="mphil">M.Phil.</option>
+                    <option value="phd">Ph.D.</option>
+                </select>
+                <label>Guidance Type</label>
+            </div>
+        </div>
+
+        <!-- Guidance Entries Container -->
+        <div id="guidanceEntries"></div>
+
+        <input type="hidden" name="guidance_type" id="hiddenGuidanceType">
+        <h6>Total Individual Score: <span id="guidanceTotalScore">0</span></h6>
+
+        <div class="row">
+            <div style="margin-top: 20px; display: flex; gap: 20px;" class="input-field col s8">
+                <button type="button" id="addGuidance" class="btn orange">Add Another Entry</button>
+                <button type="submit" id="submitGuidanceBtn" class="btn green" disabled>Submit</button>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 50px;" class="input-field col s4">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+    });
+
+    let savedGuidance = [];
+
+    {{#each researchGuidance}}
+        savedGuidance.push({
+            guidance_type: "{{this.guidance_type}}",
+            academic_year: "{{this.academic_year}}",
+            entries: [
+                {{#each this.entries}}
+                    {
+                        candidate_name: "{{this.candidate_name}}",
+                        status: "{{this.status}}",
+                        description: "{{this.description}}",
+                        document: "{{this.document}}",
+                        score: {{this.score}}
+                    },
+                {{/each}}
+            ]
+        });
+    {{/each}}
+
+    const scoreMapping = {
+        mphil: 3, // M.Phil. Degree Awarded
+        phd_awarded: 10, // Ph.D. Degree Awarded
+        phd_thesis: 7 // Ph.D. Thesis Submitted
+    };
+
+    document.getElementById("guidanceType").addEventListener("change", function () {
+        const selectedType = this.value;
+        document.getElementById("hiddenGuidanceType").value = selectedType;
+        loadGuidanceEntries(selectedType);
+    });
+
+    function updateGuidanceScore() {
+        let type = document.getElementById("guidanceType").value;
+        let totalScore = 0;
+
+        // Loop through all guidance entries of the selected type
+        document.querySelectorAll(".guidance-entry[data-type='" + type + "']").forEach(entry => {
+            let status = entry.querySelector("select[name='status[]']").value;
+
+            // Calculate score based on the status
+            if (type === "mphil" && status === "degree_awarded") {
+                totalScore += scoreMapping.mphil; // 3 points for M.Phil. Degree Awarded
+            } else if (type === "phd") {
+                if (status === "degree_awarded") {
+                    totalScore += scoreMapping.phd_awarded; // 10 points for Ph.D. Degree Awarded
+                } else if (status === "thesis_submitted") {
+                    totalScore += scoreMapping.phd_thesis; // 7 points for Ph.D. Thesis Submitted
+                }
+            }
+        });
+
+        // Update the total score display
+        document.getElementById("guidanceTotalScore").innerText = totalScore;
+
+        // Validate the form
+        validateGuidanceForm();
+    }
+
+    function addGuidanceEntry(type, guidance = null) {
+        let entry = document.createElement("div");
+        entry.classList.add("row", "guidance-entry");
+        entry.setAttribute("data-type", type);
+        entry.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="candidate_name[]" value="${guidance ? guidance.candidate_name : ''}" required>
+                <label class="active">Candidate Name</label>
+            </div>
+            <div class="input-field col s12">
+                <select name="status[]" class="validate" required>
+                    <option value="" disabled ${!guidance ? 'selected' : ''}>Select Status</option>
+                    ${type === 'mphil' ? `
+                        <option value="degree_awarded" ${guidance && guidance.status === 'degree_awarded' ? 'selected' : ''}>Degree Awarded</option>
+                    ` : `
+                        <option value="degree_awarded" ${guidance && guidance.status === 'degree_awarded' ? 'selected' : ''}>Degree Awarded</option>
+                        <option value="thesis_submitted" ${guidance && guidance.status === 'thesis_submitted' ? 'selected' : ''}>Thesis Submitted</option>
+                    `}
+                </select>
+                <label>Status</label>
+            </div>
+            <div class="input-field col s12">
+                <textarea name="description[]" class="materialize-textarea" >${guidance ? guidance.description : ''}</textarea>
+                <label class="active">Description</label>
+            </div>
+            <div class="input-field col s6">
+                ${guidance && guidance.document ? `
+                    <a href="/${guidance.document}" target="_blank" class="btn blue">View Document</a>
+                    <input type="hidden" name="document_existing[]" value="${guidance.document}">
+                ` : '<input type="file" name="document[]" accept=".pdf,.jpg,.png" class="new-guidance-doc" required>'}
+            </div>
+            <div class="col s6">
+                <button type="button" class="btn red remove-guidance">Remove</button>
+            </div>
+        `;
+
+        document.getElementById("guidanceEntries").appendChild(entry);
+        const elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+        updateGuidanceScore();
+    }
+
+    document.getElementById("addGuidance").addEventListener("click", function () {
+        let type = document.getElementById("guidanceType").value;
+        if (!type) {
+            alert("Please select a guidance type first.");
+            return;
+        }
+        addGuidanceEntry(type);
+    });
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-guidance")) {
+            let entry = event.target.closest(".guidance-entry");
+            let type = entry.getAttribute("data-type");
+            let candidateName = entry.querySelector("input[name='candidate_name[]']").value;
+
+            if (confirm("Are you sure you want to delete this entry?")) {
+                // Send DELETE request to the backend
+                fetch('/category-3/deleteResearchGuidance', {
+                    method: 'POST', // Use POST if DELETE is not configured
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ guidance_type: type, candidate_name: candidateName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from savedGuidance (frontend)
+                        let guidanceData = savedGuidance.find(entry => entry.guidance_type === type);
+                        if (guidanceData) {
+                            guidanceData.entries = guidanceData.entries.filter(guidance => guidance.candidate_name !== candidateName);
+                        }
+
+                        // Remove from UI
+                        entry.remove();
+                        // Update Total Score
+                        if (typeof data.newTotalScore !== "undefined") {
+                            document.getElementById("guidanceTotalScore").innerText = data.newTotalScore;
+                        }
+
+                        // Show Flash Message
+                        let flashMessage = document.getElementById("flashMessage");
+                        flashMessage.innerText = "Entry deleted successfully.";
+                        flashMessage.style.display = "block";
+
+                        setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    });
+
+    function loadGuidanceEntries(guidanceType) {
+        document.getElementById("guidanceEntries").innerHTML = ""; // Clear existing entries
+        let matchedGuidance = savedGuidance.find(entry => entry.guidance_type === guidanceType);
+
+        if (matchedGuidance && matchedGuidance.entries.length > 0) {
+            // Load existing entries
+            matchedGuidance.entries.forEach(guidance => addGuidanceEntry(guidanceType, guidance));
+        } else {
+            // Add an empty form if no entries exist
+            addGuidanceEntry(guidanceType);
+        }
+    }
+
+    document.querySelector("form").addEventListener("submit", function (event) {
+        // Validate for duplicate candidate names
+        let candidateNames = [...document.querySelectorAll("input[name='candidate_name[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = candidateNames.some((name, index) => candidateNames.indexOf(name) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Duplicate candidate names are not allowed. Please ensure all candidate names are unique.");
+            return;
+        }
+    });
+
+    function validateGuidanceForm() {
+        let allFilled = [...document.querySelectorAll("#guidanceEntries input[required], #guidanceEntries textarea[required]")].every(input => {
+            if (input.type === "file") {
+                return input.files.length > 0 || input.closest(".guidance-entry").querySelector("input[name='document_existing[]']");
+            }
+            return input.value.trim() !== "";
+        });
+
+        let allStatusesSelected = [...document.querySelectorAll("select[name='status[]']")].every(select => select.value.trim() !== "");
+        if (!allStatusesSelected) {
+            document.getElementById("submitGuidanceBtn").disabled = true;
+            return;
+        }
+
+        document.getElementById("submitGuidanceBtn").disabled = !allFilled;
+    }
+
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#guidanceEntries")) {
+            validateGuidanceForm();
+        }
+    });
+
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#guidanceEntries") && event.target.type === "file") {
+            validateGuidanceForm();
+        }
+    });
+
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#guidanceEntries") && event.target.tagName === "SELECT") {
+            validateGuidanceForm();
+        }
+    });
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#guidanceEntries") && event.target.name === "status[]") {
+            updateGuidanceScore();
+        }
+    });
+
+
+    
+</script>

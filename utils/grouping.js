@@ -87,6 +87,20 @@ function groupProjectOutcomesByType(projectOutcomes) {
     return groupByProperty(allEntries, "outcome_level");
 }
 
+/**
+ * Combines and groups research guidance entries by guidance type.
+ * @param {Object} researchGuidance - The object containing research guidance data.
+ * @returns {Object} - An object where keys are guidance types (e.g., 'mphil', 'phd') and values are arrays of research guidance entries.
+ */
+function groupResearchGuidanceByType(researchGuidance) {
+    const allEntries = Array.isArray(researchGuidance)
+        ? researchGuidance.reduce((acc, guidance) => acc.concat(guidance.entries || []), [])
+        : [];
+
+    // Use groupByProperty to group by "guidance_type"
+    return groupByProperty(allEntries, "guidance_type");
+}
+
 module.exports = {
     groupByProperty,
     groupJournalsByPublicationType,
@@ -94,4 +108,5 @@ module.exports = {
     groupSponsoredProjectsByProjectType,
     groupCompletedProjectsByProjectType,
     groupProjectOutcomesByType,
+    groupResearchGuidanceByType,
 };

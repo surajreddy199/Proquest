@@ -25,7 +25,7 @@
             <li id="overview">
                 <div class="collapsible-header"><i class="material-icons">book</i><b>Category 1</b>
                     <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="category_1" disabled
+                        <input id="score_inline" name="category_1" disabled
                             value="{{../hodMarks.category_1}}" type="number" class="validate">
                     </div>
                     <br><br><br>
@@ -114,7 +114,7 @@
             <li id="overview">
                 <div class="collapsible-header"><i class="material-icons">book</i><b>Category 2</b>
                     <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="category_2" disabled
+                        <input id="score_inline"  name="category_2" disabled
                             value="{{../hodMarks.category_2}}" type="number" class="validate">
                     </div>
                     <br><br><br>
@@ -234,7 +234,7 @@
             <li id="overview">
                 <div class="collapsible-header"><i class="material-icons">book</i><b>Category 3</b>
                     <div class="right inline col s12 m4 l2">
-                        <input id="score_inline" placeholder="Score ( /40)" name="category_3" disabled
+                        <input id="score_inline"  name="category_3" disabled
                             value="{{../hodMarks.category_3}}" type="number" class="validate">
                     </div>
                     <br><br><br>
@@ -310,6 +310,18 @@
                                     <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                                     {{/if}}
                                     3.3.4 Projects Outcome/Outputs
+                                </div>
+                            </p>
+                        </li>
+                        <li class="collection-item">
+                            <p>
+                                <div>
+                                    {{#if ../researchGuidance}}
+                                    <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                                    {{else}}
+                                    <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                                    {{/if}}
+                                    3.4 Research Guidance
                                 </div>
                             </p>
                         </li>
@@ -565,7 +577,7 @@
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 1</b>
                 <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="category_1" value="{{category_1}}"
+                    <input id="score_inline" name="category_1" value="{{category_1}}"
                         type="number" class="validate">
                 </div>
                 <br><br><br>
@@ -654,7 +666,7 @@
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 2</b>
                 <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="category_2" value="{{category_2}}"
+                    <input id="score_inline"  name="category_2" value="{{category_2}}"
                         type="number" class="validate">
                 </div>
                 <br><br><br>
@@ -774,7 +786,7 @@
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 3</b>
                 <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="category_3" value="{{category_3}}"
+                    <input id="score_inline"  name="category_3" value="{{category_3}}"
                         type="number" class="validate">
                 </div>
                 <br><br><br>
@@ -850,6 +862,18 @@
                                 <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
                                 {{/if}}
                                 3.3.4 Projects Outcome/Outputs
+                            </div>
+                        </p>
+                    </li>
+                    <li class="collection-item">
+                        <p>
+                            <div>
+                                {{#if ../researchGuidance}}
+                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                                {{else}}
+                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                                {{/if}}
+                                3.4 Research Guidance
                             </div>
                         </p>
                     </li>

@@ -31,6 +31,10 @@ const CompletedProjects = mongoose.model('completedprojects');
 require('../models/Category-3/ProjectOutcomes');
 const ProjectOutcomes = mongoose.model('projectoutcomes');
 
+// Load Research Guidance model
+require('../models/Category-3/ResearchGuidance');
+const ResearchGuidance = mongoose.model('researchguidance');
+
 
 
 
@@ -1014,6 +1018,89 @@ router.post('/projectOutcomes', upload.array("document[]"), async (req, res) => 
     }
 });
 
+// Research Guidance POST method
+router.post('/researchGuidance', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/researchGuidance');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const guidanceType = Array.isArray(req.body.guidance_type) ? req.body.guidance_type[0] : req.body.guidance_type;
+        const candidateNames = Array.isArray(req.body.candidate_name) ? req.body.candidate_name : [req.body.candidate_name];
+        const statuses = Array.isArray(req.body.status) ? req.body.status : [req.body.status];
+        const descriptions = Array.isArray(req.body.description) ? req.body.description : [req.body.description];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        let fileIndex = 0;
+
+        const scoreMapping = {
+            mphil: { degree_awarded: 3 },
+            phd: { degree_awarded: 10, thesis_submitted: 7 }
+        };
+
+        let newEntries = candidateNames.map((name, index) => {
+            let documentPath = existingDocs[index] || null;
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++;
+            }
+
+            const status = statuses[index] || '-';
+            const score = scoreMapping[guidanceType]?.[status] || 0;
+
+            return {
+                candidate_name: name || '-',
+                status: status,
+                description: descriptions[index] || '-',
+                document: documentPath,
+                score: score
+            };
+        });
+
+        let existingEntry = await ResearchGuidance.findOne({
+            user: req.user.id,
+            academic_year: year,
+            guidance_type: guidanceType
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.candidate_name === existing.candidate_name);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.candidate_name === e.candidate_name)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.researchGuidanceTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new ResearchGuidance({
+                academic_year: year,
+                guidance_type: guidanceType,
+                entries: newEntries,
+                researchGuidanceTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Research guidance details saved successfully.');
+        res.redirect('/category-3/researchGuidance');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/researchGuidance');
+    }
+});
+
 // Research Papers Published get method
 
 router.get('/researchPapersPublished', ensureAuthenticated, async (req, res) => {
@@ -1180,6 +1267,33 @@ router.get('/projectOutcomes', ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error("Error fetching project outcomes:", error);
         req.flash('error_msg', 'Error fetching project outcomes.');
+        res.redirect('/');
+    }
+});
+
+// Research Guidance GET method
+router.get('/researchGuidance', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const researchGuidance = await ResearchGuidance.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        res.render('category-3/researchGuidance', {
+            researchGuidance,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching research guidance:", error);
+        req.flash('error_msg', 'Error fetching research guidance.');
         res.redirect('/');
     }
 });
@@ -1413,6 +1527,57 @@ router.post('/deleteProjectOutcome', ensureAuthenticated, async (req, res) => {
     }
 });
 
+// Delete entry from Research Guidance POST Method
+router.post('/deleteResearchGuidance', ensureAuthenticated, async (req, res) => {
+    const { guidance_type, candidate_name } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await ResearchGuidance.findOneAndUpdate(
+            {
+                user: req.user.id,
+                guidance_type: guidance_type,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { candidate_name: candidate_name } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Research guidance entry not found." });
+        }
+
+        // Recalculate the total score
+        const scoreMapping = {
+            mphil: 3,
+            phd: { degree_awarded: 10, thesis_submitted: 7 }
+        };
+
+        let totalScore = 0;
+        updatedEntry.entries.forEach(entry => {
+            if (guidance_type === 'mphil') {
+                totalScore += scoreMapping.mphil;
+            } else if (guidance_type === 'phd') {
+                totalScore += scoreMapping.phd[entry.status] || 0;
+            }
+        });
+
+        updatedEntry.researchGuidanceTotalScore = totalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Research guidance entry deleted successfully.", newTotalScore: totalScore });
+
+    } catch (error) {
+        console.error("Error deleting research guidance entry:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
 // Calculate Total Score for Research Papers Published
 router.get('/researchPapersPublished/totalScore', ensureAuthenticated, async (req, res) => {
     try {
@@ -1502,14 +1667,14 @@ router.get('/sponsoredProjects/totalScore', ensureAuthenticated, async (req, res
             academic_year: year
         });
 
-        let totalThreeThreeScore = 0;
+        let totalThreeThreeOneScore = 0;
 
         sponsoredProjects.forEach(entry => {
-            totalThreeThreeScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+            totalThreeThreeOneScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
         });
 
         res.render('category-3/sponsoredProjectsTotalScore', {
-            totalThreeThreeScore,
+            totalThreeThreeOneScore,
             academic_year: year
         });
     } catch (error) {
@@ -1535,14 +1700,14 @@ router.get('/consultancyProjects/totalScore', ensureAuthenticated, async (req, r
             academic_year: year
         });
 
-        let totalThreeFourScore = 0;
+        let totalThreeThreeTwoScore = 0;
 
         consultancyProjects.forEach(entry => {
-            totalThreeFourScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+            totalThreeThreeTwoScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
         });
 
         res.render('category-3/consultancyProjectsTotalScore', {
-            totalThreeFourScore,
+            totalThreeThreeTwoScore,
             academic_year: year
         });
     } catch (error) {
@@ -1615,6 +1780,39 @@ router.get('/projectOutcomes/totalScore', ensureAuthenticated, async (req, res) 
         console.error("Error calculating total score for project outcomes:", error);
         req.flash('error_msg', 'Error calculating total score.');
         res.redirect('/category-3/projectOutcomes');
+    }
+});
+
+// Calculate Total Score for Research Guidance
+router.get('/researchGuidance/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const researchGuidance = await ResearchGuidance.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let totalThreeFourScore = 0;
+
+        researchGuidance.forEach(entry => {
+            totalThreeFourScore += entry.entries.length * (entry.guidance_type === 'mphil' ? 3 : 10);
+        });
+
+        res.render('category-3/researchGuidanceTotalScore', {
+            totalThreeFourScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for research guidance:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/researchGuidance');
     }
 });
 

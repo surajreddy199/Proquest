@@ -21,6 +21,8 @@ const modules = require('./modules');
     modules.SponsoredProjects.find({ user: req.user.id }).exec(),
     modules.ConsultancyProjects.findOne({ user: req.user.id }).exec(),
     modules.CompletedProjects.find({ user: req.user.id }).exec(),
+    modules.ProjectOutcomes.find({ user: req.user.id }).exec(),
+    modules.ResearchGuidance.find({ user: req.user.id }).exec(),
 
 
     modules.ContributionToSyllabus.findOne({ user: req.user.id }).exec(),

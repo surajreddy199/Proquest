@@ -4,16 +4,18 @@ const SponsoredProjects = require('../models/Category-3/SponsoredProjects'); // 
 const ConsultancyProjects = require('../models/Category-3/ConsultancyProjects'); // Import ConsultancyProjects model
 const CompletedProjects = require('../models/Category-3/CompletedProjects'); // Import CompletedProjects model
 const ProjectOutcomes = require('../models/Category-3/ProjectOutcomes'); // Import ProjectOutcomes model
+const ResearchGuidance = require('../models/Category-3/ResearchGuidance'); // Import ResearchGuidance model
 
 async function calculateCategoryThreeTotalScore(userId, academicYear) {
     try {
-        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes] = await Promise.all([
+        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance] = await Promise.all([
             ResearchPapersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             BooksChaptersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             SponsoredProjects.find({ user: userId, academic_year: academicYear }).exec(),
             ConsultancyProjects.find({ user: userId, academic_year: academicYear }).exec(), 
             CompletedProjects.find({ user: userId, academic_year: academicYear }).exec(),
-            ProjectOutcomes.find({ user: userId, academic_year: academicYear }).exec() 
+            ProjectOutcomes.find({ user: userId, academic_year: academicYear }).exec(),
+            ResearchGuidance.find({ user: userId, academic_year: academicYear }).exec()
         ]);
 
         // Calculate total score for Research Papers Published
@@ -29,15 +31,15 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
         });
 
         // Calculate total score for Sponsored Projects
-        let totalThreeThreeScore = 0;
+        let totalThreeThreeOneScore = 0;
         sponsoredProjects.forEach(entry => {
-            totalThreeThreeScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+            totalThreeThreeOneScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
         });
 
         // Calculate total score for Consultancy Projects
-        let totalThreeFourScore = 0;
+        let totalThreeThreeTwoScore = 0;
         consultancyProjects.forEach(entry => {
-            totalThreeFourScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
+            totalThreeThreeTwoScore += entry.entries.reduce((sum, project) => sum + (project.score || 0), 0);
         });
 
         // Calculate total score for Completed Projects
@@ -51,17 +53,29 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
         projectOutcomes.forEach(entry => {
             totalThreeThreeFourScore += entry.entries.reduce((sum, outcome) => sum + (outcome.score || 0), 0);
         });
+        // Calculate total score for Research Guidance
+        let totalThreeFourScore = 0;
+        researchGuidance.forEach(entry => {
+            entry.entries.forEach(guidance => {
+                if (guidance.status === 'degree_awarded') {
+                    totalThreeFourScore += (entry.guidance_type === 'mphil' ? 3 : 10); // 3 for M.Phil., 10 for Ph.D.
+                } else if (guidance.status === 'thesis_submitted') {
+                    totalThreeFourScore += 7; // 7 for Ph.D. Thesis Submitted
+                }
+            });
+        });
 
         // Calculate total score for Category 3
-        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeScore + totalThreeFourScore + totalThreeThreeThreeScore + totalThreeThreeFourScore;
+        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeOneScore + totalThreeThreeTwoScore + totalThreeThreeThreeScore + totalThreeThreeFourScore + totalThreeFourScore;
 
         return {
             totalThreeOneScore,
             totalThreeTwoScore,
-            totalThreeThreeScore, // Include SponsoredProjects score
-            totalThreeFourScore, // Include ConsultancyProjects score
+            totalThreeThreeOneScore, // Include SponsoredProjects score
+            totalThreeThreeTwoScore, // Include ConsultancyProjects score
             totalThreeThreeThreeScore,
             totalThreeThreeFourScore, // Include ProjectOutcomes score
+            totalThreeFourScore,
             categoryThreeTotalScore
         };
     } catch (err) {
