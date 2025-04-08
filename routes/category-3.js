@@ -35,6 +35,10 @@ const ProjectOutcomes = mongoose.model('projectoutcomes');
 require('../models/Category-3/ResearchGuidance');
 const ResearchGuidance = mongoose.model('researchguidance');
 
+// Load Training Courses model
+require('../models/Category-3/TrainingCourses');
+const TrainingCourses = mongoose.model('trainingcourses');
+
 
 
 
@@ -736,6 +740,8 @@ router.post('/sponsoredProjects', upload.array("document[]"), async (req, res) =
         const amounts = Array.isArray(req.body.amount) ? req.body.amount : [req.body.amount];
         const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
 
+        console.log(req.body);
+
         let existingEntry = await SponsoredProjects.findOne({
             user: req.user.id,
             academic_year: year,
@@ -1101,6 +1107,85 @@ router.post('/researchGuidance', upload.array("document[]"), async (req, res) =>
     }
 });
 
+// Training Courses POST method
+router.post('/trainingCourses', upload.array("document[]"), async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-3/trainingCourses');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const durationType = Array.isArray(req.body.duration_type) ? req.body.duration_type[0] : req.body.duration_type;
+        const titles = Array.isArray(req.body.programme_title) ? req.body.programme_title : [req.body.programme_title];
+        const durations = Array.isArray(req.body.duration) ? req.body.duration : [req.body.duration];
+        const organizations = Array.isArray(req.body.organizing_institution) ? req.body.organizing_institution : [req.body.organizing_institution];
+        const courseTypes = Array.isArray(req.body.course_type) ? req.body.course_type : [req.body.course_type];
+        const existingDocs = Array.isArray(req.body.document_existing) ? req.body.document_existing : [req.body.document_existing];
+
+        console.log(req.body);
+        let fileIndex = 0;
+
+        let newEntries = titles.map((title, index) => {
+            let documentPath = existingDocs[index] || null;
+
+            if (!existingDocs[index] && fileIndex < req.files.length) {
+                documentPath = req.files[fileIndex].path.replace(/\\/g, '/');
+                fileIndex++;
+            }
+
+            return {
+                programme_title: title || '-', // Correct field name
+                duration: durations[index] || 0,
+                organizing_institution: organizations[index] || '-', // Correct field name
+                course_type: courseTypes[index] || '-',
+                document: documentPath,
+                score: durationType === 'two_weeks' ? 20 :
+                       durationType === 'one_week' ? 10 : 0 
+            };
+        });
+
+        let existingEntry = await TrainingCourses.findOne({
+            user: req.user.id,
+            academic_year: year,
+            duration_type: durationType
+        });
+
+        if (existingEntry) {
+            let updatedEntries = existingEntry.entries.map(existing => {
+                let updated = newEntries.find(e => e.programme_title === existing.programme_title);
+                return updated ? updated : existing;
+            });
+
+            let newUniqueEntries = newEntries.filter(e =>
+                !existingEntry.entries.some(existing => existing.programme_title === e.programme_title)
+            );
+
+            existingEntry.entries = [...updatedEntries, ...newUniqueEntries];
+            existingEntry.trainingCoursesTotalScore = existingEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+            await existingEntry.save();
+        } else {
+            await new TrainingCourses({
+                academic_year: year,
+                duration_type: durationType,
+                entries: newEntries,
+                trainingCoursesTotalScore: newEntries.reduce((sum, entry) => sum + entry.score, 0),
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Training courses details saved successfully.');
+        res.redirect('/category-3/trainingCourses');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        req.flash('error_msg', 'Unexpected error occurred.');
+        res.redirect('/category-3/trainingCourses');
+    }
+});
+
 // Research Papers Published get method
 
 router.get('/researchPapersPublished', ensureAuthenticated, async (req, res) => {
@@ -1294,6 +1379,33 @@ router.get('/researchGuidance', ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error("Error fetching research guidance:", error);
         req.flash('error_msg', 'Error fetching research guidance.');
+        res.redirect('/');
+    }
+});
+
+// Training Courses GET method
+router.get('/trainingCourses', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const trainingCourses = await TrainingCourses.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        res.render('category-3/trainingCourses', {
+            trainingCourses,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching training courses:", error);
+        req.flash('error_msg', 'Error fetching training courses.');
         res.redirect('/');
     }
 });
@@ -1578,6 +1690,44 @@ router.post('/deleteResearchGuidance', ensureAuthenticated, async (req, res) => 
     }
 });
 
+// Delete entry from Training Courses POST Method
+router.post('/deleteTrainingCourse', ensureAuthenticated, async (req, res) => {
+    const { duration_type, title } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        const updatedEntry = await TrainingCourses.findOneAndUpdate(
+            {
+                user: req.user.id,
+                duration_type: duration_type,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { programme_title: title } } },
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Training course not found." });
+        }
+
+        const newTotalScore = updatedEntry.entries.reduce((sum, entry) => sum + entry.score, 0);
+
+        updatedEntry.trainingCoursesTotalScore = newTotalScore;
+        await updatedEntry.save();
+
+        res.json({ success: true, message: "Training course deleted successfully.", newTotalScore });
+
+    } catch (error) {
+        console.error("Error deleting training course:", error);
+        res.json({ success: false, message: "Server error." });
+    }
+});
+
 // Calculate Total Score for Research Papers Published
 router.get('/researchPapersPublished/totalScore', ensureAuthenticated, async (req, res) => {
     try {
@@ -1813,6 +1963,39 @@ router.get('/researchGuidance/totalScore', ensureAuthenticated, async (req, res)
         console.error("Error calculating total score for research guidance:", error);
         req.flash('error_msg', 'Error calculating total score.');
         res.redirect('/category-3/researchGuidance');
+    }
+});
+
+// Calculate Total Score for Training Courses
+router.get('/trainingCourses/totalScore', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        const trainingCourses = await TrainingCourses.find({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        let totalThreeFiveOneScore = 0;
+
+        trainingCourses.forEach(entry => {
+            totalThreeFiveOneScore += entry.entries.reduce((sum, course) => sum + (course.score || 0), 0);
+        });
+
+        res.render('category-3/trainingCoursesTotalScore', {
+            totalThreeFiveOneScore,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error calculating total score for training courses:", error);
+        req.flash('error_msg', 'Error calculating total score.');
+        res.redirect('/category-3/trainingCourses');
     }
 });
 

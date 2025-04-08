@@ -101,6 +101,20 @@ function groupResearchGuidanceByType(researchGuidance) {
     return groupByProperty(allEntries, "guidance_type");
 }
 
+/**
+ * Combines and groups training courses by course type.
+ * @param {Object} trainingCourses - The object containing training courses data.
+ * @returns {Object} - An object where keys are course types and values are arrays of training courses.
+ */
+function groupTrainingCoursesByType(trainingCourses) {
+    const allEntries = Array.isArray(trainingCourses)
+        ? trainingCourses.reduce((acc, course) => acc.concat(course.entries || []), [])
+        : [];
+
+
+    return groupByProperty(allEntries, "duration_type");
+}
+
 module.exports = {
     groupByProperty,
     groupJournalsByPublicationType,
@@ -109,4 +123,5 @@ module.exports = {
     groupCompletedProjectsByProjectType,
     groupProjectOutcomesByType,
     groupResearchGuidanceByType,
+    groupTrainingCoursesByType,
 };

@@ -92,6 +92,10 @@ const ProjectOutcomes = mongoose.model('projectoutcomes');
 require('../models/Category-3/ResearchGuidance');
 const ResearchGuidance = mongoose.model('researchguidance');
 
+// Load Training Courses model
+require('../models/Category-3/TrainingCourses');
+const TrainingCourses = mongoose.model('trainingcourses');
+
 
 
 
@@ -119,5 +123,5 @@ const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_compe
 
 module.exports = {TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
     PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
-    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ResearchGuidance, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
+    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ResearchGuidance, TrainingCourses, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

@@ -5,17 +5,19 @@ const ConsultancyProjects = require('../models/Category-3/ConsultancyProjects');
 const CompletedProjects = require('../models/Category-3/CompletedProjects'); // Import CompletedProjects model
 const ProjectOutcomes = require('../models/Category-3/ProjectOutcomes'); // Import ProjectOutcomes model
 const ResearchGuidance = require('../models/Category-3/ResearchGuidance'); // Import ResearchGuidance model
+const TrainingCourses = require('../models/Category-3/TrainingCourses'); // Import TrainingCourses model
 
 async function calculateCategoryThreeTotalScore(userId, academicYear) {
     try {
-        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance] = await Promise.all([
+        const [researchPapers, booksChapters, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses] = await Promise.all([
             ResearchPapersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             BooksChaptersPublished.find({ user: userId, academic_year: academicYear }).exec(),
             SponsoredProjects.find({ user: userId, academic_year: academicYear }).exec(),
             ConsultancyProjects.find({ user: userId, academic_year: academicYear }).exec(), 
             CompletedProjects.find({ user: userId, academic_year: academicYear }).exec(),
             ProjectOutcomes.find({ user: userId, academic_year: academicYear }).exec(),
-            ResearchGuidance.find({ user: userId, academic_year: academicYear }).exec()
+            ResearchGuidance.find({ user: userId, academic_year: academicYear }).exec(),
+            TrainingCourses.find({ user: userId, academic_year: academicYear }).exec()
         ]);
 
         // Calculate total score for Research Papers Published
@@ -64,9 +66,18 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
                 }
             });
         });
-
+        // Calculate total score for Training Courses
+        let totalThreeFiveOneScore = 0; // Initialize score for Training Courses
+        trainingCourses.forEach(entry => {
+            totalThreeFiveOneScore += entry.entries.reduce((sum, course) => sum + (course.score || 0), 0);
+        });
+        
+        // Cap the total score for Training Courses at 30
+        if (totalThreeFiveOneScore > 30) {
+            totalThreeFiveOneScore = 30;
+        }
         // Calculate total score for Category 3
-        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeOneScore + totalThreeThreeTwoScore + totalThreeThreeThreeScore + totalThreeThreeFourScore + totalThreeFourScore;
+        const categoryThreeTotalScore = totalThreeOneScore + totalThreeTwoScore + totalThreeThreeOneScore + totalThreeThreeTwoScore + totalThreeThreeThreeScore + totalThreeThreeFourScore + totalThreeFourScore + totalThreeFiveOneScore;
 
         return {
             totalThreeOneScore,
@@ -76,6 +87,7 @@ async function calculateCategoryThreeTotalScore(userId, academicYear) {
             totalThreeThreeThreeScore,
             totalThreeThreeFourScore, // Include ProjectOutcomes score
             totalThreeFourScore,
+            totalThreeFiveOneScore,
             categoryThreeTotalScore
         };
     } catch (err) {

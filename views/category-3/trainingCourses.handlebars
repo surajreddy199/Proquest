@@ -1,0 +1,244 @@
+<h5>Category 3</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
+<div class="container">
+    <h6>3.5.1 Training Courses</h6>
+    <hr>
+
+    <form action="/category-3/trainingCourses" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="input-field col s12 md5">
+                <select name="duration_type" class="validate" id="durationType">
+                    <option value="" disabled selected>Select Duration</option>
+                    <option value="two_weeks">Not less than two weeks duration</option>
+                    <option value="one_week">One week duration</option>
+                </select>
+                <label for="durationType">Duration</label>
+            </div>
+        </div>
+
+        <!-- Training Entries Container -->
+        <div id="trainingEntries"></div>
+
+        <input type="hidden" name="duration_type" id="hiddenDurationType">
+        <h6>Total Individual Score: <span id="trainingTotalScore">0</span></h6>
+
+        <div class="row">
+            <div style="margin-top: 20px; display: flex; gap: 20px;" class="input-field col s8">
+                <button type="button" id="addTraining" class="btn orange">Add Another Entry</button>
+                <button type="submit" id="submitTrainingBtn" class="btn green" disabled>Submit</button>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 50px;" class="input-field col s4">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        M.FormSelect.init(document.querySelectorAll("select"));
+    });
+    let savedTrainingCourses = [];
+
+    {{#each trainingCourses}}
+        savedTrainingCourses.push({
+            duration_type: "{{this.duration_type}}",
+            academic_year: "{{this.academic_year}}",
+            entries: [
+                {{#each this.entries}}
+                    {
+                        programme_title: "{{this.programme_title}}",
+                        organizing_institution: "{{this.organizing_institution}}",
+                        course_type: "{{this.course_type}}",
+                        duration: "{{this.duration}}",
+                        document: "{{this.document}}",
+                        score: {{this.score}}
+                    },
+                {{/each}}
+            ]
+        });
+    {{/each}}
+
+    // Get the academic year from the server
+    let selectedYear = "{{academic_year}}";
+
+    // Filter the entries by academic year
+    savedTrainingCourses = savedTrainingCourses.filter(entry => entry.academic_year === selectedYear);
+
+    const scoreMapping = {
+        two_weeks: 20,
+        one_week: 10
+    };
+
+    document.getElementById("durationType").addEventListener("change", function () {
+        document.getElementById("hiddenDurationType").value = this.value;
+        loadTrainingEntries(this.value);
+    });
+
+    function updateTrainingScore() {
+        let type = document.getElementById("durationType").value;
+        let scorePerEntry = scoreMapping[type] || 0;
+        let count = document.querySelectorAll(".training-entry[data-type='" + type + "']").length;
+        document.getElementById("trainingTotalScore").innerText = count * scorePerEntry;
+        validateTrainingForm();
+    }
+
+    function addTrainingEntry(type, training = null) {
+        let entry = document.createElement("div");
+        entry.classList.add("row", "training-entry");
+        entry.setAttribute("data-type", type);
+        entry.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="programme_title[]" value="${training ? training.programme_title : ''}" required>
+                <label class="active">Programme Title</label>
+            </div>
+            <div class="input-field col s12">
+                <input type="text" name="organizing_institution[]" value="${training ? training.organizing_institution : ''}" required>
+                <label class="active">Organizing Institution</label>
+            </div>
+            <div class="input-field col s12">
+                <input type="text" name="duration[]" value="${training ? training.duration : ''}" required>
+                <label class="active">Duration (No.Of Weeks)</label>
+            </div>
+            <div class="input-field col s12">
+                <select name="course_type[]" class="validate" required>
+                    <option value="" disabled ${!training ? 'selected' : ''}>Select Course Type</option>
+                    <option value="refresher_course" ${training && training.course_type === 'refresher_course' ? 'selected' : ''}>Refresher Course</option>
+                    <option value="methodology_workshop" ${training && training.course_type === 'methodology_workshop' ? 'selected' : ''}>Methodology Workshop</option>
+                    <option value="training_programme" ${training && training.course_type === 'training_programme' ? 'selected' : ''}>Training Programme</option>
+                    <option value="teaching_learning_evaluation" ${training && training.course_type === 'teaching_learning_evaluation' ? 'selected' : ''}>Teaching-Learning-Evaluation Technology Programme</option>
+                    <option value="soft_skills_development" ${training && training.course_type === 'soft_skills_development' ? 'selected' : ''}>Soft Skills Development Programme</option>
+                    <option value="faculty_development_programme" ${training && training.course_type === 'faculty_development_programme' ? 'selected' : ''}>Faculty Development Programme (FDP)</option>
+                </select>
+                <label>Course Type</label>
+            </div>
+            <div class="input-field col s6">
+                ${training && training.document ? `
+                    <a href="/${training.document}" target="_blank" class="btn blue">View Certificate</a>
+                    <input type="hidden" name="document_existing[]" value="${training.document}">
+                ` : '<input type="file" name="document[]" accept=".pdf,.jpg,.png" class="new-training-doc" required>'}
+            </div>
+            <div class="col s6">
+                <button type="button" class="btn red remove-training">Remove</button>
+            </div>
+        `;
+
+        document.getElementById("trainingEntries").appendChild(entry);
+        // Reinitialize MaterializeCSS dropdown
+        M.FormSelect.init(document.querySelectorAll("select"));
+        updateTrainingScore();
+    }
+
+    document.getElementById("addTraining").addEventListener("click", function () {
+        let type = document.getElementById("durationType").value;
+        if (!type) {
+            alert("Please select a duration type first.");
+            return;
+        }
+        addTrainingEntry(type);
+    });
+
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-training")) {
+            let entry = event.target.closest(".training-entry");
+            let type = entry.getAttribute("data-type");
+            let title = entry.querySelector("input[name='programme_title[]']").value;
+
+            if (confirm("Are you sure you want to delete this entry?")) {
+                // Send DELETE request to the backend
+                fetch('/category-3/deleteTrainingCourse', {
+                    method: 'POST', // Use POST if DELETE is not configured
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ duration_type: type, title: title })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from savedTrainingCourses (frontend)
+                        let courseData = savedTrainingCourses.find(entry => entry.duration_type === type);
+                        if (courseData) {
+                            courseData.entries = courseData.entries.filter(course => course.programme_title !== title);
+                        }
+
+                        // Remove from UI
+                        entry.remove();
+                        // Update Total Score
+                        if (typeof data.newTotalScore !== "undefined") {
+                            document.getElementById("trainingTotalScore").innerText = data.newTotalScore;
+                        }
+
+                        // Show Flash Message
+                        let flashMessage = document.getElementById("flashMessage");
+                        flashMessage.innerText = "Entry deleted successfully.";
+                        flashMessage.style.display = "block";
+
+                        setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    });
+
+    function loadTrainingEntries(durationType) {
+        document.getElementById("trainingEntries").innerHTML = "";
+        let matchedTraining = savedTrainingCourses.find(entry => entry.duration_type === durationType);
+
+        if (durationType && matchedTraining && matchedTraining.entries.length > 0) {
+            matchedTraining.entries.forEach(training => addTrainingEntry(durationType, training));
+        } else if (durationType) {
+            addTrainingEntry(durationType);
+        }
+    }
+    document.querySelector("form").addEventListener("submit", function (event) {
+       
+        let programmeTitle = [...document.querySelectorAll("input[name='programme_title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = programmeTitle.some((name, index) => programmeTitle.indexOf(name) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Please ensure all Programme Titles  are unique.");
+            return;
+        }
+    });
+    function validateTrainingForm() {
+        let allFilled = [...document.querySelectorAll("#trainingEntries input[required], #trainingEntries select[required]")].every(input => {
+            if (input.type === "file") {
+                return input.files.length > 0 || input.closest(".training-entry").querySelector("input[name='document_existing[]']");
+            }
+            return input.value.trim() !== "";
+        });
+
+        let allCourseSelected = [...document.querySelectorAll("select[name='course_type[]']")].every(select => select.value.trim() !== "");
+        
+
+        document.getElementById("submitTrainingBtn").disabled = !(allFilled && allCourseSelected);
+    }
+
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#trainingEntries")) {
+            validateTrainingForm();
+        }
+    });
+
+
+
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#trainingEntries") && (event.target.type === "file" || event.target.tagName === "SELECT")) {
+            validateTrainingForm();
+        }
+    });
+
+   
+    document.addEventListener("change", function (event) {
+        if (event.target.closest("#trainingEntries") && event.target.name === "course_type[]") {
+            updateTrainingScore();
+        }
+    });
+</script>
