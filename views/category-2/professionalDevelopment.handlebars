@@ -1,0 +1,215 @@
+<h5>Category 2</h5><br>
+<div class="container">
+    <h6>2.3 Professional Development Activities</h6>
+    <hr>
+
+    {{#if result}}
+    {{#each result}}
+    <div class="row" id="professionalDevelopment">
+        <h6><strong>Select Activity</strong></h6>
+        <div class="row">
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if seminars}}checked{{/if}} />
+                    <span>Participation in seminars, conferences, short term, training courses, talks, lectures</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if professionalBody}}checked{{/if}} />
+                    <span>Membership in Professional Body</span>
+                </label>
+            </p>
+            {{#if professionalBody}}
+            <div class="input-field col s12" style="margin-bottom: 30px;">
+                <input type="text" value="{{professionalBodyDetails}}" disabled>
+                <label>Professional Body Details</label>
+            </div>
+            <div class="file-field input-field" style="margin-top: 30px;">
+                {{#if document}}
+                <a href="/{{document}}" target="_blank" class="btn">View Document</a>
+                {{else}}
+                <div class="btn">
+                    <span>Uploaded Document</span>
+                </div>
+                <input type="file" disabled>
+                {{/if}}
+            </div>
+            {{/if}}
+        </div>
+
+        <h6><strong>Score</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="scoreEight" id="scoreEight" 
+                    value="{{scoreEight}}" class="validate" disabled max="15">
+                <label for="scoreEight">Enter the Score (Max: 15)</label>
+            </div>
+        </div>
+
+        <a href="/category-2/professionalDevelopment/edit/{{id}}" 
+            class="btn waves-effect waves-light red center mb-2">Edit</a>
+        <a href="/users/faculty/facultyOverview" 
+            class="btn waves-effect waves-light purple center mb-2">Back to overview</a><br><br>
+        <form method="post" action="/category-2/professionalDevelopment/delete/{{id}}?_method=DELETE">
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="submit" class="btn waves-effect waves-light center red white-text" value="Delete">
+        </form>
+    </div>
+    {{/each}}
+    {{else}}
+
+    {{#if editResult}}
+    <div class="row" id="professionalDevelopment">
+        <form action="/category-2/professionalDevelopment/{{editResult.id}}?_method=PUT" method="post" class="col s12" enctype="multipart/form-data">
+            <input type="hidden" name="_method" value="PUT">
+
+            <h6><strong>Select Activity</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="seminars" {{#if editResult.seminars}}checked{{/if}} />
+                        <span>Participation in seminars, conferences, short term, training courses, talks, lectures</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="professionalBody" id="professionalBody" {{#if editResult.professionalBody}}checked{{/if}} />
+                        <span>Membership in Professional Body</span>
+                    </label>
+                </p>
+                <div id="professionalBodyDetails" class="input-field col s12" style="display: {{#if editResult.professionalBody}}block{{else}}none{{/if}}; margin-bottom: 100px;">
+                    <input type="text" name="professionalBodyDetails" value="{{editResult.professionalBodyDetails}}">
+                    <label for="professionalBodyDetails">Professional Body Details</label>
+                </div>
+                <div id="documentUpload" class="file-field input-field" style="display: {{#if editResult.professionalBody}}block{{else}}none{{/if}}; margin-top: 100px;">
+                    {{#if editResult.document}}
+                    <a href="/{{editResult.document}}" target="_blank" class="btn">View Document</a>
+                    <div class="btn">
+                        <span>Upload New Document</span>
+                        <input type="file" name="document">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text">
+                    </div>
+                    {{else}}
+                    <div class="btn">
+                        <span>Upload Document</span>
+                        <input type="file" name="document">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text">
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreEight" id="scoreEight" 
+                        value="{{editResult.scoreEight}}" class="validate" required max="15">
+                    <label for="scoreEight">Enter the Score (Max: 15)</label>
+                </div>
+            </div>
+
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit">Submit</button>
+        </form>
+    </div>
+
+    {{else}}
+
+    <div class="row" id="professionalDevelopment">
+        <form action="/category-2/professionalDevelopment" method="post" class="col s12" enctype="multipart/form-data">
+            <h6><strong>Select Activity</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="seminars" />
+                        <span>Participation in seminars, conferences, short term, training courses, talks, lectures</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="professionalBody" id="professionalBody" />
+                        <span>Membership in Professional Body</span>
+                    </label>
+                </p>
+                <div id="professionalBodyDetails" class="input-field col s12" style="display: none; margin-bottom: 100px;">
+                    <input type="text" name="professionalBodyDetails">
+                    <label for="professionalBodyDetails">Professional Body Details</label>
+                </div>
+                <div id="documentUpload" class="file-field input-field" style="display: none; margin-top: 100px;">
+                    <div class="btn">
+                        <span>Upload Document</span>
+                        <input type="file" name="document">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text">
+                    </div>
+                </div>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreEight" id="scoreEight" 
+                        class="validate" required max="15">
+                    <label for="scoreEight">Enter the Score (Max: 15)</label>
+                </div>
+            </div>
+
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit">Submit</button>
+        </form>
+    </div>
+    {{/if}}
+    {{/if}}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const professionalBodyCheckbox = document.getElementById('professionalBody');
+        const professionalBodyDetails = document.getElementById('professionalBodyDetails');
+        const documentUpload = document.getElementById('documentUpload');
+        const scoreInput = document.getElementById('scoreEight');
+        const form = document.querySelector('form');
+
+        // Show/Hide "Professional Body" details and document upload
+        if (professionalBodyCheckbox) {
+            professionalBodyCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    professionalBodyDetails.style.display = 'block';
+                    documentUpload.style.display = 'block';
+                    professionalBodyDetails.querySelector('input').setAttribute('required', 'required');
+                } else {
+                    professionalBodyDetails.style.display = 'none';
+                    documentUpload.style.display = 'none';
+                    professionalBodyDetails.querySelector('input').removeAttribute('required');
+                    professionalBodyDetails.querySelector('input').value = ''; // Clear the input field
+                }
+            });
+        }
+
+        // Ensure "View Document" link is displayed if a document exists
+        if (documentUpload.querySelector('a')) {
+            documentUpload.style.display = 'block';
+        }
+
+        // Form submission validation
+        form.addEventListener('submit', function (e) {
+            // Ensure "Professional Body" details are filled if selected
+            if (professionalBodyCheckbox.checked && !professionalBodyDetails.querySelector('input').value.trim()) {
+                e.preventDefault();
+                alert('Please enter details for Professional Body.');
+                return;
+            }
+
+            // Ensure a score is entered
+            if (!scoreInput.value || scoreInput.value <= 0) {
+                e.preventDefault();
+                alert('Please enter a valid score.');
+                return;
+            }
+        });
+    });
+</script>

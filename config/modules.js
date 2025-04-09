@@ -43,6 +43,10 @@ const CocurricularActivities = mongoose.model('cocurricularactivities');
 require('../models/Category-2/CorporateLife');
 const CorporateLife = mongoose.model('corporatelife');
 
+// Load Professional Development model
+require('../models/Category-2/ProfessionalDevelopment');
+const ProfessionalDevelopment = mongoose.model('professionaldevelopment');
+
 
 
 
@@ -146,6 +150,6 @@ require('../models/Category-3/ExternalProjectsOrCompetition');
 const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_competition');
 
 module.exports = {TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
-    CocurricularActivities, CorporateLife, PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
+    CocurricularActivities, CorporateLife, ProfessionalDevelopment, PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
     ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ResearchGuidance, TrainingCourses, ConferencePapersEntry, InvitedLectures, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
 }

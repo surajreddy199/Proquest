@@ -14,6 +14,10 @@ const CocurricularActivities = mongoose.model('cocurricularactivities');
 require('../models/Category-2/CorporateLife');
 const CorporateLife = mongoose.model('corporatelife');
 
+// Load professional development model
+require('../models/Category-2/ProfessionalDevelopment');
+const ProfessionalDevelopment = mongoose.model('professionaldevelopment');
+
 
 
 
@@ -49,6 +53,24 @@ const ShortTermTraining = mongoose.model('Short-term-training');
 // Load seminars model
 require('../models/Category-2/Seminars');
 const Seminars = mongoose.model('seminars');
+
+
+
+
+
+const multer = require('multer');
+
+// Configure Multer Storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/'); // Save files to "uploads" directory
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    },
+});
+
+const upload = multer({ storage: storage });
 
 
 
@@ -102,6 +124,32 @@ router.get('/corporateLife', ensureAuthenticated, (req, res) => {
         })
 });
 
+// GET Method for Professional Development
+router.get('/professionalDevelopment', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            ProfessionalDevelopment.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('category-2/professionalDevelopment', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                });
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        });
+});
+
+
+
 
 
 
@@ -143,6 +191,23 @@ router.get('/corporateLife/edit/:id', ensureAuthenticated, (req, res) => {
             req.flash('error_msg', 'Error while finding your previous data. Please try again.');
             res.redirect('/category-2/corporateLife');
         })
+});
+
+// GET EDIT Method for Professional Development
+router.get('/professionalDevelopment/edit/:id', ensureAuthenticated, (req, res) => {
+    ProfessionalDevelopment.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/category-2/professionalDevelopment');
+            } else {
+                res.render('category-2/professionalDevelopment', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/category-2/professionalDevelopment');
+        });
 });
 
 
@@ -212,6 +277,31 @@ router.post('/corporateLife', (req, res) => {
         })
 });
 
+// POST Method for Professional Development
+router.post('/professionalDevelopment', upload.single('document'), (req, res) => {
+    const professionalDevelopmentRecords = {
+        academic_year: year,
+        seminars: req.body.seminars === "on",
+        professionalBody: req.body.professionalBody === "on",
+        professionalBodyDetails: req.body.professionalBodyDetails || '',
+        document: req.file ? req.file.path.replace(/\\/g, '/') : '', // Save file path
+        scoreEight: req.body.scoreEight,
+        user: req.user.id
+    };
+
+    new ProfessionalDevelopment(professionalDevelopmentRecords)
+        .save()
+        .then(() => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/category-2/professionalDevelopment');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/category-2/professionalDevelopment');
+        });
+});
+
 
 
 
@@ -273,6 +363,34 @@ router.put('/corporateLife/:id', (req, res) => {
         });
 });
 
+// PUT Method for Professional Development
+router.put('/professionalDevelopment/:id', upload.single('document'), (req, res) => {
+    ProfessionalDevelopment.findOne({ _id: req.params.id })
+        .then(result => {
+            result.seminars = req.body.seminars === "on";
+            result.professionalBody = req.body.professionalBody === "on";
+            result.professionalBodyDetails = req.body.professionalBodyDetails || '';
+            if (req.file) {
+                result.document = req.file.path.replace(/\\/g, '/'); // Update file path if a new file is uploaded
+            }
+            result.scoreEight = req.body.scoreEight;
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/category-2/professionalDevelopment');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/category-2/professionalDevelopment');
+                });
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/category-2/professionalDevelopment');
+        });
+});
+
 
 
 
@@ -305,6 +423,19 @@ router.delete('/corporateLife/delete/:id', (req, res) => {
             req.flash('error_msg', 'Record not deleted. Please try again.');
             res.redirect('/category-2/corporateLife');
         })
+});
+
+// DELETE Method for Professional Development
+router.delete('/professionalDevelopment/delete/:id', (req, res) => {
+    ProfessionalDevelopment.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/category-2/professionalDevelopment');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/category-2/professionalDevelopment');
+        });
 });
 
 

@@ -32,6 +32,7 @@ const { ensureAuthenticated } = require('../helpers/auth');
 
 var modules = require('../config/modules');
 const AcademicYear = require('../config/academicYear');
+const ProfessionalDevelopment = require('../models/Category-2/ProfessionalDevelopment');
 
 let facultID;
 let facultyName;
@@ -128,6 +129,7 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
 
                                 cocurricularActivitiesScore: categoryTwoScores.cocurricularActivitiesScore || 0,
                                 corporateLifeScore: categoryTwoScores.corporateLifeScore || 0,
+                                professionalDevelopmentScore: categoryTwoScores.professionalDevelopmentScore || 0,
                                 categoryTwoTotalScore: categoryTwoScores.categoryTwoTotalScore || 0,
 
                                 totalThreeOneScore: categoryThreeScores.totalThreeOneScore || 0,
@@ -449,6 +451,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
 
                                     modules.CocurricularActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.CorporateLife.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.ProfessionalDevelopment.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
 
                                    
@@ -487,12 +490,12 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         .then(([
                                             
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                                            cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                                            cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                             researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -608,6 +611,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
             modules.CocurricularActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.CorporateLife.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.ProfessionalDevelopment.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),  
 
           
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -646,7 +650,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                    cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
 
@@ -658,6 +662,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '_', evaluationAnswerScripts: '_', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
                     if (!cocurricularActivities) { cocurricularActivities = { ncc: '-', nss: '-', otherActivities: '-', otherActivitiesDetails: '-', none: '-', scoreSix: '-' } }
                     if (!corporateLife) { corporateLife = { industryInteractions: '-', academicCommittees: '-', otherContributions: '-', otherContributionsDetails: '-', scoreSeven: '-' } }
+                    if (!professionalDevelopment) { professionalDevelopment = { seminars: '-', professionalBody: '-', professionalBodyDetails: '-', document: '-', scoreEight: '-' } }
 
 
                  
@@ -800,6 +805,23 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     body: [
                                         ['Industry Interactions', 'Academic Committees', 'Other Contributions', 'Other Contributions Details', 'Score'],
                                         [corporateLife.industryInteractions, corporateLife.academicCommittees, corporateLife.otherContributions, corporateLife.otherContributionsDetails, corporateLife.scoreSeven]
+                                    ]
+                                }
+                            },
+                            { text: '2.3 Professional Development Activities', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Seminars', 'Membership in Professional Body', 'Professional Body Details', 'Document', 'Score'],
+                                        [
+                                            professionalDevelopment.seminars || '-',
+                                            professionalDevelopment.professionalBody || '-',
+                                            professionalDevelopment.professionalBodyDetails || '-',
+                                            { text: 'View Document', link: `http://localhost:5000/${professionalDevelopment.document}`, color: 'blue', target: '_blank' },
+                                            professionalDevelopment.scoreEight || '-'
+                                        ]
                                     ]
                                 }
                             },
@@ -1305,6 +1327,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
             modules.CocurricularActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.CorporateLife.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.ProfessionalDevelopment.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             
            
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1340,7 +1363,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                    cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
@@ -1352,6 +1375,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
                     if (!cocurricularActivities) { cocurricularActivities = { ncc: '-', nss: '-', otherActivities: '-', otherActivitiesDetails: '-', none: '-', scoreSix: '-' } }
                     if (!corporateLife) { corporateLife = { industryInteractions: '-', academicCommittees: '-', otherContributions: '-', otherContributionsDetails: '-', scoreSeven: '-' } }
+                    if (!professionalDevelopment) { professionalDevelopment = { seminars: '-', professionalBody: '-', professionalBodyDetails: '-', document: '-', scoreEight: '-' } }
 
 
 
@@ -1493,6 +1517,29 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                     ]
                                 }
                             },
+                            { text: '2.3 Professional Development Activities', style: 'subheader' },
+
+                            {
+                              style: 'tableExample',
+                              table: {
+                                  body: [
+                                      ['Seminars', 'Membership in Professional Body', 'Professional Body Details', 'Document', 'Score'],
+                                      [
+                                          professionalDevelopment.seminars || '-',
+                                          professionalDevelopment.professionalBody || '-',
+                                          professionalDevelopment.professionalBodyDetails || '-',
+                                          { text: 'View Document', link: `http://localhost:5000/${professionalDevelopment.document}`, color: 'blue', target: '_blank' },
+                                          professionalDevelopment.scoreEight || '-'
+                                      ]
+                                  ]
+                              }
+                            },
+
+
+                            
+
+
+
 
 
 
