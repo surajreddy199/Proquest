@@ -843,90 +843,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
 
 
-                            { text: '2.1 Papers Published In National Conference', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Title of Paper', 'Month/Year', 'Name of Conference', 'ISBN/ISSN Number', 'Name of co-authors', 'Impact Factor of Conference', 'No. of citations ', 'Rating', 'Online Link'],
-                                        [papersPublishedNationalConf.title_of_paper_published, papersPublishedNationalConf.published_date, papersPublishedNationalConf.name_of_conference, papersPublishedNationalConf.isbn_issn_number, papersPublishedNationalConf.name_of_coauthor, papersPublishedNationalConf.impact_factor, papersPublishedNationalConf.no_of_citations, papersPublishedNationalConf.rating, papersPublishedNationalConf.link]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.2 Papers Published In International Conference', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Title of Paper', 'Month/Year', 'Name of Conference', 'ISBN/ISSN Number', 'Name of co-authors', 'Impact Factor of Conference', 'No. of citations ', 'Rating', 'Online Link'],
-                                        [papersPublishedInternationalConf.title_of_paper_published, papersPublishedInternationalConf.published_date, papersPublishedInternationalConf.name_of_conference, papersPublishedInternationalConf.isbn_issn_number, papersPublishedInternationalConf.name_of_coauthor, papersPublishedInternationalConf.impact_factor, papersPublishedInternationalConf.no_of_citations, papersPublishedInternationalConf.rating, papersPublishedInternationalConf.link]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.3 Papers Published In Journals', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Title of Paper', 'Month/Year', 'Name of Conference', 'ISBN/ISSN Number', 'Name of co-authors', 'Impact Factor of Conference', 'No. of citations ', 'Rating', 'Online Link'],
-                                        [papersPublishedJournals.title_of_paper_published, papersPublishedJournals.published_date, papersPublishedJournals.name_of_conference, papersPublishedJournals.isbn_issn_number, papersPublishedJournals.name_of_coauthor, papersPublishedJournals.impact_factor, papersPublishedJournals.no_of_citations, papersPublishedJournals.rating,
-                                        papersPublishedJournals.link]
-                                    ]
-                                }
-                            },
-
-                            { text: '2.4 MOOCS', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of courses', 'Month/Year', 'Duration(hrs)', 'Certification Completed?'],
-                                        [moocs.name_of_moocs_undertaken, moocs.moocs_date, moocs.moocs_duartion, moocs.certification_status]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.5 Swayam', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of courses', 'Month/Year', 'Duration(hrs)', 'Certification Completed?'],
-                                        [swayam.name_of_swayam_undertaken, swayam.swayam_date, swayam.swayam_duartion, swayam.certification_status]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.6 Short-Term Traning', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of STTPs Conducted', 'Techonology', 'Duration(months)', 'Start Date', 'End Date', 'Internal/External', 'Name of Institute where atteneded '],
-                                        [shortTermTraining.short_term_training, shortTermTraining.techonology, shortTermTraining.duration_of_course, shortTermTraining.start_date, shortTermTraining.end_date, shortTermTraining.internal_external, shortTermTraining.name_of_institue]
-                                    ]
-                                }
-                            },
-
-                            { text: '2.7 Seminars', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of Seminar', 'Techonology', 'Duration(months)', 'Start Date', 'End Date', 'Internal/External', 'Name of Institute where atteneded '],
-                                        [seminars.name_of_seminar, seminars.techonology, seminars.duration_of_course, seminars.start_date, seminars.end_date, seminars.internal_external, seminars.name_of_institue]
-                                    ]
-                                }
-                            },
+                            
                             { text: 'Category-3', style: 'subheader' },
                             
                             { text: ' 3.1 Research Papers Published', style: 'subheader' },
@@ -1198,54 +1115,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
                             
 
-                            { text: '  3.2 Contribution To Syllabus Framing', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Role', 'Name of University', 'Other Details'],
-                                        [contributionToSyllabus.nameofSub, contributionToSyllabus.role, contributionToSyllabus.nameofUniversity, contributionToSyllabus.otherDetails]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 3.3 Member Of University Committe', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of Committee', 'Roles and Responsibility', 'Designation'],
-                                        [memberOfUniversityCommitte.nameofCommittee, memberOfUniversityCommitte.rolesAndResponsibility, memberOfUniversityCommitte.designation]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 3.4 Consultancy Assignment', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Roles and Responsibility', 'Type of Work/Domain', 'Organization', 'Duration', 'No. of visits'],
-                                        [consultancyAssignment.rolesAndResponsilbilty, consultancyAssignment.typeOfWorkorDomain, consultancyAssignment.organization, consultancyAssignment.duration, consultancyAssignment.numberofVisits]
-                                    ]
-                                }
-                            },
-
-
-                            { text: ' 3.5.1 External Projects Or Competitions Participations', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Description', 'Contribution', 'University', 'Duration', 'Comments'],
-                                        [externalProjectsOrCompetition.description, externalProjectsOrCompetition.contribution, externalProjectsOrCompetition.university, externalProjectsOrCompetition.duration, externalProjectsOrCompetition.comments]
-                                    ]
-                                }
-                            },
+                            
 
                         ],
                         styles: {
@@ -1543,90 +1413,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
 
 
-                            { text: '2.1 Papers Published In National Conference', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Title of Paper', 'Month/Year', 'Name of Conference', 'ISBN/ISSN Number', 'Name of co-authors', 'Impact Factor of Conference', 'No. of citations ', 'Rating', 'Online Link'],
-                                        [papersPublishedNationalConf.title_of_paper_published, papersPublishedNationalConf.published_date, papersPublishedNationalConf.name_of_conference, papersPublishedNationalConf.isbn_issn_number, papersPublishedNationalConf.name_of_coauthor, papersPublishedNationalConf.impact_factor, papersPublishedNationalConf.no_of_citations, papersPublishedNationalConf.rating, papersPublishedNationalConf.link]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.2 Papers Published In International Conference', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Title of Paper', 'Month/Year', 'Name of Conference', 'ISBN/ISSN Number', 'Name of co-authors', 'Impact Factor of Conference', 'No. of citations ', 'Rating', 'Online Link'],
-                                        [papersPublishedInternationalConf.title_of_paper_published, papersPublishedInternationalConf.published_date, papersPublishedInternationalConf.name_of_conference, papersPublishedInternationalConf.isbn_issn_number, papersPublishedInternationalConf.name_of_coauthor, papersPublishedInternationalConf.impact_factor, papersPublishedInternationalConf.no_of_citations, papersPublishedInternationalConf.rating, papersPublishedInternationalConf.link]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.3 Papers Published In Journals', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Title of Paper', 'Month/Year', 'Name of Conference', 'ISBN/ISSN Number', 'Name of co-authors', 'Impact Factor of Conference', 'No. of citations ', 'Rating', 'Online Link'],
-                                        [papersPublishedJournals.title_of_paper_published, papersPublishedJournals.published_date, papersPublishedJournals.name_of_conference, papersPublishedJournals.isbn_issn_number, papersPublishedJournals.name_of_coauthor, papersPublishedJournals.impact_factor, papersPublishedJournals.no_of_citations, papersPublishedJournals.rating,
-                                        papersPublishedJournals.link]
-                                    ]
-                                }
-                            },
-
-                            { text: '2.4 MOOCS', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of courses', 'Month/Year', 'Duration(hrs)', 'Certification Completed?'],
-                                        [moocs.name_of_moocs_undertaken, moocs.moocs_date, moocs.moocs_duartion, moocs.certification_status]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.5 Swayam', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of courses', 'Month/Year', 'Duration(hrs)', 'Certification Completed?'],
-                                        [swayam.name_of_swayam_undertaken, swayam.swayam_date, swayam.swayam_duartion, swayam.certification_status]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 2.6 Short-Term Traning', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of STTPs Conducted', 'Techonology', 'Duration(months)', 'Start Date', 'End Date', 'Internal/External', 'Name of Institute where atteneded '],
-                                        [shortTermTraining.short_term_training, shortTermTraining.techonology, shortTermTraining.duration_of_course, shortTermTraining.start_date, shortTermTraining.end_date, shortTermTraining.internal_external, shortTermTraining.name_of_institue]
-                                    ]
-                                }
-                            },
-
-                            { text: '2.7 Seminars', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of Seminar', 'Techonology', 'Duration(months)', 'Start Date', 'End Date', 'Internal/External', 'Name of Institute where atteneded '],
-                                        [seminars.name_of_seminar, seminars.techonology, seminars.duration_of_course, seminars.start_date, seminars.end_date, seminars.internal_external, seminars.name_of_institue]
-                                    ]
-                                }
-                            },
+                            
                             { text: 'Category-3', style: 'subheader' },
 
                             { text: ' 3.1 Research Papers Published', style: 'subheader' },
@@ -1891,54 +1678,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                             
                             
 
-                            { text: '  3.2 Contribution To Syllabus Framing', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Subject Name', 'Role', 'Name of University', 'Other Details'],
-                                        [contributionToSyllabus.nameofSub, contributionToSyllabus.role, contributionToSyllabus.nameofUniversity, contributionToSyllabus.otherDetails]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 3.3 Member Of University Committe', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Name of Committee', 'Roles and Responsibility', 'Designation'],
-                                        [memberOfUniversityCommitte.nameofCommittee, memberOfUniversityCommitte.rolesAndResponsibility, memberOfUniversityCommitte.designation]
-                                    ]
-                                }
-                            },
-
-                            { text: ' 3.4 Consultancy Assignment', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Roles and Responsibility', 'Type of Work/Domain', 'Organization', 'Duration', 'No. of visits'],
-                                        [consultancyAssignment.rolesAndResponsilbilty, consultancyAssignment.typeOfWorkorDomain, consultancyAssignment.organization, consultancyAssignment.duration, consultancyAssignment.numberofVisits]
-                                    ]
-                                }
-                            },
-
-
-                            { text: ' 3.5.1 External Projects Or Competitions Participations', style: 'subheader' },
-
-                            {
-                                style: 'tableExample',
-                                table: {
-                                    body: [
-                                        ['Description', 'Contribution', 'University', 'Duration', 'Comments'],
-                                        [externalProjectsOrCompetition.description, externalProjectsOrCompetition.contribution, externalProjectsOrCompetition.university, externalProjectsOrCompetition.duration, externalProjectsOrCompetition.comments]
-                                    ]
-                                }
-                            },
+                            
 
                         ],
                         styles: {
