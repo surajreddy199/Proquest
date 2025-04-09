@@ -1,0 +1,283 @@
+<h5>Category 2</h5><br>
+<div class="container">
+    <h6>2.1 Co-Curricular and Extra Activities</h6>
+    <hr>
+
+    {{#if result}}
+    {{#each result}}
+    <div class="row" id="cocurricularActivities">
+        <h6><strong>Select Activity</strong></h6>
+        <div class="row">
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if ncc}}checked{{/if}} />
+                    <span>NCC</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if nss}}checked{{/if}} />
+                    <span>NSS</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if otherActivities}}checked{{/if}} />
+                    <span>Other Activities</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if none}}checked{{/if}} />
+                    <span>None</span>
+                </label>
+            </p>
+            {{#if otherActivities}}
+            <div class="input-field col s12">
+                <input type="text" value="{{otherActivitiesDetails}}" disabled>
+                <label>Other Activities Details</label>
+            </div>
+            {{/if}}
+        </div>
+
+        <h6><strong>Score</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="scoreSix" id="scoreSix" 
+                    value="{{scoreSix}}" class="validate" disabled max="20">
+                <label for="scoreSix">Enter the Score (Max: 20)</label>
+            </div>
+            <div class="input-field col s6">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                    Help <i class="material-icons right">help_outline</i>
+                </a>
+            </div>
+        </div>
+
+        <a href="/category-2/cocurricularActivities/edit/{{id}}" 
+            class="btn waves-effect waves-light red center mb-2">Edit</a>
+        <a href="/users/faculty/facultyOverview" 
+            class="btn waves-effect waves-light purple center mb-2">Back to overview</a><br><br>
+        <form method="post" action="/category-2/cocurricularActivities/delete/{{id}}?_method=DELETE">
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="submit" class="btn waves-effect waves-light center red white-text" value="Delete">
+        </form>
+    </div>
+    {{/each}}
+    {{else}}
+
+    {{#if editResult}}
+    <div class="row" id="cocurricularActivities">
+        <form action="/category-2/cocurricularActivities/{{editResult.id}}?_method=PUT" method="post" class="col s12">
+            <input type="hidden" name="_method" value="PUT">
+
+            <h6><strong>Select Activity</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="ncc" {{#if editResult.ncc}}checked{{/if}} />
+                        <span>NCC</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="nss" {{#if editResult.nss}}checked{{/if}} />
+                        <span>NSS</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="otherActivities" id="otherActivities" {{#if editResult.otherActivities}}checked{{/if}} />
+                        <span>Other Activities</span>
+                    </label>
+                </p>
+                <div id="otherActivitiesDetails" class="input-field col s12" style="display: none;">
+                    <input type="text" name="otherActivitiesDetails" value="{{editResult.otherActivitiesDetails}}">
+                    <label for="otherActivitiesDetails">Other Activities Details</label>
+                </div>
+                <p>
+                    <label>
+                        <input type="checkbox" name="none" id="none" {{#if editResult.none}}checked{{/if}} />
+                        <span>None</span>
+                    </label>
+                </p>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreSix" id="scoreSix" 
+                        value="{{editResult.scoreSix}}" class="validate" required max="20">
+                    <label for="scoreSix">Enter the Score (Max: 20)</label>
+                </div>
+                <div class="input-field col s6">
+                    <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                        Help <i class="material-icons right">help_outline</i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p>
+                    <label>
+                        <input id="indeterminate-checkbox" type="checkbox" required />
+                        <span>I acknowledge that the above-filled information is verified and justified by me.</span>
+                    </label>
+                </p>
+            </div>
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit</button>
+        </form>
+    </div>
+
+    {{else}}
+
+    <div class="row" id="cocurricularActivities">
+        <form action="/category-2/cocurricularActivities" method="post" class="col s12">
+            <h6><strong>Select Activity</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="ncc" />
+                        <span>NCC</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="nss" />
+                        <span>NSS</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="otherActivities" id="otherActivities" />
+                        <span>Other Activities</span>
+                    </label>
+                </p>
+                <div id="otherActivitiesDetails" class="input-field col s12" style="display: none;">
+                    <input type="text" name="otherActivitiesDetails">
+                    <label for="otherActivitiesDetails">Other Activities Details</label>
+                </div>
+                <p>
+                    <label>
+                        <input type="checkbox" name="none" id="none" />
+                        <span>None</span>
+                    </label>
+                </p>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreSix" id="scoreSix" 
+                        class="validate" required max="20">
+                    <label for="scoreSix">Enter the Score (Max: 20)</label>
+                </div>
+                <div class="input-field col s6">
+                    <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                        Help <i class="material-icons right">help_outline</i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p>
+                    <label>
+                        <input id="indeterminate-checkbox" type="checkbox" required />
+                        <span>I acknowledge that the above-filled information is verified and justified by me.</span>
+                    </label>
+                </p>
+            </div>
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit</button>
+        </form>
+    </div>
+    {{/if}}
+    {{/if}}
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const otherActivitiesCheckbox = document.getElementById('otherActivities');
+        const otherActivitiesDetails = document.getElementById('otherActivitiesDetails');
+        const noneCheckbox = document.getElementById('none');
+        const scoreInput = document.getElementById('scoreSix');
+        const form = document.querySelector('form');
+        const activityCheckboxes = document.querySelectorAll('input[type="checkbox"]:not(#none):not(#indeterminate-checkbox)'); // All activity checkboxes except "None" and acknowledgment checkbox
+        const acknowledgmentCheckbox = document.getElementById('indeterminate-checkbox');
+
+        // Show/Hide "Other Activities" details
+        if (otherActivitiesCheckbox) {
+            otherActivitiesCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    otherActivitiesDetails.style.display = 'block';
+                    otherActivitiesDetails.querySelector('input').setAttribute('required', 'required');
+                } else {
+                    otherActivitiesDetails.style.display = 'none';
+                    otherActivitiesDetails.querySelector('input').removeAttribute('required');
+                    otherActivitiesDetails.querySelector('input').value = ''; // Clear the input field
+                }
+            });
+        }
+
+        // Handle "None" checkbox logic
+        if (noneCheckbox) {
+            noneCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    activityCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    scoreInput.disabled = true;
+                    scoreInput.value = ''; // Clear the score input
+                    otherActivitiesDetails.style.display = 'none';
+                    otherActivitiesDetails.querySelector('input').removeAttribute('required');
+                    otherActivitiesDetails.querySelector('input').value = ''; // Clear the input field
+                } else {
+                    scoreInput.disabled = false;
+                }
+            });
+        }
+
+        // Uncheck "None" if any other checkbox is selected
+        activityCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                if (this.checked && noneCheckbox.checked) {
+                    noneCheckbox.checked = false;
+                    scoreInput.disabled = false;
+                }
+            });
+        });
+
+        // Form submission validation
+        form.addEventListener('submit', function (e) {
+            // Check if at least one activity checkbox is selected
+            const isAnyActivitySelected = Array.from(activityCheckboxes).some(checkbox => checkbox.checked);
+
+            if (!isAnyActivitySelected && !noneCheckbox.checked) {
+                e.preventDefault();
+                alert('Please select at least one activity or choose "None".');
+                return;
+            }
+
+            // Ensure "Other Activities" details are filled if selected
+            if (otherActivitiesCheckbox.checked && !otherActivitiesDetails.querySelector('input').value.trim()) {
+                e.preventDefault();
+                alert('Please enter details for Other Activities.');
+                return;
+            }
+
+            // Ensure a score is entered if "None" is not selected
+            if (!noneCheckbox.checked && (!scoreInput.value || scoreInput.value <= 0)) {
+                e.preventDefault();
+                alert('Please enter a valid score.');
+                return;
+            }
+
+            // Ensure acknowledgment checkbox is checked
+            if (!acknowledgmentCheckbox.checked) {
+                e.preventDefault();
+                alert('Please acknowledge that the information is verified and justified.');
+                return;
+            }
+        });
+    });
+</script>

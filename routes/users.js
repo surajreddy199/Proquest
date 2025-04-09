@@ -7,6 +7,9 @@ const pdfMake = require('pdfmake/build/pdfmake.js');
 const pdfFonts = require('pdfmake/build/vfs_fonts.js');
 const { calculateCategoryOneTotalScore } = require('../utils/categoryOne');
 const { calculateCategoryThreeTotalScore } = require('../utils/categoryThree');
+const { calculateCategoryTwoTotalScore } = require('../utils/categoryTwo');
+
+
 
 const { groupJournalsByPublicationType } = require('../utils/grouping');
 const { groupBooksChaptersByPublicationType } = require('../utils/grouping');
@@ -110,33 +113,38 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                     return calculateCategoryOneTotalScore(req.user.id, year);
                 })
                 .then(scores => {
-                    // Use the utility function to calculate Category 3 total score
-                    return calculateCategoryThreeTotalScore(req.user.id, year).then(categoryThreeScores => {
-                    
-                    
-                    res.render('users/faculty/facultyOverview', {
-                        finalResult,
-                        teachingContributionScore: scores.teachingContributionScore || 0,
-                        lecturesExcessScore: scores.lecturesExcessScore || 0,
-                        additionalResourcesScore: scores.additionalResourcesScore || 0,
-                        innovativeTeachingScore: scores.innovativeTeachingScore || 0,
-                        examinationDutiesScore: scores.examinationDutiesScore || 0,
-                        categoryOneTotalScore: scores.categoryOneTotalScore || 0,
-                        totalThreeOneScore: categoryThreeScores.totalThreeOneScore || 0,
-                        totalThreeTwoScore: categoryThreeScores.totalThreeTwoScore || 0,
-                        totalThreeThreeOneScore: categoryThreeScores.totalThreeThreeOneScore || 0,
-                        totalThreeThreeTwoScore: categoryThreeScores.totalThreeThreeTwoScore || 0,
-                        totalThreeThreeThreeScore: categoryThreeScores.totalThreeThreeThreeScore || 0,
-                        totalThreeThreeFourScore: categoryThreeScores.totalThreeThreeFourScore || 0,
-                        totalThreeFourScore: categoryThreeScores.totalThreeFourScore || 0,
-                        totalThreeFiveOneScore: categoryThreeScores.totalThreeFiveOneScore || 0,
-                        totalThreeFiveTwoScore: categoryThreeScores.totalThreeFiveTwoScore || 0,
-                        totalThreeFiveThreeScore: categoryThreeScores.totalThreeFiveThreeScore || 0,
-                        categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
-                        year
+                    // Use the utility function to calculate Category 2 total score
+                    return calculateCategoryTwoTotalScore(req.user.id, year).then(categoryTwoScores => {
+                        // Use the utility function to calculate Category 3 total score
+                        return calculateCategoryThreeTotalScore(req.user.id, year).then(categoryThreeScores => {
+                            res.render('users/faculty/facultyOverview', {
+                                finalResult,
+                                teachingContributionScore: scores.teachingContributionScore || 0,
+                                lecturesExcessScore: scores.lecturesExcessScore || 0,
+                                additionalResourcesScore: scores.additionalResourcesScore || 0,
+                                innovativeTeachingScore: scores.innovativeTeachingScore || 0,
+                                examinationDutiesScore: scores.examinationDutiesScore || 0,
+                                categoryOneTotalScore: scores.categoryOneTotalScore || 0,
+
+                                cocurricularActivitiesScore: categoryTwoScores.cocurricularActivitiesScore || 0,
+                                categoryTwoTotalScore: categoryTwoScores.categoryTwoTotalScore || 0,
+
+                                totalThreeOneScore: categoryThreeScores.totalThreeOneScore || 0,
+                                totalThreeTwoScore: categoryThreeScores.totalThreeTwoScore || 0,
+                                totalThreeThreeOneScore: categoryThreeScores.totalThreeThreeOneScore || 0,
+                                totalThreeThreeTwoScore: categoryThreeScores.totalThreeThreeTwoScore || 0,
+                                totalThreeThreeThreeScore: categoryThreeScores.totalThreeThreeThreeScore || 0,
+                                totalThreeThreeFourScore: categoryThreeScores.totalThreeThreeFourScore || 0,
+                                totalThreeFourScore: categoryThreeScores.totalThreeFourScore || 0,
+                                totalThreeFiveOneScore: categoryThreeScores.totalThreeFiveOneScore || 0,
+                                totalThreeFiveTwoScore: categoryThreeScores.totalThreeFiveTwoScore || 0,
+                                totalThreeFiveThreeScore: categoryThreeScores.totalThreeFiveThreeScore || 0,
+                                categoryThreeTotalScore: categoryThreeScores.categoryThreeTotalScore || 0,
+                                year
+                            });
+                        });
                     });
                 });
-            });
         })
         .catch(err => {
             console.error(err);
@@ -438,6 +446,9 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     modules.ExaminationDuties.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
 
+                                    modules.CocurricularActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+
+
                                    
                                     modules.PapersPublishedNationalConf.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -474,12 +485,12 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         .then(([
                                             
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                                            papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                                            cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                             researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -511,18 +522,10 @@ router.post('/management/login',
 router.post('/faculty/facultyOverview/:year', async (req, res) => {
     let errors = [];
 
-    // Validate inputs
-    
-    
-    if (!req.body.category_2 || req.body.category_2 > 40 || req.body.category_2 < 0) {
-        errors.push({ text: 'Please enter marks between 0 to 40 for Cat 02' });
-    }
-    
-
-
     try {
         const year = req.params.year;
         const scores = await calculateCategoryOneTotalScore(req.user.id, year);
+        const categoryTwoScores = await calculateCategoryTwoTotalScore(req.user.id, year);
         const categoryThreeScores = await calculateCategoryThreeTotalScore(req.user.id, year);
 
 
@@ -531,19 +534,24 @@ router.post('/faculty/facultyOverview/:year', async (req, res) => {
                 text: `Category 1 total score must be at least 75. Current score: ${scores.categoryOneTotalScore}`
             });
         }
+        if (categoryTwoScores.categoryTwoTotalScore < 15) {
+            errors.push({
+                text: `Category 2 total score must be at least 15. Current score: ${categoryTwoScores.categoryTwoTotalScore}`
+            });
+        }
 
         if (errors.length > 0) {
             res.render('users/faculty/facultyOverview', {
                 errors,
                 ...scores,
-                category_2: req.body.category_2,
+                ...categoryTwoScores,
                 ...categoryThreeScores
             });
         } else {
             const marks = {
                 academic_year: year,
                 category_1: scores.categoryOneTotalScore,
-                category_2: req.body.category_2,
+                category_2: categoryTwoScores.categoryTwoTotalScore,
                 category_3: categoryThreeScores.categoryThreeTotalScore,
                 user: req.user.id
             };
@@ -594,6 +602,10 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.InnovativeTeaching.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ExaminationDuties.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
+
+
+            modules.CocurricularActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+
           
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -631,7 +643,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                    cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
 
@@ -641,6 +653,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '_', evaluationAnswerScripts: '_', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
+                    if (!cocurricularActivities) { cocurricularActivities = { ncc: '-', nss: '-', otherActivities: '-', otherActivitiesDetails: '-', none: '-', scoreSix: '-' } }
 
                  
                     if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
@@ -763,6 +776,35 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             
 
                             { text: 'Category-2', style: 'subheader' },
+                            { text: '2.1 Co-Curricular and Extra Activities', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['NCC', 'NSS', 'Other Activities', 'Other Activities Details', 'None', 'Score'],
+                                        [cocurricularActivities.ncc, cocurricularActivities.nss, cocurricularActivities.otherActivities, cocurricularActivities.otherActivitiesDetails, cocurricularActivities.none, cocurricularActivities.scoreSix]
+                                    ]
+                                }
+                            },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                             { text: '2.1 Papers Published In National Conference', style: 'subheader' },
 
                             {
@@ -1239,6 +1281,13 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
             modules.AdditionalResources.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.InnovativeTeaching.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ExaminationDuties.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+
+
+
+
+
+
+            modules.CocurricularActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             
            
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1274,7 +1323,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                    cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
@@ -1282,6 +1331,9 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '-', evaluationAnswerScripts: '-', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
+
+
+                    if (!cocurricularActivities) { cocurricularActivities = { ncc: '-', nss: '-', otherActivities: '-', otherActivitiesDetails: '-', none: '-', scoreSix: '-' } }
 
 
                     if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
@@ -1400,6 +1452,20 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                            
 
                             { text: 'Category-2', style: 'subheader' },
+                            { text: '2.1 Co-Curricular and Extra Activities', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['NCC', 'NSS', 'Other Activities', 'Other Activities Details', 'None', 'Score'],
+                                        [cocurricularActivities.ncc, cocurricularActivities.nss, cocurricularActivities.otherActivities, cocurricularActivities.otherActivitiesDetails, cocurricularActivities.none, cocurricularActivities.scoreSix]
+                                    ]
+                                }
+                            },
+
+
+
                             { text: '2.1 Papers Published In National Conference', style: 'subheader' },
 
                             {

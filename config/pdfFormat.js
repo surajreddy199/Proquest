@@ -7,6 +7,9 @@ const modules = require('./modules');
     modules.InnovativeTeaching.findOne({ user: req.user.id }).exec(),
     modules.ExaminationDuties.findOne({ user: req.user.id }).exec(),
 
+
+    modules.CocurricularActivities.findOne({ user: req.user.id }).exec(),
+
    
 
     modules.PapersPublishedNationalConf.findOne({ user: req.user.id }).exec(),

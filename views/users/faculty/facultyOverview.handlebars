@@ -136,14 +136,44 @@
 
     <li id="overview">
         <div class="collapsible-header"><i class="material-icons">book</i><b>Category 2</b>
-            <div class="right inline col s12 m4 l2">
-                <input id="score_inline" placeholder="Score ( /40)" value="{{category_2}}" disabled name="category_2"
-                    type="number" class="validate">
+            <div class="right inline col s12 m4 l2" style="text-align: right;">
+                <span style="font-weight: bold; font-size: 16px; display: inline-block; border-bottom: 1px solid black; padding-bottom: 2px;">
+                    Total Score ({{category_2}} / 30)
+                </span>
+                <input id="score_inline" value="{{categoryTwoTotalScore}}" name="categoryTwoTotalScore"
+                    type="number" class="validate" disabled style="display: none;">
             </div>
             <br><br><br>
         </div>
         <div class="collapsible-body">
             <ul class="collection">
+                <li class="collection-item">
+                    <p>
+                        <div>
+                            {{#if ../cocurricularActivitiesScore}}
+                            <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                            {{else}}
+                            <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                            {{/if}}
+                            <span>2.1 Co-Curricular and Extra Activities</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{../cocurricularActivitiesScore}}</strong>
+
+                            <div class="right">
+                                <a class="btn-small" href="/category-2/cocurricularActivities"
+                                    style="background-color: purple;">View</a>
+                            </div>
+                        </div>
+                    </p>
+                </li>
+
+
+
+
+
+
+
+
+
+
                 <li class="collection-item">
                     <p>
                         <div>
@@ -652,14 +682,46 @@
 
         <li id="overview">
             <div class="collapsible-header"><i class="material-icons">book</i><b>Category 2</b>
-                <div class="right inline col s12 m4 l2">
-                    <input id="score_inline" placeholder="Score ( /40)" name="category_2" type="number"
-                        class="validate">
+                <div class="right inline col s12 m4 l2" style="text-align: right;">
+                    <span style="font-weight: bold; font-size: 16px; display: inline-block; border-bottom: 1px solid black; padding-bottom: 2px;">
+                        Total Score ({{categoryTwoTotalScore}} / 30)
+                    </span>
+                    <input id="score_inline" value="{{categoryTwoTotalScore}}" name="categoryTwoTotalScore"
+                        type="number" class="validate" disabled style="display: none;">
                 </div>
                 <br><br><br>
             </div>
             <div class="collapsible-body">
                 <ul class="collection">
+                    <li class="collection-item">
+                        <p>
+                            <div>
+                                {{#if cocurricularActivitiesScore}}
+                                <i class="fa fa-check green-text fa-lg" aria-hidden="true"></i>
+                                {{else}}
+                                <i class="fa fa-times red-text fa-lg" aria-hidden="true"></i>
+                                {{/if}}
+                                <span>2.1 Co-Curricular and Extra Activities</span> &nbsp;&nbsp;&nbsp; <strong>Score: {{cocurricularActivitiesScore}}</strong>
+
+                                <div class="right">
+                                    <a class="btn-small" href="/category-2/cocurricularActivities"
+                                        style="background-color: purple;">View</a>
+                                </div>
+                            </div>
+                        </p>
+                    </li>
+
+
+
+
+
+
+
+
+
+
+
+
                     <li class="collection-item">
                         <p>
                             <div>

@@ -6,6 +6,17 @@ const AcademicYear = require('../config/academicYear');
 
 let year;
 
+// Load co-curricular activities model
+require('../models/Category-2/CocurricularActivities');
+const CocurricularActivities = mongoose.model('cocurricularactivities');
+
+
+
+
+
+
+
+
 // Load paper published in national conference model
 require('../models/Category-2/PapersPublishedNationalConf');
 const PapersPublishedNationalConf = mongoose.model('paper-published-national-conf');
@@ -33,6 +44,175 @@ const ShortTermTraining = mongoose.model('Short-term-training');
 // Load seminars model
 require('../models/Category-2/Seminars');
 const Seminars = mongoose.model('seminars');
+
+
+
+//GET Methods
+
+// Load Co-Curricular Activities Route New Added
+router.get('/cocurricularActivities', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            CocurricularActivities.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('category-2/cocurricularActivities', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        })
+});
+
+
+
+
+
+
+//GET EDIT Methods
+
+// Co-Curricular Activities Edit Route New Added
+router.get('/cocurricularActivities/edit/:id', ensureAuthenticated, (req, res) => {
+    CocurricularActivities.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/category-2/cocurricularActivities');
+            } else {
+                res.render('category-2/cocurricularActivities', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/category-2/cocurricularActivities');
+        })
+});
+
+
+
+
+
+
+
+
+
+
+
+
+//POST Methods
+
+// Process Co-Curricular Activities form New Added
+
+router.post('/cocurricularActivities', (req, res) => {
+    const cocurricularActivitiesRecords = {
+        academic_year: year,
+        ncc: req.body.ncc === "on",
+        nss: req.body.nss === "on",
+        otherActivities: req.body.otherActivities === "on",
+        otherActivitiesDetails: req.body.otherActivitiesDetails || '',
+        none: req.body.none === "on",
+        scoreSix: req.body.scoreSix,
+        user: req.user.id
+    }
+
+    new CocurricularActivities(cocurricularActivitiesRecords)
+        .save()
+        .then(cocurricularActivities => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/category-2/cocurricularActivities');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/category-2/cocurricularActivities');
+        })
+});
+
+
+
+
+
+
+//PUT Methods
+
+// Put route Co-Curricular Activities New Added
+router.put('/cocurricularActivities/:id', (req, res) => {
+    CocurricularActivities.findOne({ _id: req.params.id })
+        .then(result => {
+            result.ncc = req.body.ncc === "on";
+            result.nss = req.body.nss === "on";
+            result.otherActivities = req.body.otherActivities === "on";
+            result.otherActivitiesDetails = req.body.otherActivitiesDetails || '';
+            result.none = req.body.none === "on";
+            result.scoreSix = req.body.scoreSix;
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/category-2/cocurricularActivities');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/category-2/cocurricularActivities');
+                });
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/category-2/cocurricularActivities');
+        });
+});
+
+
+
+
+
+//DELETE Methods
+
+// New Added DELETE route Co-Curricular Activities
+router.delete('/cocurricularActivities/delete/:id', (req, res) => {
+    CocurricularActivities.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/category-2/cocurricularActivities');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/category-2/cocurricularActivities');
+        })
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 router.get('/papersPublishedinNationalConf', ensureAuthenticated, (req, res) => {
     AcademicYear.find({ user: req.user.id })
