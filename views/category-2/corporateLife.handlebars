@@ -1,0 +1,229 @@
+<h5>Category 2</h5><br>
+<div class="container">
+    <h6>2.2 Contribution to Corporate Life and Management</h6>
+    <hr>
+
+    {{#if result}}
+    {{#each result}}
+    <div class="row" id="corporateLife">
+        <h6><strong>Select Contribution</strong></h6>
+        <div class="row">
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if industryInteractions}}checked{{/if}} />
+                    <span>Industry Interactions</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if academicCommittees}}checked{{/if}} />
+                    <span>Academic Committees and Responsibilities</span>
+                </label>
+            </p>
+            <p>
+                <label>
+                    <input type="checkbox" disabled {{#if otherContributions}}checked{{/if}} />
+                    <span>Others</span>
+                </label>
+            </p>
+            {{#if otherContributions}}
+            <div class="input-field col s12">
+                <input type="text" value="{{otherContributionsDetails}}" disabled>
+                <label>Other Contributions Details</label>
+            </div>
+            {{/if}}
+        </div>
+
+        <h6><strong>Score</strong></h6>
+        <div class="row">
+            <div class="input-field col s6">
+                <input type="number" name="scoreSeven" id="scoreSeven" 
+                    value="{{scoreSeven}}" class="validate" disabled max="15">
+                <label for="scoreSeven">Enter the Score (Max: 15)</label>
+            </div>
+            <div class="input-field col s6">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                    Help <i class="material-icons right">help_outline</i>
+                </a>
+            </div>
+        </div>
+
+        <a href="/category-2/corporateLife/edit/{{id}}" 
+            class="btn waves-effect waves-light red center mb-2">Edit</a>
+        <a href="/users/faculty/facultyOverview" 
+            class="btn waves-effect waves-light purple center mb-2">Back to overview</a><br><br>
+        <form method="post" action="/category-2/corporateLife/delete/{{id}}?_method=DELETE">
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="submit" class="btn waves-effect waves-light center red white-text" value="Delete">
+        </form>
+    </div>
+    {{/each}}
+    {{else}}
+
+    {{#if editResult}}
+    <div class="row" id="corporateLife">
+        <form action="/category-2/corporateLife/{{editResult.id}}?_method=PUT" method="post" class="col s12">
+            <input type="hidden" name="_method" value="PUT">
+
+            <h6><strong>Select Contribution</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="industryInteractions" {{#if editResult.industryInteractions}}checked{{/if}} />
+                        <span>Industry Interactions</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="academicCommittees" {{#if editResult.academicCommittees}}checked{{/if}} />
+                        <span>Academic Committees and Responsibilities</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="otherContributions" id="otherContributions" {{#if editResult.otherContributions}}checked{{/if}} />
+                        <span>Others</span>
+                    </label>
+                </p>
+                <div id="otherContributionsDetails" class="input-field col s12" style="display: none;">
+                    <input type="text" name="otherContributionsDetails" value="{{editResult.otherContributionsDetails}}">
+                    <label for="otherContributionsDetails">Other Contributions Details</label>
+                </div>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreSeven" id="scoreSeven" 
+                        value="{{editResult.scoreSeven}}" class="validate" required max="15">
+                    <label for="scoreSeven">Enter the Score (Max: 15)</label>
+                </div>
+                <div class="input-field col s6">
+                    <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                        Help <i class="material-icons right">help_outline</i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p>
+                    <label>
+                        <input id="indeterminate-checkbox" type="checkbox" required />
+                        <span>I acknowledge that the above-filled information is verified and justified by me.</span>
+                    </label>
+                </p>
+            </div>
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit</button>
+        </form>
+    </div>
+
+    {{else}}
+
+    <div class="row" id="corporateLife">
+        <form action="/category-2/corporateLife" method="post" class="col s12">
+            <h6><strong>Select Contribution</strong></h6>
+            <div class="row">
+                <p>
+                    <label>
+                        <input type="checkbox" name="industryInteractions" />
+                        <span>Industry Interactions</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="academicCommittees" />
+                        <span>Academic Committees and Responsibilities</span>
+                    </label>
+                </p>
+                <p>
+                    <label>
+                        <input type="checkbox" name="otherContributions" id="otherContributions" />
+                        <span>Others</span>
+                    </label>
+                </p>
+                <div id="otherContributionsDetails" class="input-field col s12" style="display: none;">
+                    <input type="text" name="otherContributionsDetails">
+                    <label for="otherContributionsDetails">Other Contributions Details</label>
+                </div>
+            </div>
+
+            <h6><strong>Score</strong></h6>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="number" name="scoreSeven" id="scoreSeven" 
+                        class="validate" required max="15">
+                    <label for="scoreSeven">Enter the Score (Max: 15)</label>
+                </div>
+                <div class="input-field col s6">
+                    <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">
+                        Help <i class="material-icons right">help_outline</i>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <p>
+                    <label>
+                        <input id="indeterminate-checkbox" type="checkbox" required />
+                        <span>I acknowledge that the above-filled information is verified and justified by me.</span>
+                    </label>
+                </p>
+            </div>
+            <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit</button>
+        </form>
+    </div>
+    {{/if}}
+    {{/if}}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const otherContributionsCheckbox = document.getElementById('otherContributions');
+        const otherContributionsDetails = document.getElementById('otherContributionsDetails');
+        const scoreInput = document.getElementById('scoreSeven');
+        const form = document.querySelector('form');
+        const contributionCheckboxes = document.querySelectorAll('input[type="checkbox"]:not(#indeterminate-checkbox)');
+        const acknowledgmentCheckbox = document.getElementById('indeterminate-checkbox');
+
+        if (otherContributionsCheckbox) {
+            otherContributionsCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    otherContributionsDetails.style.display = 'block';
+                    otherContributionsDetails.querySelector('input').setAttribute('required', 'required');
+                } else {
+                    otherContributionsDetails.style.display = 'none';
+                    otherContributionsDetails.querySelector('input').removeAttribute('required');
+                    otherContributionsDetails.querySelector('input').value = '';
+                }
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            const isAnyContributionSelected = Array.from(contributionCheckboxes).some(checkbox => checkbox.checked);
+
+            if (!isAnyContributionSelected) {
+                e.preventDefault();
+                alert('Please select at least one contribution.');
+                return;
+            }
+
+            if (otherContributionsCheckbox.checked && !otherContributionsDetails.querySelector('input').value.trim()) {
+                e.preventDefault();
+                alert('Please enter details for Other Contributions.');
+                return;
+            }
+
+            if (!scoreInput.value || scoreInput.value <= 0) {
+                e.preventDefault();
+                alert('Please enter a valid score.');
+                return;
+            }
+
+            if (!acknowledgmentCheckbox.checked) {
+                e.preventDefault();
+                alert('Please acknowledge that the information is verified and justified.');
+                return;
+            }
+        });
+    });
+</script>

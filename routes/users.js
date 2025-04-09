@@ -127,6 +127,7 @@ router.get('/faculty/facultyOverview', ensureAuthenticated, (req, res) => {
                                 categoryOneTotalScore: scores.categoryOneTotalScore || 0,
 
                                 cocurricularActivitiesScore: categoryTwoScores.cocurricularActivitiesScore || 0,
+                                corporateLifeScore: categoryTwoScores.corporateLifeScore || 0,
                                 categoryTwoTotalScore: categoryTwoScores.categoryTwoTotalScore || 0,
 
                                 totalThreeOneScore: categoryThreeScores.totalThreeOneScore || 0,
@@ -447,6 +448,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
 
 
                                     modules.CocurricularActivities.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    modules.CorporateLife.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
 
 
                                    
@@ -485,12 +487,12 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         .then(([
                                             
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                                            cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                                            cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                                             researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -605,6 +607,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
 
             modules.CocurricularActivities.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.CorporateLife.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
           
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -643,7 +646,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                    cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
 
@@ -654,6 +657,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '_', evaluationAnswerScripts: '_', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
                     if (!cocurricularActivities) { cocurricularActivities = { ncc: '-', nss: '-', otherActivities: '-', otherActivitiesDetails: '-', none: '-', scoreSix: '-' } }
+                    if (!corporateLife) { corporateLife = { industryInteractions: '-', academicCommittees: '-', otherContributions: '-', otherContributionsDetails: '-', scoreSeven: '-' } }
+
 
                  
                     if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
@@ -784,6 +789,17 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                     body: [
                                         ['NCC', 'NSS', 'Other Activities', 'Other Activities Details', 'None', 'Score'],
                                         [cocurricularActivities.ncc, cocurricularActivities.nss, cocurricularActivities.otherActivities, cocurricularActivities.otherActivitiesDetails, cocurricularActivities.none, cocurricularActivities.scoreSix]
+                                    ]
+                                }
+                            },
+                            { text: '2.2 Contribution to Corporate Life and Management', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Industry Interactions', 'Academic Committees', 'Other Contributions', 'Other Contributions Details', 'Score'],
+                                        [corporateLife.industryInteractions, corporateLife.academicCommittees, corporateLife.otherContributions, corporateLife.otherContributionsDetails, corporateLife.scoreSeven]
                                     ]
                                 }
                             },
@@ -1288,6 +1304,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
 
             modules.CocurricularActivities.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.CorporateLife.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             
            
             modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1323,7 +1340,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    cocurricularActivities, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
+                    cocurricularActivities, corporateLife, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
                     if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
@@ -1334,6 +1351,8 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
 
                     if (!cocurricularActivities) { cocurricularActivities = { ncc: '-', nss: '-', otherActivities: '-', otherActivitiesDetails: '-', none: '-', scoreSix: '-' } }
+                    if (!corporateLife) { corporateLife = { industryInteractions: '-', academicCommittees: '-', otherContributions: '-', otherContributionsDetails: '-', scoreSeven: '-' } }
+
 
 
                     if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
@@ -1460,6 +1479,17 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                     body: [
                                         ['NCC', 'NSS', 'Other Activities', 'Other Activities Details', 'None', 'Score'],
                                         [cocurricularActivities.ncc, cocurricularActivities.nss, cocurricularActivities.otherActivities, cocurricularActivities.otherActivitiesDetails, cocurricularActivities.none, cocurricularActivities.scoreSix]
+                                    ]
+                                }
+                            },
+                            { text: '2.2 Contribution to Corporate Life and Management', style: 'subheader' },
+
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Industry Interactions', 'Academic Committees', 'Other Contributions', 'Other Contributions Details', 'Score'],
+                                        [corporateLife.industryInteractions, corporateLife.academicCommittees, corporateLife.otherContributions, corporateLife.otherContributionsDetails, corporateLife.scoreSeven]
                                     ]
                                 }
                             },

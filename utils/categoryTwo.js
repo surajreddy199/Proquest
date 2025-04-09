@@ -1,9 +1,11 @@
 const CocurricularActivities = require('../models/Category-2/CocurricularActivities');
+const CorporateLife = require('../models/Category-2/CorporateLife');
 
 async function calculateCategoryTwoTotalScore(userId, academicYear) {
     try {
-        const [cocurricularActivities] = await Promise.all([
-            CocurricularActivities.findOne({ user: userId, academic_year: academicYear }).exec()
+        const [cocurricularActivities, corporateLife] = await Promise.all([
+            CocurricularActivities.findOne({ user: userId, academic_year: academicYear }).exec(),
+            CorporateLife.findOne({ user: userId, academic_year: academicYear }).exec()
         ]);
 
         // Debugging logs
@@ -11,11 +13,13 @@ async function calculateCategoryTwoTotalScore(userId, academicYear) {
 
         // Calculate individual scores
         const cocurricularActivitiesScore = cocurricularActivities?.scoreSix || 0;
+        const corporateLifeScore = corporateLife?.scoreSeven || 0;
 
-        const categoryTwoTotalScore = cocurricularActivitiesScore;
+        const categoryTwoTotalScore = cocurricularActivitiesScore + corporateLifeScore;
 
         return {
             cocurricularActivitiesScore,
+            corporateLifeScore,
             categoryTwoTotalScore
         };
     } catch (err) {

@@ -10,6 +10,11 @@ let year;
 require('../models/Category-2/CocurricularActivities');
 const CocurricularActivities = mongoose.model('cocurricularactivities');
 
+// Load corporate life model
+require('../models/Category-2/CorporateLife');
+const CorporateLife = mongoose.model('corporatelife');
+
+
 
 
 
@@ -73,6 +78,30 @@ router.get('/cocurricularActivities', ensureAuthenticated, (req, res) => {
         })
 });
 
+// Load Corporate Life Route
+router.get('/corporateLife', ensureAuthenticated, (req, res) => {
+    AcademicYear.find({ user: req.user.id })
+        .then(result => {
+            if (!result) {
+                req.flash('error_msg', 'Select the academic year before proceeding');
+                res.redirect('/');
+            }
+            year = result[0].academic_year;
+            CorporateLife.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
+                .then(result => {
+                    res.render('category-2/corporateLife', { result });
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Error while retrieving data.');
+                    res.redirect('/');
+                })
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Select the academic year before proceeding.');
+            res.redirect('/');
+        })
+});
+
 
 
 
@@ -94,6 +123,25 @@ router.get('/cocurricularActivities/edit/:id', ensureAuthenticated, (req, res) =
         .catch(() => {
             req.flash('error_msg', 'Error while finding your previous data. Please try again.');
             res.redirect('/category-2/cocurricularActivities');
+        })
+});
+
+//GET EDIT Methods
+
+// Corporate Life Edit Route
+router.get('/corporateLife/edit/:id', ensureAuthenticated, (req, res) => {
+    CorporateLife.findOne({ _id: req.params.id })
+        .then(result => {
+            if (result.user != req.user.id) {
+                req.flash('error_msg', 'Not Authorized');
+                res.redirect('/category-2/corporateLife');
+            } else {
+                res.render('category-2/corporateLife', { editResult: result });
+            }
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
+            res.redirect('/category-2/corporateLife');
         })
 });
 
@@ -137,6 +185,34 @@ router.post('/cocurricularActivities', (req, res) => {
         })
 });
 
+//POST Methods
+
+// Process Corporate Life form
+router.post('/corporateLife', (req, res) => {
+    const corporateLifeRecords = {
+        academic_year: year,
+        industryInteractions: req.body.industryInteractions === "on",
+        academicCommittees: req.body.academicCommittees === "on",
+        otherContributions: req.body.otherContributions === "on",
+        otherContributionsDetails: req.body.otherContributionsDetails || '',
+        scoreSeven: req.body.scoreSeven,
+        user: req.user.id
+    }
+
+    new CorporateLife(corporateLifeRecords)
+        .save()
+        .then(corporateLife => {
+            req.flash('success_msg', 'Data entered successfully');
+            res.redirect('/category-2/corporateLife');
+        })
+        .catch(err => {
+            console.log(err);
+            req.flash('error_msg', 'Faculty ID not found. Please login again.');
+            res.redirect('/category-2/corporateLife');
+        })
+});
+
+
 
 
 
@@ -171,6 +247,34 @@ router.put('/cocurricularActivities/:id', (req, res) => {
         });
 });
 
+// Update Corporate Life
+router.put('/corporateLife/:id', (req, res) => {
+    CorporateLife.findOne({ _id: req.params.id })
+        .then(result => {
+            result.industryInteractions = req.body.industryInteractions === "on";
+            result.academicCommittees = req.body.academicCommittees === "on";
+            result.otherContributions = req.body.otherContributions === "on";
+            result.otherContributionsDetails = req.body.otherContributionsDetails || '';
+            result.scoreSeven = req.body.scoreSeven;
+
+            result.save()
+                .then(() => {
+                    req.flash('success_msg', 'Data updated successfully');
+                    res.redirect('/category-2/corporateLife');
+                })
+                .catch(() => {
+                    req.flash('error_msg', 'Data not updated. Please try again.');
+                    res.redirect('/category-2/corporateLife');
+                });
+        })
+        .catch(() => {
+            req.flash('error_msg', 'User not found. Please login again.');
+            res.redirect('/category-2/corporateLife');
+        });
+});
+
+
+
 
 
 
@@ -190,6 +294,18 @@ router.delete('/cocurricularActivities/delete/:id', (req, res) => {
         })
 });
 
+// Delete Corporate Life Record
+router.delete('/corporateLife/delete/:id', (req, res) => {
+    CorporateLife.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg', 'Record deleted successfully');
+            res.redirect('/category-2/corporateLife');
+        })
+        .catch(() => {
+            req.flash('error_msg', 'Record not deleted. Please try again.');
+            res.redirect('/category-2/corporateLife');
+        })
+});
 
 
 

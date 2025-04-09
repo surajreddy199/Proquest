@@ -9,6 +9,7 @@ const modules = require('./modules');
 
 
     modules.CocurricularActivities.findOne({ user: req.user.id }).exec(),
+    modules.CorporateLife.findOne({ user: req.user.id }).exec(),
 
    
 
