@@ -1,5 +1,5 @@
 <div class="navbar-fixed">
-  <nav class="purple fix">
+  <nav class="blue fix">
     <div class="container">
       <div class="nav-wrapper">
         <a href="#!" class="brand-logo">ProQuest</a>
@@ -128,7 +128,7 @@
 {{!-- side bar content for mobile view --}}
 <ul id="mobile-demo" class="sidenav">
   {{#if_eq user.type 'faculty'}}
-  <li><h4 class="center purple-text">Appraisal System</h4></li>
+  <li><h4 class="center blue-text">Appraisal System</h4></li>
   <li><a class="sideNavPadding" href="/">Home</a></li>
   
   <li class="no-padding">
@@ -234,7 +234,7 @@
   {{/if_eq}}
 
   {{#if_eq user.type 'hod'}}
-  <li><h4 class="center purple-text">Appraisal System</h4></li>
+  <li><h4 class="center blue-text">Appraisal System</h4></li>
   <li><a href="/users/hod/home">Home</a></li>
   <li><a href="/users/hod/appraisalList">Appraisal List</a></li>
   <li><a href="/users/hod/registerFaculty">Register Faculty</a></li>
@@ -244,7 +244,7 @@
   {{/if_eq}}
 
   {{#if_eq user.type 'manager'}}
-  <li><h4 class="center purple-text">Appraisal System</h4></li>
+  <li><h4 class="center blue-text">Appraisal System</h4></li>
   <li><a href="/users/management/home">Home</a></li>
   <li><a href="/users/management/registerUser" class="black-text">Register User</a></li>
   <li><a href="/users/management/viewUsers" class="black-text">View User</a></li>
@@ -254,7 +254,7 @@
   {{/if_eq}}
 
   {{#unless user}}
-  <li><h4 class="center purple-text">Appraisal System</h4></li>
+  <li><h4 class="center blue-text">Appraisal System</h4></li>
   <li><a href="/">Home</a></li>
   {{/unless}}
 </ul>
