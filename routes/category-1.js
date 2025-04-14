@@ -29,52 +29,76 @@ const ExaminationDuties = mongoose.model('examinationduties');
 
 
 // Load Teaching Contribution Route New Added
-router.get('/teachingContribution', ensureAuthenticated, (req, res) => {
-    AcademicYear.find({ user: req.user.id })
-        .then(result => {
-            if (!result) {
-                req.flash('error_msg', 'Select the academic year before proceeding');
-                res.redirect('/');
-            }
-            year = result[0].academic_year;
-            TeachingContribution.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-                .then(result => {
-                    res.render('category-1/teachingContribution', { result });
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Error while retrieving data.');
-                    res.redirect('/');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Select the academic year before proceeding.');
-            res.redirect('/');
-        })
+router.get('/teachingContribution', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        // Fetch the teaching contribution document for the current academic year
+        const teachingContribution = await TeachingContribution.findOne({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        // Extract entries and score
+        const teachingContributions = teachingContribution ? teachingContribution.entries : [];
+        const scoredOne = teachingContribution ? teachingContribution.scoredOne : 0;
+
+        res.render('category-1/teachingContribution', {
+            teachingContributions,
+            scoredOne,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching teaching contributions:", error);
+        req.flash('error_msg', 'Error fetching teaching contributions.');
+        res.redirect('/');
+    }
 });
 
+
+
+
+
 // Load Lectures Excess Route New Added
-router.get('/lecturesExcess', ensureAuthenticated, (req, res) => {
-    AcademicYear.find({ user: req.user.id })
-        .then(result => {
-            if (!result) {
-                req.flash('error_msg', 'Select the academic year before proceeding');
-                res.redirect('/');
-            }
-            year = result[0].academic_year;
-            LecturesExcess.find({ $and: [{ user: req.user.id }, { academic_year: year }] })
-                .then(result => {
-                    res.render('category-1/lecturesExcess', { result });
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Error while retrieving data.');
-                    res.redirect('/');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Select the academic year before proceeding.');
-            res.redirect('/');
-        })
+router.get('/lecturesExcess', ensureAuthenticated, async (req, res) => {
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/dashboard');
+        }
+
+        const year = academicRecord.academic_year;
+
+        // Fetch the lectures excess document for the current academic year
+        const lecturesExcess = await LecturesExcess.findOne({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        // Extract entries and score
+        const lecturesExcessEntries = lecturesExcess ? lecturesExcess.entries : [];
+        const scoredTwo = lecturesExcess ? lecturesExcess.scoredTwo : 0;
+
+        res.render('category-1/lecturesExcess', {
+            lecturesExcess: lecturesExcessEntries,
+            scoredTwo,
+            academic_year: year
+        });
+    } catch (error) {
+        console.error("Error fetching lectures excess entries:", error);
+        req.flash('error_msg', 'Error fetching lectures excess entries.');
+        res.redirect('/');
+    }
 });
+
+
 // Load Additional Resources Route New Added
 router.get('/additionalResources', ensureAuthenticated, (req, res) => {
     AcademicYear.find({ user: req.user.id })
@@ -182,38 +206,11 @@ router.get('/facultyOverview', ensureAuthenticated, async (req, res) => {
 // Load all the edit forms
 
 // Teaching Contribution Edit Route New Added
-router.get('/teachingContribution/edit/:id', ensureAuthenticated, (req, res) => {
-    TeachingContribution.findOne({ _id: req.params.id })
-        .then(result => {
-            if (result.user != req.user.id) {
-                req.flash('error_msg', 'Not Authorized');
-                res.redirect('/category-1/teachingContribution');
-            } else {
-                res.render('category-1/teachingContribution', { editResult: result });
-            }
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
-            res.redirect('/category-1/teachingContribution');
-        })
-});
+
+
 
 // Lectures Excess Edit Route New Added
-router.get('/lecturesExcess/edit/:id', ensureAuthenticated, (req, res) => {
-    LecturesExcess.findOne({ _id: req.params.id })
-        .then(result => {
-            if (result.user != req.user.id) {
-                req.flash('error_msg', 'Not Authorized');
-                res.redirect('/category-1/lecturesExcess');
-            } else {
-                res.render('category-1/lecturesExcess', { editResult: result });
-            }
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Error while finding your previous data. Please try again.');
-            res.redirect('/category-1/lecturesExcess');
-        })
-});
+
 
 // Additional Resources Edit Route New Added
 router.get('/additionalResources/edit/:id', ensureAuthenticated, (req, res) => {
@@ -273,57 +270,195 @@ router.get('/examinationDuties/edit/:id', ensureAuthenticated, (req, res) => {
 
 //router post
 
-//process Teaching Contribution form New Added
+// Process Teaching Contribution Form New Added
+router.post('/teachingContribution', async (req, res) => {
+    console.log("Form Data Received:", req.body);
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-1/teachingContribution');
+        }
 
-router.post('/teachingContribution', (req, res) => {
-    const teachingContributionRecords = {
-        academic_year: year,
-        lecturesDelivered: req.body.lecturesDelivered,
-        lecturesAllocated: req.body.lecturesAllocated,
-        tutorialsDelivered: req.body.tutorialsDelivered,
-        tutorialsAllocated: req.body.tutorialsAllocated,
-        practicalSessionsDelivered: req.body.practicalSessionsDelivered,
-        practicalSessionsAllocated: req.body.practicalSessionsAllocated,
-        scoreOne: req.body.scoreOne,
-        user: req.user.id
+        const year = academicRecord.academic_year;
+
+        // Parse array fields properly
+        const subjectNames = Array.isArray(req.body['subject_name[]']) ? req.body['subject_name[]'] : [req.body['subject_name[]']];
+        const lecturesDelivered = Array.isArray(req.body['lectures_delivered[]']) ? req.body['lectures_delivered[]'] : [req.body['lectures_delivered[]']];
+        const lecturesAllocated = Array.isArray(req.body['lectures_allocated[]']) ? req.body['lectures_allocated[]'] : [req.body['lectures_allocated[]']];
+        const tutorialsDelivered = Array.isArray(req.body['tutorials_delivered[]']) ? req.body['tutorials_delivered[]'] : [req.body['tutorials_delivered[]']];
+        const tutorialsAllocated = Array.isArray(req.body['tutorials_allocated[]']) ? req.body['tutorials_allocated[]'] : [req.body['tutorials_allocated[]']];
+        const practicalSessionsDelivered = Array.isArray(req.body['practical_sessions_delivered[]']) ? req.body['practical_sessions_delivered[]'] : [req.body['practical_sessions_delivered[]']];
+        const practicalSessionsAllocated = Array.isArray(req.body['practical_sessions_allocated[]']) ? req.body['practical_sessions_allocated[]'] : [req.body['practical_sessions_allocated[]']];
+        const scoredOne = req.body.scoredOne;
+
+        // Sanitize scoredOne
+        const sanitizedScoredOne = !Number.isNaN(parseInt(scoredOne, 10)) ? parseInt(scoredOne, 10) : 0;
+
+        // Validate scoredOne range
+        if (sanitizedScoredOne < 0 || sanitizedScoredOne > 50) {
+            req.flash('error_msg', 'The total score must be between 0 and 50.');
+            return res.redirect('/category-1/teachingContribution');
+        }
+
+        // Map the entries
+        let newEntries = subjectNames.map((subjectName, index) => ({
+            subject_name: subjectName || '-',
+            lectures_delivered: lecturesDelivered[index] ? parseInt(lecturesDelivered[index], 10) : 0,
+            lectures_allocated: lecturesAllocated[index] ? parseInt(lecturesAllocated[index], 10) : 0,
+            tutorials_delivered: tutorialsDelivered[index] ? parseInt(tutorialsDelivered[index], 10) : 0,
+            tutorials_allocated: tutorialsAllocated[index] ? parseInt(tutorialsAllocated[index], 10) : 0,
+            practical_sessions_delivered: practicalSessionsDelivered[index] ? parseInt(practicalSessionsDelivered[index], 10) : 0,
+            practical_sessions_allocated: practicalSessionsAllocated[index] ? parseInt(practicalSessionsAllocated[index], 10) : 0
+        })).filter(entry => entry.subject_name.trim() !== '-'); // Filter out empty entries
+
+        console.log("Processed Entries:", newEntries);
+
+        // Check for an existing document for the user and academic year
+        let existingDocument = await TeachingContribution.findOne({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        if (existingDocument) {
+            // Merge new entries with existing entries
+            const updatedEntries = [...existingDocument.entries];
+
+            newEntries.forEach(newEntry => {
+                const existingIndex = updatedEntries.findIndex(e => e.subject_name === newEntry.subject_name);
+                if (existingIndex !== -1) {
+                    // Update the existing entry
+                    updatedEntries[existingIndex] = { ...updatedEntries[existingIndex], ...newEntry };
+                } else {
+                    // Add the new entry
+                    updatedEntries.push(newEntry);
+                }
+            });
+
+            existingDocument.entries = updatedEntries;
+            existingDocument.scoredOne = sanitizedScoredOne; // Update the shared score
+            await existingDocument.save();
+        } else {
+            // Prevent saving if no valid entries exist
+            if (newEntries.length === 0) {
+                req.flash('error_msg', 'No valid entries to save.');
+                return res.redirect('/category-1/teachingContribution');
+            }
+
+            // Create a new document
+            await new TeachingContribution({
+                academic_year: year,
+                entries: newEntries,
+                scoredOne: sanitizedScoredOne,
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Teaching contribution details saved successfully.');
+        res.redirect('/category-1/teachingContribution');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        if (err.name === 'ValidationError') {
+            req.flash('error_msg', 'Validation error occurred. Please check your input.');
+        } else {
+            req.flash('error_msg', 'Unexpected error occurred. Please try again.');
+        }
+        res.redirect('/category-1/teachingContribution');
     }
-
-    new TeachingContribution(teachingContributionRecords)
-        .save()
-        .then(teachingContribution => {
-            req.flash('success_msg', 'Data entered successfully');
-            res.redirect('/category-1/teachingContribution');
-        })
-        .catch(err => {
-            console.log(err);
-            req.flash('error_msg', 'Faculty ID not found. Please login again.');
-            res.redirect('/category-1/teachingContribution');
-        })
 });
 
 //process Lectures Excess form New Added
 
-router.post('/lecturesExcess', (req, res) => {
-    const lecturesExcessRecords = {
-        academic_year: year,
-        lecturesTaken: req.body.lecturesTaken,
-        tutorialsTaken: req.body.tutorialsTaken,
-        practicalSessionsTaken: req.body.practicalSessionsTaken,
-        scoreTwo: req.body.scoreTwo,
-        user: req.user.id
-    }
+router.post('/lecturesExcess', async (req, res) => {
+    console.log("Form Data Received:", req.body);
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            req.flash('error_msg', 'Academic year not found for the user.');
+            return res.redirect('/category-1/lecturesExcess');
+        }
 
-    new LecturesExcess(lecturesExcessRecords)
-        .save()
-        .then(lecturesExcess => {
-            req.flash('success_msg', 'Data entered successfully');
-            res.redirect('/category-1/lecturesExcess');
-        })
-        .catch(err => {
-            console.log(err);
-            req.flash('error_msg', 'Faculty ID not found. Please login again.');
-            res.redirect('/category-1/lecturesExcess');
-        })
+        const year = academicRecord.academic_year;
+
+        // Parse array fields properly
+        const subjectNames = Array.isArray(req.body['subject_name[]']) ? req.body['subject_name[]'] : [req.body['subject_name[]']];
+        const lecturesTaken = Array.isArray(req.body['lectures_taken[]']) ? req.body['lectures_taken[]'] : [req.body['lectures_taken[]']];
+        const tutorialsTaken = Array.isArray(req.body['tutorials_taken[]']) ? req.body['tutorials_taken[]'] : [req.body['tutorials_taken[]']];
+        const practicalSessionsTaken = Array.isArray(req.body['practical_sessions_taken[]']) ? req.body['practical_sessions_taken[]'] : [req.body['practical_sessions_taken[]']];
+        const scoredTwo = req.body.scoredTwo;
+
+        // Sanitize scoredTwo
+        const sanitizedScoredTwo = !Number.isNaN(parseInt(scoredTwo, 10)) ? parseInt(scoredTwo, 10) : 0;
+
+        // Validate scoredTwo range
+        if (sanitizedScoredTwo < 0 || sanitizedScoredTwo > 10) {
+            req.flash('error_msg', 'The total score must be between 0 and 10.');
+            return res.redirect('/category-1/lecturesExcess');
+        }
+
+        // Map the entries
+        let newEntries = subjectNames.map((subjectName, index) => ({
+            subject_name: subjectName || '-',
+            lectures_taken: lecturesTaken[index] ? parseInt(lecturesTaken[index], 10) : 0,
+            tutorials_taken: tutorialsTaken[index] ? parseInt(tutorialsTaken[index], 10) : 0,
+            practical_sessions_taken: practicalSessionsTaken[index] ? parseInt(practicalSessionsTaken[index], 10) : 0
+        })).filter(entry => entry.subject_name.trim() !== '-'); // Filter out empty entries
+
+        console.log("Processed Entries:", newEntries);
+
+        // Check for an existing document for the user and academic year
+        let existingDocument = await LecturesExcess.findOne({
+            user: req.user.id,
+            academic_year: year
+        });
+
+        if (existingDocument) {
+            // Merge new entries with existing entries
+            const updatedEntries = [...existingDocument.entries];
+
+            newEntries.forEach(newEntry => {
+                const existingIndex = updatedEntries.findIndex(e => e.subject_name === newEntry.subject_name);
+                if (existingIndex !== -1) {
+                    // Update the existing entry
+                    updatedEntries[existingIndex] = { ...updatedEntries[existingIndex], ...newEntry };
+                } else {
+                    // Add the new entry
+                    updatedEntries.push(newEntry);
+                }
+            });
+
+            existingDocument.entries = updatedEntries;
+            existingDocument.scoredTwo = sanitizedScoredTwo; // Update the shared score
+            await existingDocument.save();
+        } else {
+            // Prevent saving if no valid entries exist
+            if (newEntries.length === 0) {
+                req.flash('error_msg', 'No valid entries to save.');
+                return res.redirect('/category-1/lecturesExcess');
+            }
+
+            // Create a new document
+            await new LecturesExcess({
+                academic_year: year,
+                entries: newEntries,
+                scoredTwo: sanitizedScoredTwo,
+                user: req.user.id
+            }).save();
+        }
+
+        req.flash('success_msg', 'Lectures excess details saved successfully.');
+        res.redirect('/category-1/lecturesExcess');
+
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+        if (err.name === 'ValidationError') {
+            req.flash('error_msg', 'Validation error occurred. Please check your input.');
+        } else {
+            req.flash('error_msg', 'Unexpected error occurred. Please try again.');
+        }
+        res.redirect('/category-1/lecturesExcess');
+    }
 });
 
 //process Additional Resources form New Added
@@ -406,57 +541,10 @@ router.post('/examinationDuties', (req, res) => {
 // Edit request (PUT request)
 
 // Put route teaching contribution New Added
-router.put('/teachingContribution/:id', (req, res) => {
-    TeachingContribution.findOne({ _id: req.params.id })
-        .then(result => {
-            result.lecturesDelivered = req.body.lecturesDelivered,
-                result.lecturesAllocated = req.body.lecturesAllocated,
-                result.tutorialsDelivered = req.body.tutorialsDelivered,
-                result.tutorialsAllocated = req.body.tutorialsAllocated,
-                result.practicalSessionsDelivered = req.body.practicalSessionsDelivered,
-                result.practicalSessionsAllocated = req.body.practicalSessionsAllocated,
-                result.scoreOne = req.body.scoreOne
 
-            result.save()
-                .then(() => {
-                    req.flash('success_msg', 'Data updated successfully');
-                    res.redirect('/category-1/teachingContribution');
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Data not updated. Please try again.');
-                    res.redirect('/category-1/teachingContribution');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'User not found. Please login again.');
-            res.redirect('/category-1/teachingContribution');
-        })
-});
 
 // Put route lectures excess New Added
-router.put('/lecturesExcess/:id', (req, res) => {
-    LecturesExcess.findOne({ _id: req.params.id })
-        .then(result => {
-            result.lecturesTaken = req.body.lecturesTaken,
-                result.tutorialsTaken = req.body.tutorialsTaken,
-                result.practicalSessionsTaken = req.body.practicalSessionsTaken,
-                result.scoreTwo = req.body.scoreTwo
 
-            result.save()
-                .then(() => {
-                    req.flash('success_msg', 'Data updated successfully');
-                    res.redirect('/category-1/lecturesExcess');
-                })
-                .catch(() => {
-                    req.flash('error_msg', 'Data not updated. Please try again.');
-                    res.redirect('/category-1/lecturesExcess');
-                })
-        })
-        .catch(() => {
-            req.flash('error_msg', 'User not found. Please login again.');
-            res.redirect('/category-1/lecturesExcess');
-        })
-});
 
 // Put route Additional Resources New Added
 router.put('/additionalResources/:id', (req, res) => {
@@ -540,31 +628,87 @@ router.put('/examinationDuties/:id', (req, res) => {
 
 // Delete data of category-1 forms
 
-//New Added DELETE route teaching Contribution
-router.delete('/teachingContribution/delete/:id', (req, res) => {
-    TeachingContribution.deleteOne({ _id: req.params.id })
-        .then(() => {
-            req.flash('success_msg', 'Record deleted successfully');
-            res.redirect('/category-1/teachingContribution');
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Record not deleted. Please try again.');
-            res.redirect('/category-1/teachingContribution');
-        })
+// New Added DELETE route for Teaching Contribution
+router.post('/deleteTeachingContribution', ensureAuthenticated, async (req, res) => {
+    const { subject_name } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        // Pull the entry from the entries array
+        const updatedEntry = await TeachingContribution.findOneAndUpdate(
+            {
+                user: req.user.id,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { subject_name: subject_name } } },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Teaching contribution not found." });
+        }
+
+        // Check if the entries array is empty
+        if (!updatedEntry.entries || updatedEntry.entries.length === 0) {
+            // Clear the score in the database
+            updatedEntry.scoredOne = 0; // Set to null to indicate no score
+            await updatedEntry.save();
+        }
+
+        res.json({ success: true, message: "Teaching contribution deleted successfully." });
+
+    } catch (error) {
+        console.error("Error deleting teaching contribution:", error);
+        res.json({ success: false, message: "Server error." });
+    }
 });
 
+
 //New Added DELETE route lectures excess
-router.delete('/lecturesExcess/delete/:id', (req, res) => {
-    LecturesExcess.deleteOne({ _id: req.params.id })
-        .then(() => {
-            req.flash('success_msg', 'Record deleted successfully');
-            res.redirect('/category-1/lecturesExcess');
-        })
-        .catch(() => {
-            req.flash('error_msg', 'Record not deleted. Please try again.');
-            res.redirect('/category-1/lecturesExcess');
-        })
+router.post('/deleteLecturesExcess', ensureAuthenticated, async (req, res) => {
+    const { subject_name } = req.body;
+
+    try {
+        const academicRecord = await AcademicYear.findOne({ user: req.user.id });
+        if (!academicRecord) {
+            return res.json({ success: false, message: "Academic year not found." });
+        }
+        const academic_year = academicRecord.academic_year;
+
+        // Pull the entry from the entries array
+        const updatedEntry = await LecturesExcess.findOneAndUpdate(
+            {
+                user: req.user.id,
+                academic_year: academic_year
+            },
+            { $pull: { entries: { subject_name: subject_name } } },
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedEntry) {
+            return res.json({ success: false, message: "Lectures excess entry not found." });
+        }
+
+        // Check if the entries array is empty
+        if (!updatedEntry.entries || updatedEntry.entries.length === 0) {
+            // Clear the score in the database
+            updatedEntry.scoredTwo = 0; // Set to 0 to indicate no score
+            await updatedEntry.save();
+        }
+
+        res.json({ success: true, message: "Lectures excess entry deleted successfully." });
+
+    } catch (error) {
+        console.error("Error deleting lectures excess entry:", error);
+        res.json({ success: false, message: "Server error." });
+    }
 });
+
 
 //New Added DELETE route Additional Resources
 router.delete('/additionalResources/delete/:id', (req, res) => {
@@ -604,6 +748,10 @@ router.delete('/examinationDuties/delete/:id', (req, res) => {
             res.redirect('/category-1/examinationDuties');
         })
 });
+
+
+
+
 
 
 

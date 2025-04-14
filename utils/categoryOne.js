@@ -15,18 +15,11 @@ async function calculateCategoryOneTotalScore(userId, academicYear) {
             ExaminationDuties.findOne({ user: userId, academic_year: academicYear }).exec()
         ]);
 
-        //  // Debugging logs
-        //  console.log('Fetched Data:', {
-        //     teachingContribution,
-        //     lecturesExcess,
-        //     additionalResources,
-        //     innovativeTeaching,
-        //     examinationDuties
-        // });
+        
 
         // Calculate individual scores
-        const teachingContributionScore = teachingContribution?.scoreOne || 0;
-        const lecturesExcessScore = lecturesExcess?.scoreTwo || 0;
+        const teachingContributionScore = teachingContribution?.scoredOne || 0;
+        const lecturesExcessScore = lecturesExcess?.scoredTwo || 0;
         const additionalResourcesScore = additionalResources?.scoreThree || 0;
         const innovativeTeachingScore = innovativeTeaching?.scoreFour || 0;
         const examinationDutiesScore = examinationDuties?.scoreFive || 0;

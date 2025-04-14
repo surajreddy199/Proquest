@@ -1,217 +1,263 @@
 <h5>Category 1</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
 <div class="container">
     <h6>1.1 Teaching Contribution</h6>
     <hr>
-    {{#if result}}
-    {{#each result}}
-    <div class="row" id="teachingContribution">
-        <h6><strong>Lectures</strong></h6>
+
+    <form action="/category-1/teachingContribution" method="POST">
+        <!-- Teaching Entries Container -->
+        <div id="teachingEntries"></div>
+
         <div class="row">
             <div class="input-field col s6">
-                <input type="number" name="lecturesDelivered" id="lecturesDelivered" 
-                    value="{{lecturesDelivered}}" class="validate" disabled>
-                <label for="lecturesDelivered">Lectures Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="lecturesAllocated" id="lecturesAllocated" 
-                    value="{{lecturesAllocated}}" class="validate" disabled>
-                <label for="lecturesAllocated">Lectures Allocated</label>
-            </div>
-        </div>
-        <h6><strong>Tutorials</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsDelivered" id="tutorialsDelivered" 
-                    value="{{tutorialsDelivered}}" class="validate" disabled>
-                <label for="tutorialsDelivered">Tutorials Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsAllocated" id="tutorialsAllocated" 
-                    value="{{tutorialsAllocated}}" class="validate" disabled>
-                <label for="tutorialsAllocated">Tutorials Allocated</label>
-            </div>
-        </div>
-        <h6><strong>Practical Sessions</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsDelivered" id="practicalSessionsDelivered" 
-                    value="{{practicalSessionsDelivered}}" class="validate" disabled>
-                <label for="practicalSessionsDelivered">Practical Sessions Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsAllocated" id="practicalSessionsAllocated" 
-                    value="{{practicalSessionsAllocated}}" class="validate" disabled>
-                <label for="practicalSessionsAllocated">Practical Sessions Allocated</label>
+                <input type="number" name="scoredOne" id="scoredOne" min="0" max="50" value="{{#if scoredOne}}{{scoredOne}}{{else}}0{{/if}}" required>
+                <label for="scoredOne" class="active">Total Score (Max: 50)</label>
             </div>
         </div>
 
-        <h6><strong>Score</strong></h6>
         <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="scoreOne" id="scoreOne" value="{{scoreOne}}" class="validate" disabled max="50">
-                <label for="scoreOne">Enter the Score (Max : 50)</label>
+            <div style="margin-top: 20px; display: flex; gap: 20px;" class="input-field col s9">
+                <button type="button" id="addTeachingEntry" class="btn orange">Add Another Entry</button>
+                <button type="submit" id="submitBtn" class="btn green" disabled>Submit</button>
+                <a href="/users/faculty/facultyOverview" class="btn waves-effect waves-light purple center mb-2">Back to overview</a><br><br>
             </div>
-            <div class="input-field col s6">
-                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
-            </div>
-
-            
-        </div>
-        
-        <a href="/category-1/teachingContribution/edit/{{id}}"
-            class="btn waves-effect waves-light red center mb-2">Edit</a>
-        <a href="/users/faculty/facultyOverview" class="btn waves-effect waves-light purple center mb-2">Back to
-            overview</a><br><br>
-        <form method="post" action="/category-1/teachingContribution/delete/{{id}}?_method=DELETE">
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="submit" class="btn waves-effect waves-light center red white-text" value="Delete">
-        </form>
-    </div>
-</div>
-{{else}}
-{{/each}}
-{{else}}
-{{#if editResult}}
-<div class="row" id="teachingContribution">
-    <form action="/category-1/teachingContribution/{{editResult.id}}?_method=PUT" method="post" class="col s12">
-        <input type="hidden" name="_method" value="PUT">
-        <h6><strong>Lectures</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="lecturesDelivered" id="lecturesDelivered" 
-                    value="{{editResult.lecturesDelivered}}" class="validate" required>
-                <label for="lecturesDelivered">Lectures Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="lecturesAllocated" id="lecturesAllocated" 
-                    value="{{editResult.lecturesAllocated}}" class="validate" required>
-                <label for="lecturesAllocated">Lectures Allocated</label>
+            <div style="margin-top: 20px; display: flex; gap: 50px;" class="input-field col s3">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn blue">Help <i class="material-icons right">help_outline</i></a>
             </div>
         </div>
-        <h6><strong>Tutorials</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsDelivered" id="tutorialsDelivered" 
-                    value="{{editResult.tutorialsDelivered}}" class="validate" required>
-                <label for="tutorialsDelivered">Tutorials Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsAllocated" id="tutorialsAllocated" 
-                    value="{{editResult.tutorialsAllocated}}" class="validate" required>
-                <label for="tutorialsAllocated">Tutorials Allocated</label>
-            </div>
-        </div>
-        <h6><strong>Practical Sessions</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsDelivered" id="practicalSessionsDelivered" 
-                    value="{{editResult.practicalSessionsDelivered}}" class="validate" required>
-                <label for="practicalSessionsDelivered">Practical Sessions Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsAllocated" id="practicalSessionsAllocated" 
-                    value="{{editResult.practicalSessionsAllocated}}" class="validate" required>
-                <label for="practicalSessionsAllocated">Practical Sessions Allocated</label>
-            </div>
-        </div>
-
-        <h6><strong>Score</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="scoreOne" id="scoreOne" value="{{editResult.scoreOne}}" class="validate" required max="50">
-                <label for="scoreOne">Enter the Score (Max : 50)</label>
-            </div>
-            <div class="input-field col s6">
-                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
-            </div>
-        </div>
-        
-        <div>
-            <p>
-                <label>
-                    <input id="indeterminate-checkbox" type="checkbox" required />
-                    <span>I acknowledge that above filled information is verified and justified by me.</span>
-                </label>
-            </p>
-        </div>
-        <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit
-        </button>
-    </form>
-
-</div>
-</div>
-</div>
-
-{{else}}
-<div class="row" id="teachingContribution">
-    <form action="/category-1/teachingContribution" method="post" class="col s12">
-        <h6><strong>Lectures</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="lecturesDelivered" id="lecturesDelivered" 
-                     class="validate" required>
-                <label for="lecturesDelivered">Lectures Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="lecturesAllocated" id="lecturesAllocated" 
-                    class="validate" required>
-                <label for="lecturesAllocated">Lectures Allocated</label>
-            </div>
-        </div>
-        <h6><strong>Tutorials</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsDelivered" id="tutorialsDelivered" 
-                    class="validate" required>
-                <label for="tutorialsDelivered">Tutorials Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsAllocated" id="tutorialsAllocated" 
-                    class="validate" required>
-                <label for="tutorialsAllocated">Tutorials Allocated</label>
-            </div>
-        </div>
-        <h6><strong>Practical Sessions</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsDelivered" id="practicalSessionsDelivered" 
-                    class="validate" required>
-                <label for="practicalSessionsDelivered">Practical Sessions Delivered</label>
-            </div>
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsAllocated" id="practicalSessionsAllocated" 
-                     class="validate" required>
-                <label for="practicalSessionsAllocated">Practical Sessions Allocated</label>
-            </div>
-        </div>
-        <h6><strong>Score</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="scoreOne" id="scoreOne" class="validate" required max="50">
-                <label for="scoreOne">Enter the Score (Max : 50)</label>
-            </div>
-            <div class="input-field col s6">
-                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
-            </div>
-        </div>
-
-
-        
-        <div>
-            <p>
-                <label>
-                    <input id="indeterminate-checkbox" type="checkbox" required />
-                    <span>I acknowledge that above filled information is verified and justified by me.</span>
-                </label>
-            </p>
-        </div>
-        {{!-- <a href="/category-1/lecturesExcess" class="waves-effect waves-light btn red center">Not Applicable</a> --}}
-        <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit
-        </button>   
     </form>
 </div>
-</div>
-{{/if}}
-{{/if}}
 
+
+<style>
+    button.remove-teaching-entry {
+        background-color: red !important;
+        color: white !important;
+        border: none;
+    }
+
+    button.remove-teaching-entry:focus {
+        outline: none;
+        background-color: red !important;
+        color: white !important;
+    }
+</style>
+
+<script>
+    let savedTeachingEntries = [];
+
+    // Push teaching contribution data from the backend into the savedTeachingEntries array
+        {{#if teachingContributions}}
+        savedTeachingEntries.push({
+            academic_year: "{{academic_year}}",
+            entries: [
+                {{#each teachingContributions}}
+                    {
+                        subject_name: "{{this.subject_name}}",
+                        lectures_delivered: "{{this.lectures_delivered}}",
+                        lectures_allocated: "{{this.lectures_allocated}}",
+                        tutorials_delivered: "{{this.tutorials_delivered}}",
+                        tutorials_allocated: "{{this.tutorials_allocated}}",
+                        practical_sessions_delivered: "{{this.practical_sessions_delivered}}",
+                        practical_sessions_allocated: "{{this.practical_sessions_allocated}}"
+                    },
+                {{/each}}
+            ]
+        });
+    {{/if}}
+
+    console.log("Saved Teaching Entries: before filtering", savedTeachingEntries);
+
+    // Get the academic year from the server
+    let selectedYear = "{{academic_year}}";
+    console.log("Selected Academic Year:", selectedYear);
+
+    // Filter the entries by academic year
+    let currentYearEntries = savedTeachingEntries.length > 0 && savedTeachingEntries[0].entries ? savedTeachingEntries[0].entries : [];
+    console.log("Current Year Entries:", currentYearEntries);
+
+    // Function to add a teaching entry to the UI
+    function addTeachingEntry(entry = null) {
+        let entryDiv = document.createElement("div");
+        entryDiv.classList.add("row", "teaching-entry");
+
+        entryDiv.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="subject_name[]" value="${entry ? entry.subject_name : ''}" required>
+                <label class="active">Subject Name</label>
+            </div>
+            <h6><strong>Lectures</strong></h6>
+            <div class="input-field col s6">
+                <input type="number" name="lectures_delivered[]" value="${entry ? entry.lectures_delivered : ''}" required>
+                <label class="active">Lectures Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="lectures_allocated[]" value="${entry ? entry.lectures_allocated : ''}" required>
+                <label class="active">Lectures Allocated</label>
+            </div>
+            <h6><strong>Tutorials</strong></h6>
+            <div class="input-field col s6">
+                <input type="number" name="tutorials_delivered[]" value="${entry ? entry.tutorials_delivered : ''}" required>
+                <label class="active">Tutorials Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="tutorials_allocated[]" value="${entry ? entry.tutorials_allocated : ''}" required>
+                <label class="active">Tutorials Allocated</label>
+            </div>
+            <h6><strong>Practical Sessions</strong></h6>
+            <div class="input-field col s6">
+                <input type="number" name="practical_sessions_delivered[]" value="${entry ? entry.practical_sessions_delivered : ''}" required>
+                <label class="active">Practical Sessions Delivered</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="practical_sessions_allocated[]" value="${entry ? entry.practical_sessions_allocated : ''}" required>
+                <label class="active">Practical Sessions Allocated</label>
+            </div>
+            <div class="col s6">
+                <button type="button" class="btn red remove-teaching-entry">Remove</button>
+            </div>
+        `;
+
+        document.getElementById("teachingEntries").appendChild(entryDiv);
+        validateForm();
+    }
+
+    // Function to load teaching entries into the UI
+        function loadTeachingEntries() {
+        document.getElementById("teachingEntries").innerHTML = "";
+
+        if (currentYearEntries.length > 0) {
+            currentYearEntries.forEach(entry => addTeachingEntry(entry));
+        } else {
+            addTeachingEntry(); // Add an empty entry if no saved entries exist
+            document.getElementById("scoredOne").value = ""; // Reset the score in the UI
+        }
+    }
+
+    // Function to validate the form
+    function validateForm() {
+        let allFilled = [...document.querySelectorAll("#teachingEntries input[required]")].every(input => {
+            let value = input.value.trim();
+            if (input.type === "number") {
+                return value !== "" && parseInt(value, 10) >= 0; // Ensure non-negative numbers
+            }
+            return value !== "";
+        });
+    
+        // Check if the score field is filled and valid
+        const scoreField = document.getElementById("scoredOne");
+        const scoreValue = scoreField.value.trim();
+    
+        // Check for duplicate subject names
+        let subjectNames = [...document.querySelectorAll("input[name='subject_name[]']")].map(input => input.value.trim());
+        let hasDuplicates = subjectNames.some((name, index) => subjectNames.indexOf(name) !== index);
+    
+        if (hasDuplicates) {
+            alert("Duplicate subject names are not allowed. Please ensure all subject names are unique.");
+            document.getElementById("submitBtn").disabled = true;
+            return;
+        }
+    
+        // Enable or disable the submit button based on validations
+        document.getElementById("submitBtn").disabled = !(allFilled && scoreValue);
+    }
+
+    // Event listener for the submit button
+    document.getElementById("submitBtn").addEventListener("click", function (event) {
+        // Check if any delivered value is greater than or equal to the allocated value
+        let invalidEntries = [...document.querySelectorAll(".teaching-entry")].some(entry => {
+            let lecturesDelivered = parseInt(entry.querySelector("input[name='lectures_delivered[]']").value || 0, 10);
+            let lecturesAllocated = parseInt(entry.querySelector("input[name='lectures_allocated[]']").value || 0, 10);
+            let tutorialsDelivered = parseInt(entry.querySelector("input[name='tutorials_delivered[]']").value || 0, 10);
+            let tutorialsAllocated = parseInt(entry.querySelector("input[name='tutorials_allocated[]']").value || 0, 10);
+            let practicalDelivered = parseInt(entry.querySelector("input[name='practical_sessions_delivered[]']").value || 0, 10);
+            let practicalAllocated = parseInt(entry.querySelector("input[name='practical_sessions_allocated[]']").value || 0, 10);
+
+            return (
+                lecturesDelivered > lecturesAllocated ||
+                tutorialsDelivered > tutorialsAllocated ||
+                practicalDelivered > practicalAllocated
+            );
+        });
+
+        if (invalidEntries) {
+            event.preventDefault(); // Prevent form submission
+            alert("Delivered values cannot be greater than or equal to allocated values. Please correct the entries.");
+        }
+    });
+
+    
+
+    // Event listener to add a new teaching entry
+    document.getElementById("addTeachingEntry").addEventListener("click", function () {
+        addTeachingEntry();
+    });
+
+    // Event listener to handle removing teaching entries
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-teaching-entry")) {
+            let entry = event.target.closest(".teaching-entry");
+            let subjectName = entry.querySelector("input[name='subject_name[]']").value;
+    
+            if (confirm("Are you sure you want to delete this entry?")) {
+                event.target.disabled = true; // Disable the button
+                event.target.innerText = "Removing..."; // Show feedback
+    
+                // Send DELETE request to the backend
+                fetch('/category-1/deleteTeachingContribution', {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ subject_name: subjectName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from savedTeachingEntries (frontend)
+                        currentYearEntries = currentYearEntries.filter(entry => entry.subject_name !== subjectName);
+    
+                        // Remove from UI
+                        entry.remove();
+    
+                        // If no entries are left, add a new empty entry and reset the score
+                        if (currentYearEntries.length === 0) {
+                            addTeachingEntry(); // Add an empty entry to the UI
+                            document.getElementById("scoredOne").value = ""; // Clear the score in the UI
+                        }
+    
+                        // Show Flash Message
+                        let flashMessage = document.getElementById("flashMessage");
+                        flashMessage.innerText = "Entry deleted successfully.";
+                        flashMessage.style.display = "block";
+    
+                        setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Failed to delete the entry. Please try again.");
+                })
+                .finally(() => {
+                    event.target.disabled = false; // Re-enable the button
+                    event.target.innerText = "Remove"; // Reset button text
+                });
+            }
+        }
+    });
+
+    // Event listeners for input and change events
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#teachingEntries") || event.target.id === "scoredOne") {
+            validateForm();
+        }
+    });
+
+    // Load teaching entries on page load
+    loadTeachingEntries();
+</script>
 

@@ -455,13 +455,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
 
 
                                    
-                                    modules.PapersPublishedNationalConf.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.PapersPublishedJournals.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.Moocs.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.Swayam.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ShortTermTraining.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.Seminars.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    
 
                                     modules.ResearchPapersPublished.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
                                     modules.BooksChaptersPublished.find({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
@@ -476,10 +470,7 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                     
 
 
-                                    modules.ContributionToSyllabus.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ConsultancyAssignment.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
-                                    modules.ExternalProjectsOrCompetition.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec(),
+                                    
 
                                     HodMarks.findOne({ $and: [{ user: facultID }, { academic_year: req.params.year }] }).exec()
                                     ];
@@ -614,13 +605,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.ProfessionalDevelopment.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),  
 
           
-            modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.PapersPublishedJournals.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.Moocs.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.Swayam.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ShortTermTraining.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.Seminars.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            
 
             modules.ResearchPapersPublished.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.BooksChaptersPublished.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -631,14 +616,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.ResearchGuidance.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.TrainingCourses.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ConferencePapersEntry.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.InvitedLectures.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
+            modules.InvitedLectures.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec()
 
-
-
-            modules.ContributionToSyllabus.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ConsultancyAssignment.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.ExternalProjectsOrCompetition.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec()
             ];
 
             Promise.all(loads)
@@ -653,10 +632,9 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                        
-
-                   
-                    if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
-                    if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
+                    
+                    if (!teachingContribution) { teachingContribution = { entries: teachingContribution?.entries?.length ? teachingContribution.entries : [{ subject_name: '-', lectures_delivered: '-', lectures_allocated: '-', tutorials_delivered: '-', tutorials_allocated: '-', practical_sessions_delivered: '-', practical_sessions_allocated: '-' }], scoredOne: '-' } }
+                    if (!lecturesExcess) { lecturesExcess = { entries: lecturesExcess?.entries?.length ? lecturesExcess.entries : [{ subject_name: '-', lectures_taken: '-', tutorials_taken: '-', practical_sessions_taken: '-' }], scoredTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '_', evaluationAnswerScripts: '_', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
@@ -719,26 +697,43 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
                             { text: 'Category-1', style: 'subheader' },
 
-                            { text: '1.1 Teaching Contribution ', style: 'subheader' },
-
+                            { text: '1.1 Teaching Contribution', style: 'subheader' },
                             {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Lectures Delivered', 'Lectures Allocated', 'Tutorials Delivered', 'Tutorials Allocated', 'Practical Sessions Delivered', 'Practical Sessions Allocated', 'Score' ],
-                                        [teachingContribution.lecturesDelivered, teachingContribution.lecturesAllocated,teachingContribution.tutorialsDelivered,teachingContribution.tutorialsAllocated,teachingContribution.practicalSessionsDelivered,teachingContribution.practicalSessionsAllocated,teachingContribution.scoreOne]
+                                        ['Subject Name', 'Lectures Delivered', 'Lectures Allocated', 'Tutorials Delivered', 'Tutorials Allocated', 'Practical Sessions Delivered', 'Practical Sessions Allocated'], // Table header
+                                        ...teachingContribution.entries.map(entry => [
+                                            entry.subject_name || '-', // Default to '-' if undefined
+                                            entry.lectures_delivered || '-', // Default to '-' if undefined
+                                            entry.lectures_allocated || '-', // Default to '-' if undefined
+                                            entry.tutorials_delivered || '-', // Default to '-' if undefined
+                                            entry.tutorials_allocated || '-', // Default to '-' if undefined
+                                            entry.practical_sessions_delivered || '-', // Default to '-' if undefined
+                                            entry.practical_sessions_allocated || '-' // Default to '-' if undefined
+                                        ]),
+                                        // Add a row for the total score
+                                        [{ text: 'Total Score:', colSpan: 6, bold: true, alignment: 'right' }, {}, {}, {}, {}, {}, teachingContribution.scoredOne || '0']
                                     ]
                                 }
                             },
 
-                            { text: '1.2 Lectures in Excess ', style: 'subheader' },
+                            
 
+                            { text: '1.2 Lectures Excess', style: 'subheader' },
                             {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Lectures Taken', 'Tutorials Taken', 'Practical Sessions Taken', 'Score' ],
-                                        [lecturesExcess.lecturesTaken, lecturesExcess.tutorialsTaken, lecturesExcess.practicalSessionsTaken, lecturesExcess.scoreTwo]
+                                        ['Subject Name', 'Lectures Taken', 'Tutorials Taken', 'Practical Sessions Taken'], // Table header
+                                        ...lecturesExcess.entries.map(entry => [
+                                            entry.subject_name || '-', // Default to '-' if undefined
+                                            entry.lectures_taken || '-', // Default to '-' if undefined
+                                            entry.tutorials_taken || '-', // Default to '-' if undefined
+                                            entry.practical_sessions_taken || '-' // Default to '-' if undefined
+                                        ]),
+                                        // Add a row for the total score
+                                        [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, lecturesExcess.scoredTwo || '0']
                                     ]
                                 }
                             },
@@ -1200,13 +1195,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
             modules.ProfessionalDevelopment.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             
            
-            modules.PapersPublishedNationalConf.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.PapersPublishedInternationalConf.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.PapersPublishedJournals.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.Moocs.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.Swayam.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ShortTermTraining.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.Seminars.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            
 
             modules.ResearchPapersPublished.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.BooksChaptersPublished.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1217,13 +1206,10 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
             modules.ResearchGuidance.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.TrainingCourses.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.ConferencePapersEntry.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.InvitedLectures.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
+            modules.InvitedLectures.find({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec()
 
 
-            modules.ContributionToSyllabus.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.MemberOfUniversityCommitte.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ConsultancyAssignment.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
-            modules.ExternalProjectsOrCompetition.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec()
+            
             ];
 
             Promise.all(loads)
@@ -1236,8 +1222,8 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
                     
-                    if (!teachingContribution) { teachingContribution = { lecturesDelivered: '-', lecturesAllocated: '-', tutorialsDelivered: '-', tutorialsAllocated: '-', practicalSessionsDelivered: '-', practicalSessionsAllocated: '-', scoreOne: '-' } }
-                    if (!lecturesExcess) { lecturesExcess = { lecturesTaken: '-', tutorialsTaken: '-', practicalSessionsTaken: '-', scoreTwo: '-' } }
+                    if (!teachingContribution) { teachingContribution = { entries: teachingContribution?.entries?.length ? teachingContribution.entries : [{ subject_name: '-', lectures_delivered: '-', lectures_allocated: '-', tutorials_delivered: '-', tutorials_allocated: '-', practical_sessions_delivered: '-', practical_sessions_allocated: '-' }], scoredOne: '-' } }
+                    if (!lecturesExcess) { lecturesExcess = { entries: lecturesExcess?.entries?.length ? lecturesExcess.entries : [{ subject_name: '-', lectures_taken: '-', tutorials_taken: '-', practical_sessions_taken: '-' }], scoredTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
                     if (!innovativeTeaching) { innovativeTeaching = { techniques: '-', scoreFour: '-' } }
                     if (!examinationDuties) { examinationDuties = { invigilation: '-', questionPaperSetting: '-', evaluationAnswerScripts: '-', paperModeration: '_', labEvaluation: '_', scoreFive: '-' } }
@@ -1249,13 +1235,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
 
 
-                    if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
-                    if (!papersPublishedInternationalConf) { papersPublishedInternationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
-                    if (!papersPublishedJournals) { papersPublishedJournals = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
-                    if (!moocs) { moocs = { name_of_moocs_undertaken: '-', moocs_date: '-', moocs_duartion: '-', certification_status: '-' } }
-                    if (!swayam) { swayam = { name_of_swayam_undertaken: '-', swayam_date: '-', swayam_duartion: '-', certification_status: '-' } }
-                    if (!shortTermTraining) { shortTermTraining = { short_term_training: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
-                    if (!seminars) { seminars = { name_of_seminar: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
+        
                     if (!researchPapersPublished) {researchPapersPublished = { publication_type: '-', journals: researchPapersPublished?.journals?.length ? researchPapersPublished.journals : [{ journal_title: '-', publication_link: '-', journal_document: '-', score: '-' }], total_score: '-' } }
                     if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!sponsoredProjects) { sponsoredProjects = { project_type: '-', entries: sponsoredProjects?.entries?.length ? sponsoredProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], sponsoredProjectsTotalScore: '-' } }
@@ -1271,12 +1251,6 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
 
 
-
-
-                    if (!contributionToSyllabus) { contributionToSyllabus = { nameofSub: '-', role: '-', nameofUniversity: '-', otherDetails: '-' } }
-                    if (!memberOfUniversityCommitte) { memberOfUniversityCommitte = { nameofCommittee: '-', rolesAndResponsibility: '-', designation: '-' } }
-                    if (!consultancyAssignment) { consultancyAssignment = { rolesAndResponsilbilty: '-', typeOfWorkorDomain: '-', organization: '-', duration: '-', numberofVisits: '-' } }
-                    if (!externalProjectsOrCompetition) { externalProjectsOrCompetition = { description: '-', contribution: '-', university: '-', duration: '-', comments: '-' } }
 
                     // Combine and group journals
                     const groupedJournals = groupJournalsByPublicationType(researchPapersPublished);
@@ -1299,27 +1273,44 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
 
                             
                             { text: 'Category-1', style: 'subheader' },
-                        
-                           
-                            { text: '1.1 Teaching Contribution ', style: 'subheader' },
 
+                            { text: '1.1 Teaching Contribution', style: 'subheader' },
                             {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Lectures Delivered', 'Lectures Allocated', 'Tutorials Delivered', 'Tutorials Allocated', 'Practical Sessions Delivered', 'Practical Sessions Allocated', 'Score' ],
-                                        [teachingContribution.lecturesDelivered, teachingContribution.lecturesAllocated,teachingContribution.tutorialsDelivered,teachingContribution.tutorialsAllocated,teachingContribution.practicalSessionsDelivered,teachingContribution.practicalSessionsAllocated,teachingContribution.scoreOne]
+                                        ['Subject Name', 'Lectures Delivered', 'Lectures Allocated', 'Tutorials Delivered', 'Tutorials Allocated', 'Practical Sessions Delivered', 'Practical Sessions Allocated'], // Table header
+                                        ...teachingContribution.entries.map(entry => [
+                                            entry.subject_name || '-', // Default to '-' if undefined
+                                            entry.lectures_delivered || '-', // Default to '-' if undefined
+                                            entry.lectures_allocated || '-', // Default to '-' if undefined
+                                            entry.tutorials_delivered || '-', // Default to '-' if undefined
+                                            entry.tutorials_allocated || '-', // Default to '-' if undefined
+                                            entry.practical_sessions_delivered || '-', // Default to '-' if undefined
+                                            entry.practical_sessions_allocated || '-' // Default to '-' if undefined
+                                        ]),
+                                        // Add a row for the total score
+                                        [{ text: 'Total Score:', colSpan: 6, bold: true, alignment: 'right' }, {}, {}, {}, {}, {}, teachingContribution.scoredOne || '0']
                                     ]
                                 }
                             },
-                            { text: '1.2 Lectures in Excess ', style: 'subheader' },
-
+                        
+                           
+                            
+                            { text: '1.2 Lectures Excess', style: 'subheader' },
                             {
                                 style: 'tableExample',
                                 table: {
                                     body: [
-                                        ['Lectures Taken', 'Tutorials Taken', 'Practical Sessions Taken', 'Score' ],
-                                        [lecturesExcess.lecturesTaken, lecturesExcess.tutorialsTaken, lecturesExcess.practicalSessionsTaken, lecturesExcess.scoreTwo]
+                                        ['Subject Name', 'Lectures Taken', 'Tutorials Taken', 'Practical Sessions Taken'], // Table header
+                                        ...lecturesExcess.entries.map(entry => [
+                                            entry.subject_name || '-', // Default to '-' if undefined
+                                            entry.lectures_taken || '-', // Default to '-' if undefined
+                                            entry.tutorials_taken || '-', // Default to '-' if undefined
+                                            entry.practical_sessions_taken || '-' // Default to '-' if undefined
+                                        ]),
+                                        // Add a row for the total score
+                                        [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, lecturesExcess.scoredTwo || '0']
                                     ]
                                 }
                             },

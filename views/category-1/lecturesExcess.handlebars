@@ -1,181 +1,221 @@
 <h5>Category 1</h5><br>
+<h6>Academic Year: {{academic_year}}</h6>
+
+<div id="flashMessage" style="display: none; color: white; background-color: rgb(72, 153, 84); padding: 10px; margin-top: 10px; text-align: center;">
+</div>
+
 <div class="container">
-    <h6>1.2 Lectures in Excess</h6>
+    <h6>1.2 Lectures Excess</h6>
     <hr>
-    {{#if result}}
-    {{#each result}}
-    <div class="row" id="lecturesExcess">
-        <h6><strong>Lectures</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="lecturesTaken" id="lecturesTaken" 
-                    value="{{lecturesTaken}}" class="validate" disabled>
-                <label for="lecturesTaken">Lectures Taken</label>
-            </div>
-            
-        </div>
-        <h6><strong>Tutorials</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsTaken" id="tutorialsTaken" 
-                    value="{{tutorialsTaken}}" class="validate" disabled>
-                <label for="tutorialsTaken">Tutorials Taken</label>
-            </div>
-            
-        </div>
-        <h6><strong>Practical Sessions</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsTaken" id="practicalSessionsTaken" 
-                    value="{{practicalSessionsTaken}}" class="validate" disabled>
-                <label for="practicalSessionsTaken">Practical Sessions Taken</label>
-            </div>
-            
-        </div>
 
-        <h6><strong>Score</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="scoreTwo" id="scoreTwo" value="{{scoreTwo}}" class="validate" disabled max="10">
-                <label for="scoreTwo">Enter the Score (Max : 10)</label>
-            </div>
-            <div class="input-field col s6">
-                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
-            </div>
+    <form action="/category-1/lecturesExcess" method="POST">
+        <!-- Lectures Excess Entries Container -->
+        <div id="lecturesExcessEntries"></div>
 
-            
-        </div>
-        
-        <a href="/category-1/lecturesExcess/edit/{{id}}"
-            class="btn waves-effect waves-light red center mb-2">Edit</a>
-        <a href="/users/faculty/facultyOverview" class="btn waves-effect waves-light purple center mb-2">Back to
-            overview</a><br><br>
-        <form method="post" action="/category-1/lecturesExcess/delete/{{id}}?_method=DELETE">
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="submit" class="btn waves-effect waves-light center red white-text" value="Delete">
-        </form>
-    </div>
-</div>
-{{else}}
-{{/each}}
-{{else}}
-{{#if editResult}}
-<div class="row" id="lecturesExcess">
-    <form action="/category-1/lecturesExcess/{{editResult.id}}?_method=PUT" method="post" class="col s12">
-        <input type="hidden" name="_method" value="PUT">
-        <h6><strong>Lectures</strong></h6>
         <div class="row">
             <div class="input-field col s6">
-                <input type="number" name="lecturesTaken" id="lecturesTaken" 
-                    value="{{editResult.lecturesTaken}}" class="validate" required>
-                <label for="lecturesTaken">Lectures Taken</label>
-            </div>
-            
-        </div>
-        <h6><strong>Tutorials</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsTaken" id="tutorialsTaken" 
-                    value="{{editResult.tutorialsTaken}}" class="validate" required>
-                <label for="tutorialsTaken">Tutorials Taken</label>
-            </div>
-            
-        </div>
-        <h6><strong>Practical Sessions</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsTaken" id="practicalSessionsTaken" 
-                    value="{{editResult.practicalSessionsTaken}}" class="validate" required>
-                <label for="practicalSessionsTaken">Practical Sessions Taken</label>
-            </div>
-            
-        </div>
-
-        <h6><strong>Score</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="scoreTwo" id="scoreTwo" value="{{editResult.scoreTwo}}" class="validate" required max="10">
-                <label for="scoreTwo">Enter the Score (Max : 10)</label>
-            </div>
-            <div class="input-field col s6">
-                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
-            </div>
-        </div>
-        
-        <div>
-            <p>
-                <label>
-                    <input id="indeterminate-checkbox" type="checkbox" required />
-                    <span>I acknowledge that above filled information is verified and justified by me.</span>
-                </label>
-            </p>
-        </div>
-        <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit
-        </button>
-    </form>
-
-</div>
-</div>
-</div>
-
-{{else}}
-<div class="row" id="lecturesExcess">
-    <form action="/category-1/lecturesExcess" method="post" class="col s12">
-        <h6><strong>Lectures</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="lecturesTaken" id="lecturesTaken" 
-                     class="validate" required>
-                <label for="lecturesTaken">Lectures Taken</label>
-            </div>
-            
-        </div>
-        <h6><strong>Tutorials</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="tutorialsTaken" id="tutorialsTaken" 
-                    class="validate" required>
-                <label for="tutorialsTaken">Tutorials Taken</label>
-            </div>
-            
-        </div>
-        <h6><strong>Practical Sessions</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="practicalSessionsTaken" id="practicalSessionsTaken" 
-                    class="validate" required>
-                <label for="practicalSessionsTaken">Practical Sessions Taken</label>
-            </div>
-            
-        </div>
-        <h6><strong>Score</strong></h6>
-        <div class="row">
-            <div class="input-field col s6">
-                <input type="number" name="scoreTwo" id="scoreTwo" class="validate" required max="10">
-                <label for="scoreTwo">Enter the Score (Max : 10)</label>
-            </div>
-            <div class="input-field col s6">
-                <a href="/pdfs/help.pdf" target="_blank" class="btn waves-effect waves-light blue">Help <i class="material-icons right">help_outline</i></a>
+                <input type="number" name="scoredTwo" id="scoredTwo" min="0" max="10" value="{{#if scoredTwo}}{{scoredTwo}}{{else}}0{{/if}}" required>
+                <label for="scoredTwo" class="active">Total Score (Max: 10)</label>
             </div>
         </div>
 
-
-        
-        <div>
-            <p>
-                <label>
-                    <input id="indeterminate-checkbox" type="checkbox" required />
-                    <span>I acknowledge that above filled information is verified and justified by me.</span>
-                </label>
-            </p>
+        <div class="row">
+            <div style="margin-top: 20px; display: flex; gap: 20px;" class="input-field col s9">
+                <button type="button" id="addLecturesExcessEntry" class="btn orange">Add Another Entry</button>
+                <button type="submit" id="submitBtn" class="btn green" disabled>Submit</button>
+                <a href="/users/faculty/facultyOverview" class="btn waves-effect waves-light purple center mb-2">Back to overview</a><br><br>
+            </div>
+            <div style="margin-top: 20px; display: flex; gap: 50px;" class="input-field col s3">
+                <a href="/pdfs/help.pdf" target="_blank" class="btn blue">Help <i class="material-icons right">help_outline</i></a>
+            </div>
         </div>
-        {{!-- <a href="/category-1/additionalResources" class="waves-effect waves-light btn red center">Not Applicable</a> --}}
-        <button class="btn waves-effect waves-dark" id="submit_btn" type="submit" disabled>Submit
-        </button>   
     </form>
 </div>
-</div>
-{{/if}}
-{{/if}}
 
+<style>
+    button.remove-lectures-excess-entry {
+        background-color: red !important;
+        color: white !important;
+        border: none;
+    }
 
+    button.remove-lectures-excess-entry:focus {
+        outline: none;
+        background-color: red !important;
+        color: white !important;
+    }
+</style>
+
+<script>
+    let savedLecturesExcessEntries = [];
+
+    // Push lectures excess data from the backend into the savedLecturesExcessEntries array
+    {{#if lecturesExcess}}
+    savedLecturesExcessEntries.push({
+        academic_year: "{{academic_year}}",
+        entries: [
+            {{#each lecturesExcess}}
+                {
+                    subject_name: "{{this.subject_name}}",
+                    lectures_taken: "{{this.lectures_taken}}",
+                    tutorials_taken: "{{this.tutorials_taken}}",
+                    practical_sessions_taken: "{{this.practical_sessions_taken}}"
+                },
+            {{/each}}
+        ]
+    });
+    {{/if}}
+
+    console.log("Saved Lectures Excess Entries: before filtering", savedLecturesExcessEntries);
+
+    // Get the academic year from the server
+    let selectedYear = "{{academic_year}}";
+    console.log("Selected Academic Year:", selectedYear);
+
+    // Filter the entries by academic year
+    let currentYearEntries = savedLecturesExcessEntries.length > 0 && savedLecturesExcessEntries[0].entries ? savedLecturesExcessEntries[0].entries : [];
+    console.log("Current Year Entries:", currentYearEntries);
+
+    console.log("Saved Lectures Excess Entries:", savedLecturesExcessEntries);
+console.log("Current Year Entries:", currentYearEntries);
+
+    // Function to add a lectures excess entry to the UI
+    function addLecturesExcessEntry(entry = null) {
+        let entryDiv = document.createElement("div");
+        entryDiv.classList.add("row", "lectures-excess-entry");
+
+        entryDiv.innerHTML = `
+            <div class="input-field col s12">
+                <input type="text" name="subject_name[]" value="${entry ? entry.subject_name : ''}" required>
+                <label class="active">Subject Name</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="lectures_taken[]" value="${entry ? entry.lectures_taken : ''}" required>
+                <label class="active">Lectures Taken</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="tutorials_taken[]" value="${entry ? entry.tutorials_taken : ''}" required>
+                <label class="active">Tutorials Taken</label>
+            </div>
+            <div class="input-field col s6">
+                <input type="number" name="practical_sessions_taken[]" value="${entry ? entry.practical_sessions_taken : ''}" required>
+                <label class="active">Practical Sessions Taken</label>
+            </div>
+            <div class="col s12">
+                <button type="button" class="btn red remove-lectures-excess-entry">Remove</button>
+            </div>
+        `;
+
+        document.getElementById("lecturesExcessEntries").appendChild(entryDiv);
+        validateForm();
+    }
+
+    // Function to load lectures excess entries into the UI
+    function loadLecturesExcessEntries() {
+        const container = document.getElementById("lecturesExcessEntries");
+        container.innerHTML = ""; // Clear existing entries
+    
+        if (currentYearEntries.length > 0) {
+            currentYearEntries.forEach(entry => addLecturesExcessEntry(entry));
+        } else {
+            addLecturesExcessEntry(); // Add an empty entry if no saved entries exist
+            document.getElementById("scoredTwo").value = ""; // Reset the score in the UI
+        }
+    }
+
+    // Function to validate the form
+    function validateForm() {
+        let allFilled = [...document.querySelectorAll("#lecturesExcessEntries input[required]")].every(input => {
+            let value = input.value.trim();
+            if (input.type === "number") {
+                return value !== "" && parseInt(value, 10) >= 0; // Ensure non-negative numbers
+            }
+            return value !== "";
+        });
+
+        // Check if the score field is filled and valid
+        const scoreField = document.getElementById("scoredTwo");
+        const scoreValue = scoreField.value.trim();
+
+        // Check for duplicate subject names
+        let subjectNames = [...document.querySelectorAll("input[name='subject_name[]']")].map(input => input.value.trim());
+        let hasDuplicates = subjectNames.some((name, index) => subjectNames.indexOf(name) !== index);
+
+        if (hasDuplicates) {
+            alert("Duplicate subject names are not allowed. Please ensure all subject names are unique.");
+            document.getElementById("submitBtn").disabled = true;
+            return;
+        }
+
+        // Enable or disable the submit button based on validations
+        document.getElementById("submitBtn").disabled = !(allFilled && scoreValue);
+    }
+
+    // Event listener to add a new lectures excess entry
+    document.getElementById("addLecturesExcessEntry").addEventListener("click", function () {
+        addLecturesExcessEntry();
+    });
+
+    // Event listener to handle removing lectures excess entries
+    document.addEventListener("click", function (event) {
+        if (event.target.classList.contains("remove-lectures-excess-entry")) {
+            let entry = event.target.closest(".lectures-excess-entry");
+            let subjectName = entry.querySelector("input[name='subject_name[]']").value;
+    
+            if (confirm("Are you sure you want to delete this entry?")) {
+                event.target.disabled = true; // Disable the button
+                event.target.innerText = "Removing..."; // Show feedback
+    
+                // Send DELETE request to the backend
+                fetch('/category-1/deleteLecturesExcess', {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ subject_name: subjectName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove from savedLecturesExcessEntries (frontend)
+                        currentYearEntries = currentYearEntries.filter(entry => entry.subject_name !== subjectName);
+    
+                        // Remove from UI
+                        entry.remove();
+    
+                        // If no entries are left, add a new empty entry and reset the score
+                        if (currentYearEntries.length === 0) {
+                            addLecturesExcessEntry(); // Add an empty entry to the UI
+                            document.getElementById("scoredTwo").value = ""; // Clear the score in the UI
+                        }
+    
+                        // Show Flash Message
+                        let flashMessage = document.getElementById("flashMessage");
+                        flashMessage.innerText = "Entry deleted successfully.";
+                        flashMessage.style.display = "block";
+    
+                        setTimeout(() => { flashMessage.style.display = "none"; }, 3000);
+                    } else {
+                        alert("Error: " + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Failed to delete the entry. Please try again.");
+                })
+                .finally(() => {
+                    event.target.disabled = false; // Re-enable the button
+                    event.target.innerText = "Remove"; // Reset button text
+                });
+            }
+        }
+    });
+
+    // Event listeners for input and change events
+    document.addEventListener("input", function (event) {
+        if (event.target.closest("#lecturesExcessEntries") || event.target.id === "scoredTwo") {
+            validateForm();
+        }
+    });
+
+    // Load lectures excess entries on page load
+    loadLecturesExcessEntries();
+</script>
