@@ -481,12 +481,12 @@ router.get('/hod/hodOverview/:id/:year', ensureAuthenticated, (req, res) => {
                                         .then(([
                                             
                                             teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                                            cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition,
+                                            cocurricularActivities, corporateLife, professionalDevelopment, 
+                                            researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, 
                                             hodMarks,
                                         ]) => {
 
-                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition, hodMarks, year });
+                                            res.render('users/hod/hodOverview', { finalResult, teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties, cocurricularActivities, corporateLife, professionalDevelopment, researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, hodMarks, year });
                                         })
                                 })
                                 .catch(err => {
@@ -616,7 +616,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             modules.ResearchGuidance.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.TrainingCourses.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.ConferencePapersEntry.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
-            modules.InvitedLectures.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec()
+            modules.InvitedLectures.find({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
 
             ];
 
@@ -629,8 +629,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    cocurricularActivities, corporateLife, professionalDevelopment,
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures,]) => {
                        
                     
                     if (!teachingContribution) { teachingContribution = { entries: teachingContribution?.entries?.length ? teachingContribution.entries : [{ subject_name: '-', lectures_delivered: '-', lectures_allocated: '-', tutorials_delivered: '-', tutorials_allocated: '-', practical_sessions_delivered: '-', practical_sessions_allocated: '-' }], scoredOne: '-' } }
@@ -644,13 +644,6 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
 
                  
-                    if (!papersPublishedNationalConf) { papersPublishedNationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
-                    if (!papersPublishedInternationalConf) { papersPublishedInternationalConf = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
-                    if (!papersPublishedJournals) { papersPublishedJournals = { title_of_paper_published: '-', published_date: '-', name_of_conference: '-', isbn_issn_number: '-', name_of_coauthor: '-', impact_factor: '-', no_of_citations: '-', rating: '-', link: '-' } }
-                    if (!moocs) { moocs = { name_of_moocs_undertaken: '-', moocs_date: '-', moocs_duartion: '-', certification_status: '-' } }
-                    if (!swayam) { swayam = { name_of_swayam_undertaken: '-', swayam_date: '-', swayam_duartion: '-', certification_status: '-' } }
-                    if (!shortTermTraining) { shortTermTraining = { short_term_training: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
-                    if (!seminars) { seminars = { name_of_seminar: '-', techonology: '-', duration_of_course: '-', start_date: '-', end_date: '-', internal_external: '-', name_of_institue: '-' } }
                     if (!researchPapersPublished) {researchPapersPublished = { publication_type: '-', journals: researchPapersPublished?.journals?.length ? researchPapersPublished.journals : [{ journal_title: '-', publication_link: '-', journal_document: '-', score: '-' }], total_score: '-' } }
                     if (!booksChaptersPublished) { booksChaptersPublished = { publication_type: '-', entries: booksChaptersPublished?.entries?.length ? booksChaptersPublished.entries : [{ title: '-', publication_link: '-', document: '-', score: '-' }], booksChaptersTotalScore: '-' } }
                     if (!sponsoredProjects) { sponsoredProjects = { project_type: '-', entries: sponsoredProjects?.entries?.length ? sponsoredProjects.entries : [{ title: '-', funding_agency: '-', amount: '-', document: '-', score: '-' }], sponsoredProjectsTotalScore: '-' } }
@@ -662,10 +655,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     if (!conferencePapersEntry) conferencePapersEntry = { event_type: '-', entries: conferencePapersEntry?.entries?.length ? conferencePapersEntry.entries : [{ title: '-', event_name: '-', date: '-', presentation_type: '-', document: '-', score: '-' }], conferencePapersTotalScore: '-' };
                     if (!invitedLectures) { invitedLectures = { lecture_type: '-', entries: invitedLectures?.entries?.length ? invitedLectures.entries : [{ title: '-', event: '-', date: '-', document: '-', score: '-' }], invitedLecturesTotalScore: '-' }; }
 
-                    if (!contributionToSyllabus) { contributionToSyllabus = { nameofSub: '-', role: '-', nameofUniversity: '-', otherDetails: '-' } }
-                    if (!memberOfUniversityCommitte) { memberOfUniversityCommitte = { nameofCommittee: '-', rolesAndResponsibility: '-', designation: '-' } }
-                    if (!consultancyAssignment) { consultancyAssignment = { rolesAndResponsilbilty: '-', typeOfWorkorDomain: '-', organization: '-', duration: '-', numberofVisits: '-' } }
-                    if (!externalProjectsOrCompetition) { externalProjectsOrCompetition = { description: '-', contribution: '-', university: '-', duration: '-', comments: '-' } }
+                    
 
 
                     // Combine and group journals
@@ -713,7 +703,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                             entry.practical_sessions_allocated || '-' // Default to '-' if undefined
                                         ]),
                                         // Add a row for the total score
-                                        [{ text: 'Total Score:', colSpan: 6, bold: true, alignment: 'right' }, {}, {}, {}, {}, {}, teachingContribution.scoredOne || '0']
+                                        [{ text: 'Score:', colSpan: 6, bold: true, alignment: 'right' }, {}, {}, {}, {}, {}, teachingContribution.scoredOne || '0']
                                     ]
                                 }
                             },
@@ -733,7 +723,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                             entry.practical_sessions_taken || '-' // Default to '-' if undefined
                                         ]),
                                         // Add a row for the total score
-                                        [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, lecturesExcess.scoredTwo || '0']
+                                        [{ text: 'Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, lecturesExcess.scoredTwo || '0']
                                     ]
                                 }
                             },
@@ -822,23 +812,6 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             },
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                            
                             { text: 'Category-3', style: 'subheader' },
                             
                             { text: ' 3.1 Research Papers Published', style: 'subheader' },
@@ -1105,11 +1078,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
 
 
                             
-                            
-                            
-
-                            
-
+                        
                             
 
                         ],
@@ -1219,8 +1188,8 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                 .then(([
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
-                    cocurricularActivities, corporateLife, professionalDevelopment, papersPublishedNationalConf, papersPublishedInternationalConf, papersPublishedJournals, moocs, swayam, shortTermTraining, seminars,
-                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures, contributionToSyllabus, memberOfUniversityCommitte, consultancyAssignment, externalProjectsOrCompetition]) => {
+                    cocurricularActivities, corporateLife, professionalDevelopment,
+                    researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures]) => {
                     
                     if (!teachingContribution) { teachingContribution = { entries: teachingContribution?.entries?.length ? teachingContribution.entries : [{ subject_name: '-', lectures_delivered: '-', lectures_allocated: '-', tutorials_delivered: '-', tutorials_allocated: '-', practical_sessions_delivered: '-', practical_sessions_allocated: '-' }], scoredOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { entries: lecturesExcess?.entries?.length ? lecturesExcess.entries : [{ subject_name: '-', lectures_taken: '-', tutorials_taken: '-', practical_sessions_taken: '-' }], scoredTwo: '-' } }
@@ -1290,7 +1259,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                             entry.practical_sessions_allocated || '-' // Default to '-' if undefined
                                         ]),
                                         // Add a row for the total score
-                                        [{ text: 'Total Score:', colSpan: 6, bold: true, alignment: 'right' }, {}, {}, {}, {}, {}, teachingContribution.scoredOne || '0']
+                                        [{ text: 'Score:', colSpan: 6, bold: true, alignment: 'right' }, {}, {}, {}, {}, {}, teachingContribution.scoredOne || '0']
                                     ]
                                 }
                             },
@@ -1664,12 +1633,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                         }
                                     }
                                 ];
-                            }),
-                            
-                            
-                            
-
-                            
+                            }),              
 
                         ],
                         styles: {

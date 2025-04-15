@@ -82,7 +82,7 @@
             </div>
             <div class="input-field col s12">
                 <input type="number" name="amount[]" value="${project ? project.amount : ''}" required min="1000000" step="100000">
-                <label class="active">Amount Mobilized (in Rs.)</label>
+                <label class="active">Amount Mobilized (in Rs.)(min:10 Lakhs)</label>
             </div>
             <div class="input-field col s6">
                 ${project && project.document ? `

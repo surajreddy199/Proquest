@@ -54,33 +54,9 @@ const ProfessionalDevelopment = mongoose.model('professionaldevelopment');
 
 
 
-// Load paper published in national conference model
-require('../models/Category-2/PapersPublishedNationalConf');
-const PapersPublishedNationalConf = mongoose.model('paper-published-national-conf');
 
-// Load paper published in international conference model
-require('../models/Category-2/PapersPublishedInternationalConf');
-const PapersPublishedInternationalConf = mongoose.model('paper-published-international-conf');
 
-// Load paper published in journals model
-require('../models/Category-2/PapersPublishedJournals');
-const PapersPublishedJournals = mongoose.model('paper-published-journals');
 
-// Load moocs model
-require('../models/Category-2/Moocs');
-const Moocs = mongoose.model('moocs');
-
-// Load swayam model
-require('../models/Category-2/Swayam');
-const Swayam = mongoose.model('swayam');
-
-// Load short term training model
-require('../models/Category-2/ShortTermTraining');
-const ShortTermTraining = mongoose.model('Short-term-training');
-
-// Load seminars model
-require('../models/Category-2/Seminars');
-const Seminars = mongoose.model('seminars');
 
 // Ammexure 3 dbs
 
@@ -133,23 +109,9 @@ const InvitedLectures = mongoose.model('invitedlectures');
 
 
 
-// Load resource person model
-require('../models/Category-3//ContributionToSyllabus');
-const ContributionToSyllabus = mongoose.model('Contribution_to_Syllabus');
 
-// Load resource person model
-require('../models/Category-3//MemberOfUniversityCommitte');
-const MemberOfUniversityCommitte = mongoose.model('Member_of_University_Commite');
-
-// Load resource person model
-require('../models/Category-3//ConsultancyAssignment');
-const ConsultancyAssignment = mongoose.model('consultancy_assignment');
-
-// Load resource person model
-require('../models/Category-3/ExternalProjectsOrCompetition');
-const ExternalProjectsOrCompetition = mongoose.model('external_projects_or_competition');
 
 module.exports = {TeachingContribution, LecturesExcess, AdditionalResources, InnovativeTeaching, ExaminationDuties,
-    CocurricularActivities, CorporateLife, ProfessionalDevelopment, PapersPublishedNationalConf, PapersPublishedInternationalConf,PapersPublishedJournals, Moocs, Swayam, ShortTermTraining, Seminars, 
-    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ResearchGuidance, TrainingCourses, ConferencePapersEntry, InvitedLectures, ContributionToSyllabus, MemberOfUniversityCommitte, ConsultancyAssignment, ExternalProjectsOrCompetition
+    CocurricularActivities, CorporateLife, ProfessionalDevelopment, 
+    ResearchPapersPublished, BooksChaptersPublished, SponsoredProjects, ConsultancyProjects, CompletedProjects, ProjectOutcomes, ResearchGuidance, TrainingCourses, ConferencePapersEntry, InvitedLectures
 }

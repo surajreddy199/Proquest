@@ -144,8 +144,6 @@ function groupInvitedLecturesByType(invitedLectures) {
     return groupByProperty(allEntries, "lecture_type");
 }
 
-
-
 module.exports = {
     groupByProperty,
     groupJournalsByPublicationType,
@@ -156,5 +154,5 @@ module.exports = {
     groupResearchGuidanceByType,
     groupTrainingCoursesByType,
     groupConferencePapersByType,
-    groupInvitedLecturesByType
+    groupInvitedLecturesByType,  
 };
