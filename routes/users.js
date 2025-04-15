@@ -589,8 +589,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
             year = result.academic_year; // Assign the academic year
 
             var loads = [
-           
-
+            
+            FacultyMarks.findOne({ user: req.user.id, academic_year: year }).exec(), // Fetch faculty marks
 
             modules.TeachingContribution.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
             modules.LecturesExcess.findOne({ $and: [{ user: req.user.id }, { academic_year: year }] }).exec(),
@@ -627,12 +627,14 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                     return Promise.all(result);
                 })
                 .then(([
-                
+                    facultyMarks,
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     cocurricularActivities, corporateLife, professionalDevelopment,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects,completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures,]) => {
-                       
-                    
+                     
+                        if (!facultyMarks) {
+                            facultyMarks = { category_1: 0, category_2: 0, category_3: 0 }; // Default values
+                        }
                     if (!teachingContribution) { teachingContribution = { entries: teachingContribution?.entries?.length ? teachingContribution.entries : [{ subject_name: '-', lectures_delivered: '-', lectures_allocated: '-', tutorials_delivered: '-', tutorials_allocated: '-', practical_sessions_delivered: '-', practical_sessions_allocated: '-' }], scoredOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { entries: lecturesExcess?.entries?.length ? lecturesExcess.entries : [{ subject_name: '-', lectures_taken: '-', tutorials_taken: '-', practical_sessions_taken: '-' }], scoredTwo: '-' } }
                     if (!additionalResources) { additionalResources = { materials: '-', scoreThree: '-' } }
@@ -1075,6 +1077,19 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 ];
                             }),
 
+                            // Add Category Scores Section
+                            { text: 'Category Scores', style: 'subheader' },
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Category', 'Total Score'],
+                                        ['Category 1', facultyMarks.category_1 || '0'],
+                                        ['Category 2', facultyMarks.category_2 || '0'],
+                                        ['Category 3', facultyMarks.category_3 || '0']
+                                    ]
+                                }
+                            },
 
 
                             
@@ -1145,8 +1160,9 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
         
 
             var loads = [
+            FacultyMarks.findOne({ user: req.params.id, academic_year: year }).exec(), // Fetch faculty marks
+            HodMarks.findOne({ user: req.params.id, academic_year: year }).exec(), // Fetch HOD marks            
             
-
 
             modules.TeachingContribution.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
             modules.LecturesExcess.findOne({ $and: [{ user: req.params.id }, { academic_year: year }] }).exec(),
@@ -1186,10 +1202,15 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                     return Promise.all(result);
                 })
                 .then(([
+                    facultyMarks, // Faculty marks
+                    hodMarks, // HOD marks
                 
                     teachingContribution, lecturesExcess, additionalResources, innovativeTeaching, examinationDuties,
                     cocurricularActivities, corporateLife, professionalDevelopment,
                     researchPapersPublished, booksChaptersPublished, sponsoredProjects, consultancyProjects, completedProjects, projectOutcomes, researchGuidance, trainingCourses, conferencePapersEntry, invitedLectures]) => {
+
+                    if (!facultyMarks) { facultyMarks = { category_1: 0, category_2: 0, category_3: 0 } }
+                    if (!hodMarks) { hodMarks = { category_1: 0, category_2: 0, category_3: 0, confidential: 0 } }
                     
                     if (!teachingContribution) { teachingContribution = { entries: teachingContribution?.entries?.length ? teachingContribution.entries : [{ subject_name: '-', lectures_delivered: '-', lectures_allocated: '-', tutorials_delivered: '-', tutorials_allocated: '-', practical_sessions_delivered: '-', practical_sessions_allocated: '-' }], scoredOne: '-' } }
                     if (!lecturesExcess) { lecturesExcess = { entries: lecturesExcess?.entries?.length ? lecturesExcess.entries : [{ subject_name: '-', lectures_taken: '-', tutorials_taken: '-', practical_sessions_taken: '-' }], scoredTwo: '-' } }
@@ -1279,7 +1300,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                             entry.practical_sessions_taken || '-' // Default to '-' if undefined
                                         ]),
                                         // Add a row for the total score
-                                        [{ text: 'Total Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, lecturesExcess.scoredTwo || '0']
+                                        [{ text: 'Score:', colSpan: 3, bold: true, alignment: 'right' }, {}, {}, lecturesExcess.scoredTwo || '0']
                                     ]
                                 }
                             },
@@ -1633,7 +1654,21 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                         }
                                     }
                                 ];
-                            }),              
+                            }),  
+                            // Add Faculty and HOD Scores Section
+                            { text: 'Scores Summary', style: 'subheader' },
+                            {
+                                style: 'tableExample',
+                                table: {
+                                    body: [
+                                        ['Category', 'Faculty Score', 'HOD Score'],
+                                        ['Category 1', facultyMarks.category_1 || '0', hodMarks.category_1 || '0'],
+                                        ['Category 2', facultyMarks.category_2 || '0', hodMarks.category_2 || '0'],
+                                        ['Category 3', facultyMarks.category_3 || '0', hodMarks.category_3 || '0'],
+                                        ['Confidential (HOD)', '-', hodMarks.confidential || '0'],
+                                    ]
+                                }
+                            },            
 
                         ],
                         styles: {
