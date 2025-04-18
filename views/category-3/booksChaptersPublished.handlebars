@@ -197,6 +197,18 @@
         document.getElementById("submitBtn").disabled = !allFilled;
     }
 
+    // Prevent duplicate book titles before submitting
+    document.querySelector("form").addEventListener("submit", function (event) {
+        let bookTitles = [...document.querySelectorAll("input[name='title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = bookTitles.some((title, index) => bookTitles.indexOf(title) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Please ensure all Book Titles are unique.");
+            return;
+        }
+    });
+
     document.addEventListener("input", function (event) {
         if (event.target.closest("#bookEntries")) {
             validateForm();

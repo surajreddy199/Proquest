@@ -99,7 +99,7 @@
                 <label class="active">Funding Agency</label>
             </div>
             <div class="input-field col s12">
-                <input type="number" name="amount[]" value="${project ? project.amount : ''}" required>
+                <input type="number" name="amount[]" value="${project ? project.amount : ''}" min="50000" required>
                 <label class="active">Amount Mobilized (in Rs.)</label>
             </div>
             <div class="input-field col s6">
@@ -191,6 +191,18 @@
 
         document.getElementById("submitBtn").disabled = !allFilled;
     }
+
+    // Prevent duplicate project titles before submitting
+    document.querySelector("form").addEventListener("submit", function (event) {
+        let projectTitles = [...document.querySelectorAll("input[name='title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = projectTitles.some((title, index) => projectTitles.indexOf(title) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Please ensure all Project Titles are unique.");
+            return;
+        }
+    });
 
     document.addEventListener("input", function (event) {
         if (event.target.closest("#projectEntries")) {

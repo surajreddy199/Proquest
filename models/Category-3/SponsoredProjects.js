@@ -16,7 +16,7 @@ const SponsoredProjectsSchema = new Schema({
         {
             title: { type: String, required: true },
             funding_agency: { type: String, required: true },
-            amount: { type: Number, required: true }, // Amount mobilized
+            amount: { type: Number, required: true,min: 50000 }, // Amount mobilized
             document: { type: String, required: true }, // Save file path
             score: { type: Number, required: true },
             project_type: { 

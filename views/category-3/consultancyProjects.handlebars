@@ -26,6 +26,21 @@
     </form>
 </div>
 
+<style>
+    button.remove-consultancy {
+        background-color: red !important;
+        color: white !important;
+        border: none;
+    }
+
+    button.remove-consultancy:focus,
+    button.remove-consultancy:hover {
+        outline: none;
+        background-color: red !important;
+        color: white !important;
+    }
+</style>
+
 <script>
     let savedConsultancies = [];
 
@@ -169,10 +184,23 @@
         }
     });
 
+    // Prevent duplicate project titles before submitting
+    document.querySelector("form").addEventListener("submit", function (event) {
+        let projectTitles = [...document.querySelectorAll("input[name='title[]']")].map(input => input.value.trim().toLowerCase());
+        let hasDuplicates = projectTitles.some((title, index) => projectTitles.indexOf(title) !== index);
+
+        if (hasDuplicates) {
+            event.preventDefault(); // Prevent form submission
+            alert("Please ensure all Project Titles are unique.");
+            return;
+        }
+    });
+
     // Event listeners for input and change events
     document.addEventListener("input", function (event) {
         if (event.target.closest("#consultancyEntries")) {
             updateConsultancyScore();
+            validateForm(); // Validate form on input change
         }
     });
 
