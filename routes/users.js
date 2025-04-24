@@ -685,8 +685,8 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             'Name: ' + facultyName + '\n',
                             'Email ID: ' + facultyEmail + '\n',
 
-
-
+                            console.log('teachingContribution.entries:', teachingContribution.entries),
+                            
                             { text: 'Category-1', style: 'subheader' },
 
                             { text: '1.1 Teaching Contribution', style: 'subheader' },
@@ -695,20 +695,26 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 table: {
                                     body: [
                                         ['Subject Name', 'Lectures Delivered', 'Lectures Allocated', 'Tutorials Delivered', 'Tutorials Allocated', 'Practical Sessions Delivered', 'Practical Sessions Allocated'], // Table header
-                                        ...teachingContribution.entries.map(entry => [
-                                            entry.subject_name || '-', // Default to '-' if undefined
-                                            entry.lectures_delivered || '-', // Default to '-' if undefined
-                                            entry.lectures_allocated || '-', // Default to '-' if undefined
-                                            entry.tutorials_delivered || '-', // Default to '-' if undefined
-                                            entry.tutorials_allocated || '-', // Default to '-' if undefined
-                                            entry.practical_sessions_delivered || '-', // Default to '-' if undefined
-                                            entry.practical_sessions_allocated || '-' // Default to '-' if undefined
-                                        ]),
+                                        ...teachingContribution.entries.map(entry => {
+                                            const row = [
+                                                entry.subject_name || '-', // Default to '-' if undefined
+                                                entry.lectures_delivered || '-', // Default to '-' if undefined
+                                                entry.lectures_allocated || '-', // Default to '-' if undefined
+                                                entry.tutorials_delivered || '-', // Default to '-' if undefined
+                                                entry.tutorials_allocated || '-', // Default to '-' if undefined
+                                                entry.practical_sessions_delivered || '-', // Default to '-' if undefined
+                                                entry.practical_sessions_allocated || '-' // Default to '-' if undefined
+                                            ];
+                                            console.log('Row:', row); // Log the row to check for undefined values
+                                            return row; // Return the row for the table
+                                        }),
                                         // Add a row for the total score
                                         [{ text: 'Score:', colSpan: 6, bold: true, alignment: 'right' }, {}, {}, {}, {}, {}, teachingContribution.scoredOne || '0']
                                     ]
                                 }
                             },
+
+                            
 
                             
 
@@ -761,7 +767,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 table: {
                                     body: [
                                         ['Invigilation', 'Question Paper Setting', 'Evaluation Answer Scripts', 'Paper Moderation', 'Lab Evaluation', 'Score ' ],
-                                        [examinationDuties.invigilation, examinationDuties.questionPaperSetting,examinationDuties.evaluationAnswerScripts,examinationDuties.paperModeration,examinationDuties.labEvaluation, examinationDuties.scoreFive]
+                                        [examinationDuties.invigilation || '-', examinationDuties.questionPaperSetting || '-',examinationDuties.evaluationAnswerScripts || '-',examinationDuties.paperModeration || '-',examinationDuties.labEvaluation || '-', examinationDuties.scoreFive || '-']
                                     ]
                                 }
                             },
@@ -780,7 +786,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 table: {
                                     body: [
                                         ['NCC', 'NSS', 'Other Activities', 'Other Activities Details', 'None', 'Score'],
-                                        [cocurricularActivities.ncc, cocurricularActivities.nss, cocurricularActivities.otherActivities, cocurricularActivities.otherActivitiesDetails, cocurricularActivities.none, cocurricularActivities.scoreSix]
+                                        [cocurricularActivities.ncc || '-', cocurricularActivities.nss || '-', cocurricularActivities.otherActivities || '-', cocurricularActivities.otherActivitiesDetails || '-', cocurricularActivities.none || '-', cocurricularActivities.scoreSix || '-']
                                     ]
                                 }
                             },
@@ -791,7 +797,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                 table: {
                                     body: [
                                         ['Industry Interactions', 'Academic Committees', 'Other Contributions', 'Other Contributions Details', 'Score'],
-                                        [corporateLife.industryInteractions, corporateLife.academicCommittees, corporateLife.otherContributions, corporateLife.otherContributionsDetails, corporateLife.scoreSeven]
+                                        [corporateLife.industryInteractions || '-', corporateLife.academicCommittees || '-', corporateLife.otherContributions || '-', corporateLife.otherContributionsDetails || '-', corporateLife.scoreSeven || '-']
                                     ]
                                 }
                             },
@@ -937,7 +943,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                                     entry.score || '-' // Default to '-' if undefined
                                                 ]),
                                                 // Add a row for the total score
-                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore || '-']
                                             ]
                                         }
                                     }
@@ -964,7 +970,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                                     entry.score || '-' // Default to '-' if undefined
                                                 ]),
                                                 // Add a row for the total score
-                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore || '-']
                                             ]
                                         }
                                     }
@@ -990,7 +996,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                                     entry.score || '-' // Default to '-' if undefined
                                                 ]),
                                                 // Add a row for the total score
-                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore || '-']
                                             ]
                                         }
                                     }
@@ -1017,7 +1023,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                                     entry.score || '-' // Default to '-' if undefined
                                                 ]),
                                                 // Add a row for the total score
-                                                [{ text: 'Total Score:', colSpan: 5, bold: true, alignment: 'right' }, {}, {}, {}, {}, totalScore]
+                                                [{ text: 'Total Score:', colSpan: 5, bold: true, alignment: 'right' }, {}, {}, {}, {}, totalScore || '-']
                                             ]
                                         }
                                     }
@@ -1034,17 +1040,17 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                         style: 'tableExample',
                                         table: {
                                             body: [
-                                                ['Title', 'Event Name', 'Date', 'Presentation Type', 'Document', 'Score'], // Table header
+                                                ['Title', 'Event Name', 'Date', 'Presentation Type', 'Document', 'Score'], 
                                                 ...groupedConferencePapers[eventType].map(entry => [
-                                                    entry.title || '-', // Default to '-' if undefined
-                                                    entry.event_name || '-', // Default to '-' if undefined
-                                                    entry.date || '-', // Default to '-' if undefined
-                                                    entry.presentation_type || '-', // Default to '-' if undefined
-                                                    { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }, // Clickable file
-                                                    entry.score || '-' // Default to '-' if undefined
+                                                    entry.title || '-', 
+                                                    entry.event_name || '-', 
+                                                    entry.date || '-', 
+                                                    entry.presentation_type || '-', 
+                                                    { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }, 
+                                                    entry.score || '-' 
                                                 ]),
                                                 // Add a row for the total score
-                                                [{ text: 'Total Score:', colSpan: 5, bold: true, alignment: 'right' }, {}, {}, {}, {}, totalScore]
+                                                [{ text: 'Total Score:', colSpan: 5, bold: true, alignment: 'right' }, {}, {}, {}, {}, totalScore || '-']
                                             ]
                                         }
                                     }
@@ -1052,7 +1058,7 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                             }),
                             { text: '3.5.3 Invited Lectures or Presentations for Conferences/Symposia', style: 'subheader' },
                             ...Object.keys(groupedInvitedLectures).map(lectureType => {
-                                // Calculate the total score for the current lecture type
+                               
                                 const totalScore = groupedInvitedLectures[lectureType].reduce((sum, entry) => sum + (Number(entry.score) || 0), 0);
                             
                                 return [
@@ -1061,16 +1067,16 @@ router.post('/faculty/pdf', ensureAuthenticated, (req, res) => {
                                         style: 'tableExample',
                                         table: {
                                             body: [
-                                                ['Title', 'Event', 'Date', 'Document', 'Score'], // Table header
+                                                ['Title', 'Event', 'Date', 'Document', 'Score'], 
                                                 ...groupedInvitedLectures[lectureType].map(entry => [
-                                                    entry.title || '-', // Default to '-' if undefined
-                                                    entry.event || '-', // Default to '-' if undefined
-                                                    entry.date || '-', // Default to '-' if undefined
+                                                    entry.title || '-', 
+                                                    entry.event || '-', 
+                                                    entry.date || '-', 
                                                     { text: 'Download', link: `http://localhost:5000/${entry.document}`, color: 'blue', target: '_blank' }, // Clickable file
-                                                    entry.score || '-' // Default to '-' if undefined
+                                                    entry.score || '-' 
                                                 ]),
-                                                // Add a row for the total score
-                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore]
+                                                
+                                                [{ text: 'Total Score:', colSpan: 4, bold: true, alignment: 'right' }, {}, {}, {}, totalScore || '-']
                                             ]
                                         }
                                     }
@@ -1353,7 +1359,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 table: {
                                     body: [
                                         ['NCC', 'NSS', 'Other Activities', 'Other Activities Details', 'None', 'Score'],
-                                        [cocurricularActivities.ncc, cocurricularActivities.nss, cocurricularActivities.otherActivities, cocurricularActivities.otherActivitiesDetails, cocurricularActivities.none, cocurricularActivities.scoreSix]
+                                        [cocurricularActivities.ncc, cocurricularActivities.nss, cocurricularActivities.otherActivities, cocurricularActivities.otherActivitiesDetails, cocurricularActivities.none, cocurricularActivities.scoreSix || '-']
                                     ]
                                 }
                             },
@@ -1364,7 +1370,7 @@ router.post('/hod/pdf/:id', ensureAuthenticated, (req, res) => {
                                 table: {
                                     body: [
                                         ['Industry Interactions', 'Academic Committees', 'Other Contributions', 'Other Contributions Details', 'Score'],
-                                        [corporateLife.industryInteractions, corporateLife.academicCommittees, corporateLife.otherContributions, corporateLife.otherContributionsDetails, corporateLife.scoreSeven]
+                                        [corporateLife.industryInteractions, corporateLife.academicCommittees, corporateLife.otherContributions, corporateLife.otherContributionsDetails, corporateLife.scoreSeven || '-']
                                     ]
                                 }
                             },
