@@ -35,7 +35,7 @@ router.post('/faculty', async function (req, res) {
         const user = await Faculty.findOne({ email: req.body.email });
         if (!user) {
             req.flash('error_msg', 'No account with that email address exists.');
-            return res.redirect('/users/faculty/forgot');
+            return res.redirect('/forgot/faculty');
         }
 
         // Set the reset token and expiration
@@ -59,7 +59,7 @@ router.post('/faculty', async function (req, res) {
             subject: 'MVSR Appraisal System Password Reset',
             text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
                 Please click on the following link, or paste this into your browser to complete the process:\n\n
-                http://${req.headers.host}/reset/faculty/${token}\n\n
+                http://${req.headers.host}/forgot/reset/faculty/${token}\n\n
                 If you did not request this, please ignore this email and your password will remain unchanged.\n`
         };
 
@@ -67,11 +67,11 @@ router.post('/faculty', async function (req, res) {
         await smtpTransport.sendMail(mailOptions);
         console.log('Mail sent');
         req.flash('success_msg', `An e-mail has been sent to ${user.email} with further instructions.`);
-        res.redirect('/users/faculty/forgot');
+        res.redirect('/forgot/faculty');
     } catch (err) {
         console.error('Error during password reset:', err);
         req.flash('error_msg', 'Error occurred while sending mail.');
-        res.redirect('/users/faculty/forgot');
+        res.redirect('/forgot/faculty');
     }
 });
 
