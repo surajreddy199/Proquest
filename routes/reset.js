@@ -154,7 +154,7 @@ router.post('/reset/faculty/:token', async function (req, res) {
     } catch (err) {
         console.error('Error during password reset:', err);
         req.flash('error_msg', 'An error occurred. Please try again.');
-        res.redirect('/users/faculty/login');
+        res.redirect('/forgot/faculty');
     }
 });
 
@@ -310,145 +310,207 @@ router.get('/hod', function (req, res) {
     res.render('users/hod/forgot');
 });
 
-router.post('/hod', function (req, res, next) {
-    async.waterfall([
-        done => {
-            crypto.randomBytes(20, function (err, buf) {
-                var token = buf.toString('hex');
-                done(err, token);
-            });
-        },
-        (token, done) => {
-            Hod.findOne({ email: req.body.email }, function (err, user) {
-                if (!user) {
-                    req.flash('error_msg', 'No account with that email address exists.');
-                    return res.redirect('/users/hod/forgot');
-                }
+// router.post('/hod', function (req, res, next) {
+//     async.waterfall([
+//         done => {
+//             crypto.randomBytes(20, function (err, buf) {
+//                 var token = buf.toString('hex');
+//                 done(err, token);
+//             });
+//         },
+//         (token, done) => {
+//             Hod.findOne({ email: req.body.email }, function (err, user) {
+//                 if (!user) {
+//                     req.flash('error_msg', 'No account with that email address exists.');
+//                     return res.redirect('/users/hod/forgot');
+//                 }
 
-                user.resetPasswordToken = token;
-                user.resetPasswordExpires = Date.now() + 600000; // 10 mins
+//                 user.resetPasswordToken = token;
+//                 user.resetPasswordExpires = Date.now() + 600000; // 10 mins
 
-                user.save(function (err) {
-                    done(err, token, user);
-                });
-            });
-        },
-        (token, user, done) => {
-            var smtpTransport = nodemailer.createTransport({
-                service: 'Gmail',
-                auth: {
-                    user: 'appraisal.proquest@gmail.com',
-                    pass: process.env.PASSWD
-                }
-            });
-            var mailOptions = {
-                to: req.body.email,
-                from: 'appraisal.proquest@gmail.com',
-                subject: 'MVSR Appraisal System Password Reset',
-                text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
-                    'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-                    'http://' + req.headers.host + '/forgot/reset/hod/' + token + '\n\n' +
-                    'If you did not request this, please ignore this email and your password will remain unchanged.\n'
-            };
-            smtpTransport.sendMail(mailOptions, function (err) {
-                console.log('Mail sent');
-                req.flash('success_msg', 'An e-mail has been sent to ' + user.email + ' with further instructions.');
-                if (typeof done === 'function') {
-                    done(err);
-                } else {
-                    if (err) {
-                        console.error("Mail error:", err);
-                        return res.status(500).json({ error: err.message });
-                    }
-                    return res.redirect('/users/faculty/forgot');
-                }
-            });
+//                 user.save(function (err) {
+//                     done(err, token, user);
+//                 });
+//             });
+//         },
+//         (token, user, done) => {
+//             var smtpTransport = nodemailer.createTransport({
+//                 service: 'Gmail',
+//                 auth: {
+//                     user: 'appraisal.proquest@gmail.com',
+//                     pass: process.env.PASSWD
+//                 }
+//             });
+//             var mailOptions = {
+//                 to: req.body.email,
+//                 from: 'appraisal.proquest@gmail.com',
+//                 subject: 'MVSR Appraisal System Password Reset',
+//                 text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+//                     'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+//                     'http://' + req.headers.host + '/forgot/reset/hod/' + token + '\n\n' +
+//                     'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+//             };
+//             smtpTransport.sendMail(mailOptions, function (err) {
+//                 console.log('Mail sent');
+//                 req.flash('success_msg', 'An e-mail has been sent to ' + user.email + ' with further instructions.');
+//                 if (typeof done === 'function') {
+//                     done(err);
+//                 } else {
+//                     if (err) {
+//                         console.error("Mail error:", err);
+//                         return res.status(500).json({ error: err.message });
+//                     }
+//                     return res.redirect('/users/faculty/forgot');
+//                 }
+//             });
+//         }
+//     ], err => {
+//         if (err) return next(err);
+//         req.flash('error_msg', 'Error occurred while sending mail');
+//         res.redirect('/users/hod/forgot');
+//     });
+// });
+
+// Reset password for HoD
+
+
+router.post('/hod', async function (req, res) {
+    try {
+        // Generate a random token
+        const token = crypto.randomBytes(20).toString('hex');
+
+        // Find the user by email
+        const user = await Hod.findOne({ email: req.body.email });
+        if (!user) {
+            req.flash('error_msg', 'No account with that email address exists.');
+            return res.redirect('/forgot/hod');
         }
-    ], err => {
-        if (err) return next(err);
-        req.flash('error_msg', 'Error occurred while sending mail');
-        res.redirect('/users/hod/forgot');
-    });
+
+        // Set the reset token and expiration
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 600000; // 10 minutes
+        await user.save();
+
+        // Configure the email transport
+        const smtpTransport = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: 'appraisal.proquest@gmail.com',
+                pass: process.env.PASSWD
+            }
+        });
+
+        // Email options
+        const mailOptions = {
+            to: user.email,
+            from: 'appraisal.proquest@gmail.com',
+            subject: 'MVSR Appraisal System Password Reset',
+            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+                Please click on the following link, or paste this into your browser to complete the process:\n\n
+                http://${req.headers.host}/forgot/reset/hod/${token}\n\n
+                If you did not request this, please ignore this email and your password will remain unchanged.\n`
+        };
+
+        // Send the email
+        await smtpTransport.sendMail(mailOptions);
+        console.log('Mail sent');
+        req.flash('success_msg', `An e-mail has been sent to ${user.email} with further instructions.`);
+        res.redirect('/forgot/hod');
+    } catch (err) {
+        console.error('Error during password reset:', err);
+        req.flash('error_msg', 'Error occurred while sending mail.');
+        res.redirect('/forgot/hod');
+    }
 });
 
-router.get('/reset/hod/:token', function (req, res) {
-    Hod.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+
+// router.get('/reset/hod/:token', function (req, res) {
+//     Hod.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+//         if (!user) {
+//             req.flash('error', 'Password reset token is invalid or has expired.');
+//             return res.redirect('/users/hod/forgot');
+//         }
+//         res.render('users/hod/reset', { token: req.params.token });
+//     });
+// });
+
+router.get('/reset/hod/:token', async function (req, res) {
+    try {
+        const user = await Hod.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
         if (!user) {
             req.flash('error', 'Password reset token is invalid or has expired.');
-            return res.redirect('/users/hod/forgot');
+            return res.redirect('/forgot/hod');
         }
+
         res.render('users/hod/reset', { token: req.params.token });
-    });
+    } catch (err) {
+        console.error('Error during token validation:', err);
+        req.flash('error_msg', 'Error occurred while validating token.');
+        res.redirect('/forgot/hod');
+    }
 });
 
-router.post('/reset/hod/:token', function (req, res) {
-    async.waterfall([
-        done => {
-            Hod.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
-                if (!user) {
-                    req.flash('error_msg', 'Password reset token is invalid or has expired.');
-                    return res.redirect('back');
-                }
-                if (req.body.password === req.body.confirm) {
-                    bcrypt.genSalt(10, (err, salt) => {
-                        bcrypt.hash(req.body.password, salt, (err, hash) => {
-                            if (err) throw err;
-                            user.password = hash;
-                            user.save()
-    .then(user => {
-        req.flash('success_msg', 'Password Changed for user ' + user.email + ' successfully');
-        res.redirect('/users/hod/login');
-        if (typeof done === 'function') {
-            done(null, user);
-        }
-    })
-    .catch(err => {
-        console.error("Error saving user:", err);
-        res.status(500).json({ error: err.message });
-    });
 
-                        });
-                    });
-                } else {
-                    req.flash("error_msg", "Passwords do not match.");
-                    return res.redirect('back');
-                }
-            });
-        },
-        (user, done) => {
-            var smtpTransport = nodemailer.createTransport({
-                service: 'Gmail',
-                auth: {
-                    user: 'appraisal.proquest@gmail.com',
-                    pass: process.env.PASSWD
-                }
-            });
-            var mailOptions = {
-                to: user.email,
-                from: 'appraisal.proquest@gmail.com',
-                subject: 'Your password has been changed',
-                text: 'Hello,\n\n' +
-                    'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
-            };
-            smtpTransport.sendMail(mailOptions, function (err) {
-                req.flash('success_msg', 'Success! Your password has been changed.');
-                if (typeof done === 'function') {
-                    done(err);
-                } else {
-                    if (err) {
-                        console.error("Mail error:", err);
-                        return res.status(500).json({ error: err.message });
-                    }
-                    return res.redirect('/users/faculty/login');
-                }
-            });
-            
+router.post('/reset/hod/:token', async function (req, res) {
+    try {
+        const user = await Hod.findOne({
+            resetPasswordToken: req.params.token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            req.flash('error_msg', 'Password reset token is invalid or has expired.');
+            return res.redirect('/forgot/hod');
         }
-    ], err => {
-        req.flash('error_msg', 'Error occurred while sending mail');
+
+        if (req.body.password !== req.body.confirm) {
+            req.flash('error_msg', 'Passwords do not match.');
+            return res.redirect('/forgot/hod');
+        }
+
+        // Hash the new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(req.body.password, salt);
+
+        // Clear reset token fields
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await user.save();
+
+        req.flash('success_msg', `Password changed for user ${user.email} successfully.`);
+
+        // Send confirmation email
+        const smtpTransport = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: 'appraisal.proquest@gmail.com',
+                pass: process.env.PASSWD
+            }
+        });
+
+        const mailOptions = {
+            to: user.email,
+            from: 'appraisal.proquest@gmail.com',
+            subject: 'Your password has been changed',
+            text: `Hello,\n\nThis is a confirmation that the password for your account ${user.email} has just been changed.\n`
+        };
+
+        await smtpTransport.sendMail(mailOptions);
+
+        req.flash('success_msg', 'Success! Your password has been changed.');
         res.redirect('/users/hod/login');
-    });
+    } catch (err) {
+        console.error('Error during password reset:', err);
+        req.flash('error_msg', 'An error occurred. Please try again.');
+        res.redirect('/forgot/hod');
+    }
 });
+
 
 // Reset password for Manager
 router.get('/manager', function (req, res) {
